@@ -11,7 +11,7 @@ public class JanelaTeste extends JFrame {
 
         JPanel c = new JPanel(new FlowLayout());
         for(Carta car:baralho.baralho){
-            c.add(new JButton(car.icone));
+            c.add(new JLabel(car.icone));
         }
 
         this.add(c);
