@@ -18,6 +18,24 @@ public class Carta {
         redimensionar(70,93);
     }
 
+    public boolean equals(Carta c){
+        if(valor==c.valor && naipe==c.naipe){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public boolean equalsValor(Carta c){
+        if(valor==c.valor && !equals(c)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     private void redimensionar(int w, int h){
         Image img = icone.getImage();
         BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
