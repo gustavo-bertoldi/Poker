@@ -1,13 +1,18 @@
+import java.util.LinkedList;
+
 public class Hand {
 
-    private Carte[] hand = new Carte[5];
-    private String valeur;
+    private LinkedList<Carta> cartas;
+
+
     public Hand() {
-        for (int i = 0; i < hand.length; i++) {
-            hand[i] = null;
-        }
+
     }
+
     public void setHand(){
+    }
+
+    public boolean isPair(){
 
     }
 }

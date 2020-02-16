@@ -7,7 +7,7 @@ public class JanelaTeste extends JFrame {
 
     public JanelaTeste(){
         super("Poker");
-        this.setSize(800,800);
+        this.setSize(1200 ,1200);
 
         JPanel c = new JPanel(new FlowLayout());
         for(Carta car:baralho.baralho){
