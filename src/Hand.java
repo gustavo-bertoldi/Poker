@@ -159,58 +159,6 @@ public class Hand {
     }
 
     /*
-    SE HOUVER UM SEQUENCIA NA HAND RETORNA UMA LISTA COM OS VALORES DA SEQUENCIA EM ORDEM DESCRESCENTE, CASO
-    CONTRARIO RETORNA NULL
-     */
-    /*public LinkedList<Integer> straight(){
-        LinkedList<Integer> straight = new LinkedList<Integer>();
-        Carta cartaRemovida=null;
-        int indexCartaRemovida=0;
-        int q=0;
-        int valorAtual=0;
-        for(int i=0;i<cartas.size();i++){
-            valorAtual=cartas.get(i).valor;
-            for(Carta c:cartas){
-                if(c.valor==valorAtual+1 && valorAtual!=14 && q!=4){
-                    straight.add(valorAtual);
-                    q++;
-                }
-                else if (cartas.get(i).valor==14 && q!=4){
-                    if(c.valor==2){
-                        straight.add(2);
-                        q++;
-                        indexCartaRemovida=cartas.indexOf(c);
-                        cartaRemovida=c;
-                        cartas.remove(c);
-                    }
-                }
-                else if(q==4 && c.valor==valorAtual+1 && valorAtual!=14){
-                    straight.add(valorAtual+1);
-                    q++;
-                }
-                else if(q==4 && valorAtual==14){
-                    break;
-                }
-            }
-            if(q<5){
-                q=0;
-                straight = new LinkedList<Integer>();
-                i++;
-            }
-            else{break;}
-        }
-        if(straight.size()>=5) {
-            if(cartaRemovida!=null) {
-                cartas.add(indexCartaRemovida,cartaRemovida);
-            }
-            Collections.sort(straight, Collections.reverseOrder());
-            return straight;
-        }
-        else{
-            return null;
-        }
-    }
-    /*
     RETORNA UM INT COM O VALOR DA CARTA MAIS ALTA
      */
     public int cartaAlta(){
