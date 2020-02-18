@@ -1,11 +1,11 @@
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Baralho {
 
-    protected ArrayList<Carta> baralho;
+    protected LinkedList<Carta> baralho;
 
     public Baralho() {
-        baralho = new ArrayList<Carta>();
+        baralho = new LinkedList<Carta>();
         for (int i = 2; i <= 14; i++) {
             baralho.add(new Carta(i, 'p'));
             baralho.add(new Carta(i, 'd'));
@@ -14,6 +14,7 @@ public class Baralho {
         }
     }
 
+
     public String toString() {
         String s = "";
         for (Carta c : baralho) {
@@ -21,7 +22,6 @@ public class Baralho {
         }
         return s;
     }
-
 
     public static void main(String[] args) {
         Baralho b = new Baralho();

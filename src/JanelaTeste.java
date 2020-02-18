@@ -5,6 +5,12 @@ public class JanelaTeste extends JFrame {
 
     protected Baralho baralho=new Baralho();
 
+    private JPanel principal = new JPanel(new BorderLayout());
+    private JPanel cartasJogador = new JPanel(new FlowLayout());
+    private JPanel mesa = new JPanel(new FlowLayout());
+
+
+
     public JanelaTeste(){
         super("Poker");
         this.setSize(1200 ,1200);
