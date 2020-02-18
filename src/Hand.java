@@ -256,6 +256,8 @@ public class Hand {
         return straight;
     }
 
+
+
     public LinkedList<Integer> removerRepetidas() {
         LinkedList<Integer> semRepetidas=new LinkedList<Integer>();
         for(Carta c:cartas){
