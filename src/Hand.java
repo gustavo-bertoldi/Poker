@@ -57,7 +57,7 @@ public class Hand {
             q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
         }
         Collections.sort(valoresEncontrados, Collections.reverseOrder()); //Coloca os valores das trincas encontrados em ordem decrescente
-        if(valoresEncontrados==null){
+        if(valoresEncontrados.size()==0){
             return 0; //se nao houver trinca na hand retorna 0;
         }
         else {
