@@ -206,10 +206,6 @@ public class Hand {
         }
     }
 
-    public LinkedList<Integer> straight(){
-        return null;
-    }
-
     public LinkedList<Carta> straightListaCartas(){
         return null;
     }
@@ -243,7 +239,24 @@ public class Hand {
         return "valor: "+t;
     }
 
-    public LinkedList<Integer> removerRepetidas(){
+    public LinkedList<Integer> straight(){
+        LinkedList<Integer> cartasNaoRepetidas=removerRepetidas();
+        LinkedList<Integer> straight = new LinkedList<Integer>();
+        int q=0;
+        int valorAtual=0;
+        if(!cartasNaoRepetidas.contains(14)){
+            for(int i =0; i<cartasNaoRepetidas.size();i++){
+                valorAtual=cartasNaoRepetidas.get(i)+1;
+                if(cartasNaoRepetidas.get(i)==valorAtual){
+                    straight.add(cartasNaoRepetidas.get(i));
+                }
+            }
+        }
+
+        return straight;
+    }
+
+    public LinkedList<Integer> removerRepetidas() {
         LinkedList<Integer> semRepetidas=new LinkedList<Integer>();
         for(Carta c:cartas){
             semRepetidas.add(c.valor);
