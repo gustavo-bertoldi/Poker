@@ -1,5 +1,3 @@
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -57,7 +55,7 @@ public class Hand {
             q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
         }
         Collections.sort(valoresEncontrados, Collections.reverseOrder()); //Coloca os valores das trincas encontrados em ordem decrescente
-        if(valoresEncontrados==null){
+        if(valoresEncontrados.size()==0){
             return 0; //se nao houver trinca na hand retorna 0;
         }
         else {
@@ -206,10 +204,6 @@ public class Hand {
         }
     }
 
-    public LinkedList<Integer> straight(){
-        return null;
-    }
-
     public LinkedList<Carta> straightListaCartas(){
         return null;
     }
@@ -243,7 +237,26 @@ public class Hand {
         return "valor: "+t;
     }
 
-    public LinkedList<Integer> removerRepetidas(){
+    public LinkedList<Integer> straight(){
+        LinkedList<Integer> cartasNaoRepetidas=removerRepetidas();
+        LinkedList<Integer> straight = new LinkedList<Integer>();
+        int q=0;
+        int valorAtual=0;
+        if(!cartasNaoRepetidas.contains(14)){
+            for(int i =0; i<cartasNaoRepetidas.size();i++){
+                valorAtual=cartasNaoRepetidas.get(i)+1;
+                if(cartasNaoRepetidas.get(i)==valorAtual){
+                    straight.add(cartasNaoRepetidas.get(i));
+                }
+            }
+        }
+
+        return straight;
+    }
+
+
+
+    public LinkedList<Integer> removerRepetidas() {
         LinkedList<Integer> semRepetidas=new LinkedList<Integer>();
         for(Carta c:cartas){
             semRepetidas.add(c.valor);
