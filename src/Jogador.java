@@ -18,6 +18,10 @@ public class Jogador {
         nJogadores++;
     }
 
+    public LinkedList<Carta> getHand(){
+        return hand;
+    }
+
     public void apostar(int q){
         dinheiro=dinheiro-q;
     }

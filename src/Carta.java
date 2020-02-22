@@ -14,7 +14,7 @@ public class Carta {
     public Carta(int valor, char naipe){
         this.valor=valor;
         this.naipe=naipe;
-        this.icone=new ImageIcon("/Users/gustavobertoldi/Documents/Poker/src/res/"+valor+"_"+naipe+".png");
+        this.icone=new ImageIcon("/Users/gustavobertoldi/Documents/IntelliJ Projects/Poker/src/res/"+valor+"_"+naipe+".png");
         redimensionar(70,93);
     }
 

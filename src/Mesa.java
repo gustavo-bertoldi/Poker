@@ -13,6 +13,10 @@ public class Mesa {
         Distribuidor.distribuirCartasMesa(baralho,mesa);
     }
 
+    public LinkedList<Carta> getMesa(){
+        return mesa;
+    }
+
     public String visualizarMesa(){
         String s="";
         for(Carta c: mesa){
@@ -20,6 +24,4 @@ public class Mesa {
         }
         return s;
     }
-
-
 }

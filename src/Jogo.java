@@ -14,6 +14,16 @@ public class Jogo {
         mesa = new Mesa(baralho);
     }
 
+    public LinkedList<Carta> getMesa(){
+        return mesa.getMesa();
+    }
+
+    public LinkedList<Jogador> getJogadores(){
+        return jogadores;
+    }
+
+
+
     public Jogo(){
         for(int i=0;i<6;i++){
             jogadores.add(new Jogador());
