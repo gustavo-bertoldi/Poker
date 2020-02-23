@@ -12,10 +12,17 @@ public class Jogo {
         }
         baralho= new Baralho();
         mesa = new Mesa(baralho);
+        distribuirCartas();
+        distribuerArgent(1500);
+        montrerCartesJoueurActif();
     }
 
-    public LinkedList<Carta> getMesa(){
+    public LinkedList<Carta> getCartasMesa(){
         return mesa.getMesa();
+    }
+
+    public Mesa getMesa(){
+        return mesa;
     }
 
     public LinkedList<Jogador> getJogadores(){
@@ -30,11 +37,18 @@ public class Jogo {
         }
         baralho= new Baralho();
         mesa = new Mesa(baralho);
+        distribuirCartas();
+        distribuerArgent(1500);
+        montrerCartesJoueurActif();
     }
 
     public void distribuirCartas(){
         Distribuidor.distribuirCartasJogadores(baralho,jogadores);
         mesa.distribuirCartas();
+    }
+
+    public void distribuerArgent(int q){
+        Distribuidor.distributeurDArgentDebut(jogadores, q);
     }
 
     public String maosJogadores(){
@@ -44,6 +58,7 @@ public class Jogo {
         }
         return s;
     }
+
 
     public String visualizarMesa(){
         return mesa.visualizarMesa();
@@ -55,5 +70,12 @@ public class Jogo {
             s=s+c.toString()+"\n";
         }
         return s;
+    }
+
+    private void montrerCartesJoueurActif(){
+        for(Carta c:jogadores.get(0).getHand()){
+            c.montrerCarte();
+        }
+
     }
 }
