@@ -20,16 +20,15 @@ public class Hand {
     }
 
     /*
-    Verifica a quantidade de pares em uma hand e os retorna em uma lista com seus respectivos valores.
-    O tamanho da lista é a quantidade de pares encontrados na hand.
+    Verifie la quantite de pairs dans une hand et retourne une LL avec les cartes trouvées
      */
     public LinkedList<Carta> pairs(){
-        int q=0; //Quantité de valeurs égaux trouvées
+        int q=0; //Quantité de valeurs égales trouvées
         LinkedList<Carta> valeursTrouvees = new LinkedList<>();
 
         for(int i=2;i<=14;i++){ // i répresente chaque valuer possible des cartes
             LinkedList<Carta> candidats = new LinkedList<>();
-            for(Carta c : cartas){ //Pour chaque carte dans hand on compare sa valeur avec chaque valeur possible, si égaux, on aout cette carte à la liste candidats
+            for(Carta c : cartas){ //Pour chaque carte dans hand on compare sa valeur avec chaque valeur possible, si égales, on aout cette carte à la liste candidats
                 if(c.valor==i){
                     q++;
                     candidats.add(c);
@@ -49,24 +48,24 @@ public class Hand {
     }
 
     public LinkedList<Carta> threeOfAKind(){
-        int q=0; //quantidade de valores iguais em cartas para cada valor i
+        int q=0; //Quantité de valeurs égales trouvées
         LinkedList<Carta> valeursTrouvees = new LinkedList<Carta>();
 
-        for(int i=2;i<=14;i++){ //i representa cada valor possivel de carta
-            LinkedList<Carta> candidats = new LinkedList<>();
-            for(Carta c : cartas){ //para cada carta na lista cartas, compara-se seu valor com i, se for igual q aumenta 1
+        for(int i=2;i<=14;i++){ //i c'est chaque valeur possible des cartes
+            LinkedList<Carta> candidats = new LinkedList<>(); //liste avec les candidats d'un trinome de cartes égales
+            for(Carta c : cartas){ //pour chaque carte dans hand on compare sa valeur avec i, si égales, q augmente 1 et on ajoute cette carte a candidats
                 if(c.valor==i){
                     q++;
                     candidats.add(c);
                 }
             }
-            if(q==3){ //Se q=3 significa que temos uma trinca, o valor da trinca é adicionado a lista
+            if(q==3){ //Si q=3, on a trouvé un trinome de cartes égales, on les ajoute a valeursTrouvees et on reinicialise candidats
                 valeursTrouvees.addAll(candidats);
                 candidats=new LinkedList<Carta>();
             }
-            q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
+            q=0; //fin de la boucle, la quantite de cartes égales est reinitialisee pour une nouvelle valeur de i.
         }
-        if(valeursTrouvees.size()>0){
+        if(valeursTrouvees.size()>0){ //S'il y a un trinome ou plus on les trie en ordre decroissante et les retourne
             Collections.sort(valeursTrouvees,Collections.reverseOrder());
             return valeursTrouvees;
         }
@@ -74,27 +73,26 @@ public class Hand {
     }
 
     public LinkedList<Carta> fourOfAKind(){
-        int q=0; //quantidade de valores iguais em cartas para cada valor i
+        int q=0; //Quantité de valeurs égales trouvées
         LinkedList<Carta> valeursTrouvees = new LinkedList<>();
 
-        for(int i=2;i<=14;i++){ //i representa cada valor possivel de carta
-            LinkedList<Carta> candidats = new LinkedList<>();
+        for(int i=2;i<=14;i++){ //i c'est chaque valeur possible des cartes
+            LinkedList<Carta> candidats = new LinkedList<>(); //liste avec les candidats d'un trinome de cartes égales
             for(Carta c : cartas){ //para cada carta na lista cartas, compara-se seu valor com i, se for igual q aumenta 1
                 if(c.valor==i){
                     q++;
                     candidats.add(c);
                 }
             }
-            /* Se q=4 significa que temos uma quadra,
-             o valor e atribuido a valorEncontrado e como so existe uma quadra por hand, a boucle e parada
+            /*Si q=4 on a trouve un carre de cartes, on ajoute ces valeurs a la liste de valeurs trouvees
+             la boucle est arretee vu qu'il n'existe q'un carre de cartes par hand.
              */
             if(q==4){
                 valeursTrouvees.addAll(candidats);
                 break;
             }
-            q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
+            q=0; //fin de la boucle, q est mis a 0
         }
-
         if(valeursTrouvees.size()>0){
             return valeursTrouvees;
         }
