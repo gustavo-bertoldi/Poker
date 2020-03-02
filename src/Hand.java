@@ -42,6 +42,9 @@ public class Hand {
         }
         if(valeursTrouvees.size()>0) {
             Collections.sort(valeursTrouvees, Collections.reverseOrder());
+            while(valeursTrouvees.size()>4) {
+                valeursTrouvees.removeLast();
+            }
             return valeursTrouvees;
         }
         else{return null;}
@@ -67,6 +70,9 @@ public class Hand {
         }
         if(valeursTrouvees.size()>0){ //S'il y a un trinome ou plus on les trie en ordre decroissante et les retourne
             Collections.sort(valeursTrouvees,Collections.reverseOrder());
+            while(valeursTrouvees.size()>3){
+                valeursTrouvees.removeLast();
+            }
             return valeursTrouvees;
         }
         else{return null;}
@@ -100,37 +106,37 @@ public class Hand {
     }
 
     /*
-    SE HOUVER UM FLUSH NA HAND RETORNA UMA LISTA COM OS VALORES DO FLUSH, CASO CONTRARIO RETORNA NULL.
+    S'il y a un flush dans la hand, la methode retourne une LL avec les 5 cartes du flush, sinon elle retourne null
      */
     public LinkedList<Carta> flush(){
-        int qp=0; //QUANTIDADE DE CARTAS DE PAUS NA HAND
-        int qc=0; //QUANTIDADE DE CARTAS DE COPAS NA HAND
-        int qe=0; //QUANTIDADE DE CARTAS DE ESPADAS NA HAND
-        int qo=0; //QUANTIDADE DE CARTAS DE OUROS NA HAND
+        int qt=0; //QUANTITE DE CARTES DE TREFLES
+        int qc=0; //QUANTITE DE CARTES DE COEURS
+        int qp=0; //QUANTITE DE CARTES DE PIQUES
+        int qk=0; //QUANTITR DE CARTES DE CARREAUX
         LinkedList<Carta> flush=new LinkedList<>();
 
         /*
-        A boucle conta a quantidade de cartas de cada naipe presentes na hand
+        La boucle compte la quantité de cartes de chaque couleur dans la hand
          */
         for(Carta c:cartas){
             if(c.naipe=='p'){
-                qp++;
+                qt++;
             }
             else if(c.naipe=='c'){
                 qc++;
             }
             else if(c.naipe=='e'){
-                qe++;
+                qp++;
             }
             else if(c.naipe=='o'){
-                qo++;
+                qk++;
             }
         }
         /*
-        Verifica se para cada um dos naipes contou-se mais de 5 cartas, nesse caso, adiciona as cartas do devido naipe
-        na lista flush
+        Verification s'il y a 5 ou plus cartes d'une meme couleur dans la hand,
+        dans ce cas, ajoute les cartes correspondantes à la liste flush
          */
-        if(qp>=5){
+        if(qt>=5){
             for(Carta c:cartas){
                 if(c.naipe=='p'){
                     flush.add(c);
@@ -144,14 +150,14 @@ public class Hand {
                 }
             }
         }
-        else if(qe>=5){
+        else if(qp>=5){
             for(Carta c:cartas){
                 if(c.naipe=='e'){
                     flush.add(c);
                 }
             }
         }
-        else if(qo>=5){
+        else if(qk>=5){
             for(Carta c:cartas){
                 if(c.naipe=='o'){
                     flush.add(c);
@@ -159,7 +165,10 @@ public class Hand {
             }
         }
         if(flush.size()>=5) {
-            Collections.sort(flush, Collections.reverseOrder()); //ORDENA A LISTA DE VALORES EM ORDEM DECRESCENTE
+            Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
+            while(flush.size()>5){ //ENLEVE LES CARTES SUPPLMENTAIRES SI AMAIS IL Y A PLUS DE 5 CARTES DE LE FLUSH
+                flush.removeLast();
+            }
             return flush;
         }
         else{
@@ -168,7 +177,7 @@ public class Hand {
     }
 
     /*
-    RETORNA UM INT COM O VALOR DA CARTA MAIS ALTA
+        Retourne la carte de valeur plus haute dans la hand
      */
     public Carta highCard(){
        LinkedList<Carta> triees = new LinkedList<Carta>();
@@ -177,13 +186,15 @@ public class Hand {
        return triees.get(0);
     }
 
+    /*
+    Verifie s'il y a un full house dans la hand et retourne une liste avec
+    les cartes du full house, sinon retourne null
+     */
     public LinkedList<Carta> fullHouse(){
         LinkedList<Carta> fullHouse = new LinkedList<Carta>();
-        if(pairs().size()>=2 && threeOfAKind().size()>=1){
+        if(pairs().size()==2 && threeOfAKind().size()>=1){
             LinkedList<Carta> pairs = pairs();
-            Collections.sort(pairs,Collections.reverseOrder()); //ORDENA OS VALORES DOS PARES EM ORDEM DECRESCENTE
-            fullHouse.add(pairs.get(0));
-            fullHouse.add(pairs.get(1));// ADICIONA O VALOR DO PAR SEGUIDO DO VALOR DA TRINCA NA LISTA A RETORNAR
+            fullHouse.addAll(pairs());
             fullHouse.addAll(threeOfAKind());
             return fullHouse;
         }
