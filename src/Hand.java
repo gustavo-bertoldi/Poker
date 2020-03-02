@@ -338,7 +338,7 @@ public class Hand {
     public String toString(int t){
         return "valor: "+t;
     }
-
+    //comentario novo
     public LinkedList<Integer> removerRepetidas(){
         LinkedList<Integer> semRepetidas=new LinkedList<Integer>();
         for(Carta c:cartas){
