@@ -217,7 +217,14 @@ public class Hand {
     public LinkedList<Carta> straight(){
         // 5 das sete cartas sejam em sequencia // caso a parte pro As 2 3 4 5
         LinkedList<Carta> straight = new LinkedList<Carta>();
-        // int compteurDEchec = 0; peut nous couter plus qu'un simple if apres la boucle
+        if(!isRoyalStraightPossible() && cartas.get(0).valor==14){
+            cartas.get(0).valor=1;
+            if(cartas.get(1).valor==13) {
+                cartas.get(1).valor = 1;
+            }
+            Collections.sort(cartas, Collections.reverseOrder());
+            // si un troisieme ace dans la hand, Royal Straight false.
+        }
         straight.add(cartas.get(0));
         for(int i =1; i<cartas.size() ;i++) {
             if(straight.size()<5) {
@@ -228,7 +235,6 @@ public class Hand {
                 }else {
                     straight.removeAll(straight);
                     straight.add(cartas.get(i));
-                    //compteurDEchec++;
                 }
             }
 
@@ -237,10 +243,7 @@ public class Hand {
         if(straight.size() <5) {
             straight = null;
         }
-           /* if(compteurDEchec>=3) { REMPLACE PAR LE IF D'AU DESSUS
-                straight = null;
-                break;
-            } */
+
         return straight;
     }
     public boolean isRoyalStraightPossible(){
@@ -248,18 +251,19 @@ public class Hand {
         Carta ace = new Carta(14, 'p');
         Carta roi = new Carta(13, 'p');
         Carta dame = new Carta(12, 'p');
+        //Vérifier si les trois premieres cartes sont Ace, Roi et dame
         if(cartas.get(0).compareTo(ace)==0){
+            if(cartas.get(1).compareTo(ace)==0 ||cartas.get(1).compareTo(roi)==0 ) {
+                if(cartas.get(2).compareTo(roi)==0||cartas.get(2).compareTo(dame)==0){
+                    possibilite = true;
+                }
+            }
 
         }
         return possibilite;
 
     }
-        // sort hand
-        //parcourir hand depuis la premiere carte
-        //stocker les valeurs dans une liste si valeur(i+1) = valeur(i) +1 (TYPE?)
-        //sinon, enlever la valeur
-        // prendre size.
-        //si >= 5; true, sinon false
+
 
     public LinkedList<Carta> straightListaCartas(){
         return null;
