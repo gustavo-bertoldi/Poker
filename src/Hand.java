@@ -23,83 +23,93 @@ public class Hand {
     Verifica a quantidade de pares em uma hand e os retorna em uma lista com seus respectivos valores.
     O tamanho da lista é a quantidade de pares encontrados na hand.
      */
-    public LinkedList<Integer> pares(){
-        int q=0; //quantidade de valores iguais em cartas para cada valor i
-        LinkedList<Integer> valoresEncontrados = new LinkedList<Integer>();
+    public LinkedList<Carta> pairs(){
+        int q=0; //Quantité de valeurs égaux trouvées
+        LinkedList<Carta> valeursTrouvees = new LinkedList<>();
 
-        for(int i=2;i<=14;i++){ //i representa cada valor possivel de carta
-            for(Carta c : cartas){ //para cada carta na lista cartas, compara-se seu valor com i, se for igual q aumenta 1
+        for(int i=2;i<=14;i++){ // i répresente chaque valuer possible des cartes
+            LinkedList<Carta> candidats = new LinkedList<>();
+            for(Carta c : cartas){ //Pour chaque carte dans hand on compare sa valeur avec chaque valeur possible, si égaux, on aout cette carte à la liste candidats
                 if(c.valor==i){
                     q++;
+                    candidats.add(c);
                 }
             }
-            if(q==2){ //Se q=2 significa que temos um par, o valor do par é adicionado a lista
-                valoresEncontrados.add(i);
+            if(q==2){ //Si q=2, on a trouvé un pair, les cartes correspondants sont ajoutées à la liste de valeurs trouvées
+                valeursTrouvees.addAll(candidats);
+                candidats=new LinkedList<Carta>();
             }
-            q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
+            q=0; //Fin de la boucle, le compteur de cartes égales est mis à 0
         }
-        return valoresEncontrados;
-
+        if(valeursTrouvees.size()>0) {
+            Collections.sort(valeursTrouvees, Collections.reverseOrder());
+            return valeursTrouvees;
+        }
+        else{return null;}
     }
 
-    public int trinca(){
+    public LinkedList<Carta> threeOfAKind(){
         int q=0; //quantidade de valores iguais em cartas para cada valor i
-        LinkedList<Integer> valoresEncontrados = new LinkedList<Integer>();
+        LinkedList<Carta> valeursTrouvees = new LinkedList<Carta>();
 
         for(int i=2;i<=14;i++){ //i representa cada valor possivel de carta
+            LinkedList<Carta> candidats = new LinkedList<>();
             for(Carta c : cartas){ //para cada carta na lista cartas, compara-se seu valor com i, se for igual q aumenta 1
                 if(c.valor==i){
                     q++;
+                    candidats.add(c);
                 }
             }
             if(q==3){ //Se q=3 significa que temos uma trinca, o valor da trinca é adicionado a lista
-                valoresEncontrados.add(i);
+                valeursTrouvees.addAll(candidats);
+                candidats=new LinkedList<Carta>();
             }
             q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
         }
-        Collections.sort(valoresEncontrados, Collections.reverseOrder()); //Coloca os valores das trincas encontrados em ordem decrescente
-        if(valoresEncontrados==null){
-            return 0; //se nao houver trinca na hand retorna 0;
+        if(valeursTrouvees.size()>0){
+            Collections.sort(valeursTrouvees,Collections.reverseOrder());
+            return valeursTrouvees;
         }
-        else {
-            return valoresEncontrados.get(0); //Retorna o primeiro valor da lista valoreEncontrados, ou seja, a maior trinca na hand.
-        }
-
+        else{return null;}
     }
 
-    public int quadra(){
+    public LinkedList<Carta> fourOfAKind(){
         int q=0; //quantidade de valores iguais em cartas para cada valor i
-        int valorEncontrado=0;
+        LinkedList<Carta> valeursTrouvees = new LinkedList<>();
 
         for(int i=2;i<=14;i++){ //i representa cada valor possivel de carta
+            LinkedList<Carta> candidats = new LinkedList<>();
             for(Carta c : cartas){ //para cada carta na lista cartas, compara-se seu valor com i, se for igual q aumenta 1
                 if(c.valor==i){
                     q++;
+                    candidats.add(c);
                 }
             }
             /* Se q=4 significa que temos uma quadra,
              o valor e atribuido a valorEncontrado e como so existe uma quadra por hand, a boucle e parada
              */
             if(q==4){
-                valorEncontrado=i;
+                valeursTrouvees.addAll(candidats);
                 break;
             }
             q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
         }
 
-        return valorEncontrado; //Retorna o valor da quadra encontrada, SENAO RETORNA 0
-
+        if(valeursTrouvees.size()>0){
+            return valeursTrouvees;
+        }
+        else{return null;}
     }
 
     /*
     SE HOUVER UM FLUSH NA HAND RETORNA UMA LISTA COM OS VALORES DO FLUSH, CASO CONTRARIO RETORNA NULL.
      */
-    public LinkedList<Integer> flush(){
+    public LinkedList<Carta> flush(){
         int qp=0; //QUANTIDADE DE CARTAS DE PAUS NA HAND
         int qc=0; //QUANTIDADE DE CARTAS DE COPAS NA HAND
         int qe=0; //QUANTIDADE DE CARTAS DE ESPADAS NA HAND
         int qo=0; //QUANTIDADE DE CARTAS DE OUROS NA HAND
-        LinkedList<Integer> flush=new LinkedList<Integer>();
+        LinkedList<Carta> flush=new LinkedList<>();
 
         /*
         A boucle conta a quantidade de cartas de cada naipe presentes na hand
@@ -125,28 +135,28 @@ public class Hand {
         if(qp>=5){
             for(Carta c:cartas){
                 if(c.naipe=='p'){
-                    flush.add(c.valor);
+                    flush.add(c);
                 }
             }
         }
         else if(qc>=5){
             for(Carta c:cartas){
                 if(c.naipe=='c'){
-                    flush.add(c.valor);
+                    flush.add(c);
                 }
             }
         }
         else if(qe>=5){
             for(Carta c:cartas){
                 if(c.naipe=='e'){
-                    flush.add(c.valor);
+                    flush.add(c);
                 }
             }
         }
         else if(qo>=5){
             for(Carta c:cartas){
                 if(c.naipe=='o'){
-                    flush.add(c.valor);
+                    flush.add(c);
                 }
             }
         }
@@ -162,22 +172,21 @@ public class Hand {
     /*
     RETORNA UM INT COM O VALOR DA CARTA MAIS ALTA
      */
-    public int cartaAlta(){
-       LinkedList<Integer> sorted = new LinkedList<Integer>();
-       for(Carta c:cartas){
-           sorted.add(c.valor);
-       }
-       Collections.sort(sorted, Collections.reverseOrder());
-       return sorted.get(0);
+    public Carta highCard(){
+       LinkedList<Carta> triees = new LinkedList<Carta>();
+       triees.addAll(cartas);
+       Collections.sort(triees, Collections.reverseOrder());
+       return triees.get(0);
     }
 
-    public LinkedList<Integer> fullHouse(){
-        LinkedList<Integer> fullHouse = new LinkedList<Integer>();
-        if(pares().size()>=1 && trinca()>0){
-            LinkedList<Integer> pares = pares();
-            Collections.sort(pares,Collections.reverseOrder()); //ORDENA OS VALORES DOS PARES EM ORDEM DECRESCENTE
-            fullHouse.add(pares.get(0)); // ADICIONA O VALOR DO PAR SEGUIDO DO VALOR DA TRINCA NA LISTA A RETORNAR
-            fullHouse.add(trinca());
+    public LinkedList<Carta> fullHouse(){
+        LinkedList<Carta> fullHouse = new LinkedList<Carta>();
+        if(pairs().size()>=2 && threeOfAKind().size()>=1){
+            LinkedList<Carta> pairs = pairs();
+            Collections.sort(pairs,Collections.reverseOrder()); //ORDENA OS VALORES DOS PARES EM ORDEM DECRESCENTE
+            fullHouse.add(pairs.get(0));
+            fullHouse.add(pairs.get(1));// ADICIONA O VALOR DO PAR SEGUIDO DO VALOR DA TRINCA NA LISTA A RETORNAR
+            fullHouse.addAll(threeOfAKind());
             return fullHouse;
         }
         else{

@@ -76,5 +76,4 @@ public class Carta extends Object implements Comparable{
         return comparaison;
     }
 
-    //fdfdfdf
 }
