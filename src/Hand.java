@@ -49,7 +49,7 @@ public class Hand {
 
     public LinkedList<Carta> threeOfAKind(){
         int q=0; //Quantité de valeurs égales trouvées
-        LinkedList<Carta> valeursTrouvees = new LinkedList<Carta>();
+        LinkedList<Carta> valeursTrouvees = new LinkedList<>();
 
         for(int i=2;i<=14;i++){ //i c'est chaque valeur possible des cartes
             LinkedList<Carta> candidats = new LinkedList<>(); //liste avec les candidats d'un trinome de cartes égales
@@ -195,23 +195,12 @@ public class Hand {
     /*
     RETORNA UMA LISTA COM OS VALORES DO STRAIGHT FLUSH EM ORDEM DESCRESCENTE
      */
-    public LinkedList<Integer> straightFlush() {
-        LinkedList<Integer> straightFlush = new LinkedList<Integer>();
-        if (straight() != null && flush() != null){
-            LinkedList<Carta> cartasStraight=straightListaCartas();
-            for(int i=1;i<cartasStraight.size();i++){
-                if(cartasStraight.get(i).naipe==cartasStraight.get(i-1).naipe){
-                    straightFlush.add(cartasStraight.get(i).valor);
-                }
-            }
-        }
-        if(straightFlush.size()>=5){
-            Collections.sort(straightFlush , Collections.reverseOrder());
-            return straightFlush;
-        }
-        else{
-            return null;
-        }
+    public LinkedList<Carta> straightFlush(LinkedList<Carta> flush) {
+        // verif de flush()!=null et staight()!=null pas necessaire, car deja ne sera appellee si les deux sont dif de null
+        /* Idée de la méthode: verifier si la liste flush() contient un Straight
+        */
+        LinkedList<Carta> straightF = straight(flush);
+        return straightF;
     }
     // si straight
     public LinkedList<Carta> straight(){
@@ -231,7 +220,10 @@ public class Hand {
                 if (cartas.get(i - 1).valor == (cartas.get(i).valor + 1)) {
                     straight.add(cartas.get(i));
                 } else if(cartas.get(i - 1).valor == (cartas.get(i).valor )) {
-                //    ne rien faire
+                // regarder si les couleurs sont égales à celles déjà ajoutées
+                    if(straight.get(0).naipe == cartas.get(i).naipe){
+                        straight.add(cartas.get(i));
+                    }
                 }else {
                     straight.removeAll(straight);
                     straight.add(cartas.get(i));
@@ -242,6 +234,44 @@ public class Hand {
 
         if(straight.size() <5) {
             straight = null;
+            if(cartas.get(7).valor==1){ // si pas de straight 12345, rechanger la valeur du ace pour ne pas gener les autres methodes
+                cartas.get(7).valor = 14;
+            }
+        }
+
+        return straight;
+    }
+    public LinkedList<Carta> straight(LinkedList<Carta> flush){
+        // meme methode mais en utilisant flush a la place de cartas, appelle juste dans straightFlush()
+        LinkedList<Carta> straight = new LinkedList<Carta>();
+        if(!isRoyalStraightPossible() && flush.get(0).valor==14){
+            flush.get(0).valor=1;
+            if(flush.get(1).valor==13) {
+                flush.get(1).valor = 1;
+            }
+            Collections.sort(flush, Collections.reverseOrder());
+            // si un troisieme ace dans la hand, Royal Straight false.
+        }
+        straight.add(flush.get(0));
+        for(int i =1; i<flush.size() ;i++) {
+            if(straight.size()<5) {
+                if (flush.get(i - 1).valor == (flush.get(i).valor + 1)) {
+                    straight.add(flush.get(i));
+                } else if(flush.get(i - 1).valor == (flush.get(i).valor )) {
+                    // regarder si les couleurs sont égales à celles déjà ajoutées
+                    if(straight.get(0).naipe == flush.get(i).naipe){
+                        straight.add(flush.get(i));
+                    }
+                }else {
+                    straight.removeAll(straight);
+                    straight.add(flush.get(i));
+                }
+            }
+
+        }
+
+        if(straight.size() <5) {
+            straight = null; // pas besoin de rechanger la valeur parce qu'on utilise flush et pas cartes
         }
 
         return straight;
@@ -272,8 +302,8 @@ public class Hand {
     /*
     RETORNA TRUE SE HOUVER UM ROYAL STRAIGHT FLUSH NA HAND E FALSE SE NAO HOUVER
      */
-    private boolean royalStraightFlush(){
-        if(straightFlush().get(0)==14){
+    private boolean royalStraightFlush(LinkedList<Carta> straightFlush){
+        if(straightFlush.get(0).valor ==14){
             return true;
         }
         else{

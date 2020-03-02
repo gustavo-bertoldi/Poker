@@ -8,8 +8,8 @@ public class TesteHand {
         cartas.add(new Carta(12,'o'));
         cartas.add(new Carta(11,'o'));
         cartas.add(new Carta(2,'o'));
-        cartas.add(new Carta(5,'o'));
-        cartas.add(new Carta(3,'o'));
+        cartas.add(new Carta(10,'o'));
+        cartas.add(new Carta(13,'o'));
         cartas.add(new Carta(4,'o'));
 /*
         Jogo jogo = new Jogo();
