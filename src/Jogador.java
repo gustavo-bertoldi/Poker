@@ -6,16 +6,24 @@ public class Jogador {
     protected String nome;
     private static int nJogadores=0;
     private int dinheiro;
+    private boolean dealer;
 
     public Jogador(String nome){
+        nJogadores++;
         this.nome=nome;
         this.dinheiro=0;
+        this.dealer=false;
     }
 
     public Jogador(){
+        nJogadores++;
         this.dinheiro=0;
         this.nome="Jogador "+nJogadores;
-        nJogadores++;
+        this.dealer=false;
+    }
+
+    public LinkedList<Carta> getHand(){
+        return hand;
     }
 
     public void apostar(int q){

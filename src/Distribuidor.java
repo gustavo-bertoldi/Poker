@@ -22,4 +22,10 @@ public class Distribuidor {
             b.baralho.remove(m);
         }
     }
+
+    public static void distributeurDArgentDebut(LinkedList<Jogador> joueurs, int q){
+        for(Jogador j:joueurs){
+            j.adicionarDinheiro(q);
+        }
+    }
 }
