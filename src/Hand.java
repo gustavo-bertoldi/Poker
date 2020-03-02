@@ -1,3 +1,5 @@
+//import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,6 +12,7 @@ public class Hand {
 
     public Hand(LinkedList<Carta> cartas){
         this.cartas=cartas;
+        Collections.sort(cartas, Collections.reverseOrder());
     }
 
     public void setHand(LinkedList<Carta> cartas){
@@ -55,7 +58,7 @@ public class Hand {
             q=0; //fim da boucle, a quantidade de cartas iguais e reiniciada para um novo valor de i
         }
         Collections.sort(valoresEncontrados, Collections.reverseOrder()); //Coloca os valores das trincas encontrados em ordem decrescente
-        if(valoresEncontrados.size()==0){
+        if(valoresEncontrados==null){
             return 0; //se nao houver trinca na hand retorna 0;
         }
         else {
@@ -203,6 +206,53 @@ public class Hand {
             return null;
         }
     }
+    // si straight
+    public LinkedList<Carta> straight(){
+        // 5 das sete cartas sejam em sequencia // caso a parte pro As 2 3 4 5
+        LinkedList<Carta> straight = new LinkedList<Carta>();
+        // int compteurDEchec = 0; peut nous couter plus qu'un simple if apres la boucle
+        straight.add(cartas.get(0));
+        for(int i =1; i<cartas.size() ;i++) {
+            if(straight.size()<5) {
+                if (cartas.get(i - 1).valor == (cartas.get(i).valor + 1)) {
+                    straight.add(cartas.get(i));
+                } else if(cartas.get(i - 1).valor == (cartas.get(i).valor )) {
+                //    ne rien faire
+                }else {
+                    straight.removeAll(straight);
+                    straight.add(cartas.get(i));
+                    //compteurDEchec++;
+                }
+            }
+
+        }
+
+        if(straight.size() <5) {
+            straight = null;
+        }
+           /* if(compteurDEchec>=3) { REMPLACE PAR LE IF D'AU DESSUS
+                straight = null;
+                break;
+            } */
+        return straight;
+    }
+    public boolean isRoyalStraightPossible(){
+        boolean possibilite = false;
+        Carta ace = new Carta(14, 'p');
+        Carta roi = new Carta(13, 'p');
+        Carta dame = new Carta(12, 'p');
+        if(cartas.get(0).compareTo(ace)==0){
+
+        }
+        return possibilite;
+
+    }
+        // sort hand
+        //parcourir hand depuis la premiere carte
+        //stocker les valeurs dans une liste si valeur(i+1) = valeur(i) +1 (TYPE?)
+        //sinon, enlever la valeur
+        // prendre size.
+        //si >= 5; true, sinon false
 
     public LinkedList<Carta> straightListaCartas(){
         return null;
@@ -220,14 +270,14 @@ public class Hand {
         }
     }
 
-    public String toString(LinkedList<Integer> lista){
+    public String toString(LinkedList<Carta> lista){
         String result="";
         if(lista==null){
             result= "Lista vazia";
         }
         else {
             for(int i=0;i<lista.size();i++){
-                result=result+"Valor carta: "+lista.get(i)+"\n";
+                result=result+"Valor carta: "+lista.get(i).valor +"\n";
             }
         }
         return result;
@@ -237,26 +287,7 @@ public class Hand {
         return "valor: "+t;
     }
 
-    public LinkedList<Integer> straight(){
-        LinkedList<Integer> cartasNaoRepetidas=removerRepetidas();
-        LinkedList<Integer> straight = new LinkedList<Integer>();
-        int q=0;
-        int valorAtual=0;
-        if(!cartasNaoRepetidas.contains(14)){
-            for(int i =0; i<cartasNaoRepetidas.size();i++){
-                valorAtual=cartasNaoRepetidas.get(i)+1;
-                if(cartasNaoRepetidas.get(i)==valorAtual){
-                    straight.add(cartasNaoRepetidas.get(i));
-                }
-            }
-        }
-
-        return straight;
-    }
-
-
-
-    public LinkedList<Integer> removerRepetidas() {
+    public LinkedList<Integer> removerRepetidas(){
         LinkedList<Integer> semRepetidas=new LinkedList<Integer>();
         for(Carta c:cartas){
             semRepetidas.add(c.valor);

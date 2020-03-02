@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Carta {
+public class Carta extends Object implements Comparable{
 
     protected int valor; //2=2,3=3,...,J=11,Q=12,K=13,A=14
     protected char naipe; //paus=p, copas=c; espadas=e; ouros=o
@@ -47,9 +47,18 @@ public class Carta {
 
         icone = new ImageIcon(resizedImg);
     }
-
     public String toString(){
         return "Carta:"+valor+" "+naipe;
     }
 
+    public int compareTo(Object o) {
+        int comparaison =0;
+        Carta c = (Carta)o;
+        if(valor < c.valor){
+            comparaison = -1;
+        }else if(valor > c.valor){
+            comparaison = 1;
+        }
+        return comparaison;
+    }
 }
