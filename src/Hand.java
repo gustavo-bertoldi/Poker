@@ -6,7 +6,6 @@ public class Hand {
 
     private LinkedList<Carte> cartes;
 
-
     public Hand(LinkedList<Carte> cartes){
         this.cartes=cartes;
         Collections.sort(cartes, Collections.reverseOrder());
