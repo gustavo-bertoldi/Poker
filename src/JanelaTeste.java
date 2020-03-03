@@ -5,7 +5,7 @@ import java.awt.event.WindowEvent;
 
 public class JanelaTeste extends JFrame {
 
-    private Jeu jogo = new Jeu();
+    private Jeu jogo = new Jeu(20);
 
 
     private JPanel principal = new JPanel(new BorderLayout());

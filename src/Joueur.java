@@ -10,6 +10,7 @@ public class Joueur {
     private boolean dansJeu;
     private boolean bigBlind;
     private boolean smallBlind;
+    private boolean aParie;
 
     public Joueur(String nom){
         nJoueurs++;
@@ -35,21 +36,27 @@ public class Joueur {
         return hand;
     }
 
-    public void payer(int q){
-        argent=argent-q;
-    }
 
-    public void ajouterArgent(int q){
+    public void parier(int q){
         argent=argent+q;
+        aParie=true;
     }
 
     public int getArgent(){
         return argent;
     }
 
-    public void setHand(LinkedList<Carte> Cartes){
-        this.hand=Cartes;
+    public void setArgent(int q){
+        this.argent=q;
     }
+
+    public void ajouterArgent(int q){this.argent+=q;}
+
+    public void setHand(LinkedList<Carte> cartes){
+        this.hand=cartes;
+    }
+
+    public void ajouterCartes(LinkedList<Carte> cartes){this.hand.addAll(cartes);}
 
     public void setDealer(){
         this.dealer=true;
@@ -91,9 +98,14 @@ public class Joueur {
         return smallBlind;
     }
 
+    public boolean aParie(){
+        return aParie;
+    }
+
     public void resetAll(){
         this.dealer=false;
         this.smallBlind=false;
         this.bigBlind=false;
+        this.aParie=false;
     }
 }

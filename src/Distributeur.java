@@ -25,7 +25,7 @@ public class Distributeur {
 
     public static void distributeurDArgentDebut(LinkedList<Joueur> joueurs, int q){
         for(Joueur j:joueurs){
-            j.ajouterArgent(q);
+            j.setArgent(q);
         }
     }
 }
