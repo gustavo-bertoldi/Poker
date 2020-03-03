@@ -13,17 +13,17 @@ public class Hand  implements Comparable{
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
     - VALEURS:
     Hand                           Calcul                                                              Range                DONE
-    HC                             valeurHand = valeur*10                                      [20;140]
+    HC                             valeurHand = valeur*10                                      [20;140]                     OK
     Pair                           valeurHand = (valeur)*100 +highSurMain                      [202;1414]                   OK
     TwoPairs                       valeurHand = Valeur1*1000 + valeur2*100+hSM Valeur1>Valeur2 [3.202;15,314]               OK
     ThreeOAK                       valeurHand = (valeur)*10.000 + hSM                          [20.002;140.014]             OK
     Straight                       valeurHand = (highCard)*100.000 +highSurMain                [500.001;1.400.014]
-    Flush(sans straight)           valeurHand = (2*1.000.000) + highSurMain                    [2.000.006;2.000.014]
-    FullHouse                      valeurHand = valeurTOAK*1.000.000 + valeurPair*100          [2.001.400;14.001.300]
+    Flush(sans straight)           valeurHand = (2*1.000.000) + highSurMain                    [2.000.006;2.000.014]        OK
+    FullHouse                      valeurHand = valeurTOAK*1.000.000 + valeurPair*100          [2.001.400;14.001.300]       OK
     FourOAK                        valeurHand = 2*10.000.000 + valeur*100 * hSM                [20.000.002;20.000.014]      OK
     StraightFlush                  valeurHand = 2*100.000.000 + highSurMain                    [200.000.005;200.000.014]
      */
-    //FALTA AFETAR OS VALEURSHANDS DENTRO DOS METODOS
+    //Methods avec Straight ne considerent pas le cas ou le straight est sur la table,...
 
     public Hand(LinkedList<Carte> cartes){
         this.cartes=cartes;
@@ -199,7 +199,7 @@ public class Hand  implements Comparable{
         }
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
-            //nao dei push antes coment atoa
+            valeurHand = 2000000 +getHighSurMain();
             return flush;
         }
         else{
@@ -210,11 +210,10 @@ public class Hand  implements Comparable{
     /*
         Retourne la carte de valeur plus haute dans la hand
      */
-    public Carte highCard(){
-       LinkedList<Carte> triees = new LinkedList<Carte>();
-       triees.addAll(cartes);
-       Collections.sort(triees, Collections.reverseOrder());
-       return triees.get(0);
+    public Carte highCard(){ // changee pour prendre la plus haute sur main
+       Collections.sort(surMain, Collections.reverseOrder());
+       valeurHand = getHighSurMain()*10;
+       return surMain.get(0);
     }
 
     /*
@@ -223,10 +222,13 @@ public class Hand  implements Comparable{
      */
     public LinkedList<Carte> fullHouse(){
         LinkedList<Carte> fullHouse = new LinkedList<Carte>();
-        if(pairs().size()==2 && threeOfAKind().size()>=1){
+        if(pairs().size()==2 && threeOfAKind().size()>=1){ //possibilité d'avoir deux pairs et une TOAK
             LinkedList<Carte> pairs = pairs();
+            int valPair = pairs().get(0).valeur;
+            int valTOAK = threeOfAKind().get(0).valeur;
             fullHouse.addAll(pairs());
             fullHouse.addAll(threeOfAKind());
+            valeurHand = valTOAK*1000000 +valPair*100;
             return fullHouse;
         }
         else{
@@ -280,6 +282,7 @@ public class Hand  implements Comparable{
                 cartes.get(7).valeur = 14;
             }
         }
+
 
         return straight;
     }
