@@ -6,10 +6,11 @@ public class Intelligence {
 
     private int niveau; // pris de Jeu
     protected double[] rangeBet = new double[2];
+    protected double[] rangeCall = new double[2]; // pour quelles bets il va payer
     protected double[] rangeDecisions = new double[2];
     private LinkedList<Carte> surMain = new LinkedList<>(); // les cartes distribuees au debut du jeu
     private LinkedList<Carte> surTable = new LinkedList<>(); //affectée en ajoutant les cartes tournees
-    protected Hand hand; // protected pour pouvoir affecter depouis joueur
+    protected Hand hand; // protected pour pouvoir affecter depouis joueur; y a til une façon de l'affecter directement?
 
     /*
     - qualiteMain mesure en pourcentage le pouvoir de la main
@@ -38,16 +39,73 @@ public class Intelligence {
      */
     private ArrayList<Integer> blef = new ArrayList<>();// Array pour avoir contains()
 
-    public Intelligence(int i, LinkedList<Carte> surMain) {
+    public Intelligence(int i) {
         niveau = i; //i donne par Jeu
+    }
+    public void setSurMain(LinkedList<Carte> surMain){
         this.surMain = surMain;
         hand = new Hand(surMain);
     }
-    // CREER METHODE AJOUTER CARTE A HAND
-    public double raise(double[] range){
-        double montant = 0;
 
-        return montant;
+    public void setSurTable(LinkedList<Carte> tourneesSurTable){
+        surTable.addAll(tourneesSurTable); // ajoute toutes les cartes prises comme parametre à surTable
+        hand.setHand(tourneesSurTable);
+    }
+
+    public double qualiteHighCard(){ // appellee s'il y a high card
+        double qualite = 0;
+        qualite = hand.highCard().valeur/10; // indice multiplicatif de qualiteMain
+        return qualite;
+    }
+
+    public double qualitePair(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+
+    public double qualiteThreeOfAKind(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+    public double qualiteTwoPairs(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+
+    public double qualiteStraight(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+    public double qualiteFullHouse(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+
+    public double qualiteFourOfAKind(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+
+    public double qualiteFlush(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+
+    public double qualiteStraightFlush(){
+        double qualite = 0;
+        //completer methode
+        return qualite;
+    }
+
+    public void setRangeBet(){
+        // ajouter methode prenant en compte qualite main
     }
 
 }

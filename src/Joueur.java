@@ -11,8 +11,9 @@ public class Joueur {
     private boolean bigBlind;
     private boolean smallBlind;
     private boolean aParie;
+    protected Intelligence intelligence;
 
-    public Joueur(String nom){
+    public Joueur(String nom){ // création joueur humain
         nJoueurs++;
         this.nom=nom;
         this.argent=0;
@@ -20,9 +21,10 @@ public class Joueur {
         this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
+        intelligence = null;
     }
 
-    public Joueur(){
+    public Joueur(int niveau){
         nJoueurs++;
         this.argent=0;
         this.nom="Joueur "+nJoueurs;
@@ -30,6 +32,7 @@ public class Joueur {
         this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
+        intelligence = new Intelligence(niveau);
     }
 
     public LinkedList<Carte> getHand(){

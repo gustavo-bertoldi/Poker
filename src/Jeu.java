@@ -15,13 +15,13 @@ public class Jeu {
     private int smallBlind;
     private int bigBlind;
 
-    public Jeu(int nJoeurs, int smallBlind){
+    public Jeu(int nJoeurs, int smallBlind, int niveau){
         this.smallBlind=smallBlind;
         this.bigBlind=2*smallBlind;
         this.nJoueurs=nJoeurs;
-        joueurs.add(new Joueur());
+        joueurs.add(new Joueur(niveau));
         for(int i=1;i<nJoueurs;i++){
-            joueurs.add(new Ordinateur());
+            joueurs.add(new Ordinateur(niveau));
         }
         paquet= new Paquet();
         mesa = new Table(paquet);
@@ -44,13 +44,13 @@ public class Jeu {
 
 
 
-    public Jeu(int smallBlind){
+    public Jeu(int smallBlind, int niveau){
         this.smallBlind=smallBlind;
         this.bigBlind=2*smallBlind;
         this.nJoueurs=6;
-        joueurs.add(new Joueur());
+        joueurs.add(new Joueur(niveau));
         for(int i=1;i<6;i++){
-            joueurs.add(new Ordinateur());
+            joueurs.add(new Ordinateur(niveau));
         }
         paquet= new Paquet();
         mesa = new Table(paquet);
