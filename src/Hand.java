@@ -2,19 +2,46 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 
-public class Hand {
+public class Hand  implements Comparable{
 
     private LinkedList<Carte> cartes;
+    private LinkedList<Carte> surMain;
+    private LinkedList<Carte> surTable;
+    private int valeurHand;
+    /*
+    Idée derrière valeurHand:
+    - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
+    - VALEURS:
+    Hand                           Calcul                                                              Range
+    HC                             valeurHand = valeur*10                                      [20;140]
+    Pair                           valeurHand = (valeur)*100                                   [200;1400]
+    TwoPairs                       valeurHand = Valeur1*1000 + valeur2*100 Valeur1>Valeur2     [3.200;15,300]
+    ThreeOAK                       valeurHand = (valeur)*10.000                                [20.000;140.000]
+    Straight                       valeurHand = (highCard)*100.000                             [500.000;1.400.000]
+    Flush(sans straight)           valeurHand = (2*1.000.000) + highCard                       [2.000.006;2.000.014]
+    FullHouse                      valeurHand = valeurTOAK*1.000.000 + valeurPair*100          [2.001.400;14.001.300]
+    FourOAK                        valeurHand = 2*10.000.000 + valeur                          [20.000.002;20.000.014]
+    StraightFlush                  valeurHand = 2*100.000.000 + highSurMain                           [200.000.005;200.000.014]
+     */
+    //FALTA AFETAR OS VALEURSHANDS DENTRO DOS METODOS
 
     public Hand(LinkedList<Carte> cartes){
         this.cartes=cartes;
         Collections.sort(cartes, Collections.reverseOrder());
     }
 
+    public LinkedList<Carte> getCartes(){return cartes;}
+
     public void setHand(LinkedList<Carte> cartes){
         this.cartes=cartes;
     }
 
+    public void addSurMain(LinkedList<Carte> cartesDistrib){
+        surMain.addAll(cartesDistrib);
+    }
+    public void addSurTable(LinkedList<Carte> miseSurTable){
+        surTable.addAll(miseSurTable);
+    }
     /*
     Verifie la quantite de pairs dans une hand et retourne une LL avec les cartes trouvées
      */
@@ -309,6 +336,17 @@ public class Hand {
             return false;
         }
     }
+
+    public int compareTo(Object h2) {
+        int comparaison = 0;
+        if (valeurHand > ((Hand)h2).valeurHand) {
+            comparaison = 1;
+        } else if (valeurHand < ((Hand)h2).valeurHand) {
+            comparaison = -1;
+        }
+        return comparaison;
+    }
+
 
     public String toString(LinkedList<Carte> lista){
         String result="";

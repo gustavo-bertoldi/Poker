@@ -2,8 +2,8 @@ import java.util.LinkedList;
 
 public class Joueur {
 
-    private LinkedList<Carte> hand;
-    private LinkedList<Carte> cartesInitiales;
+    private Hand hand;
+    private LinkedList<Carte> cartesInitiales; //deja sur hand: surMain
     protected String nom;
     protected static int nJoueurs=0;
     private int argent;
@@ -36,7 +36,7 @@ public class Joueur {
         intelligence = new Intelligence(niveau);
     }
 
-    public LinkedList<Carte> getHand(){
+    public Hand getHand(){
         return hand;
     }
 
@@ -69,10 +69,14 @@ public class Joueur {
 
     public void setCartesInitiales(LinkedList<Carte> cartes){
         this.cartesInitiales=cartes;
-        this.hand=cartes;
+        this.hand.setHand(cartes);
+        this.hand.addSurMain(cartes);
     }
 
-    public void ajouterCartes(LinkedList<Carte> cartes){this.hand.addAll(cartes);}
+    public void ajouterCartes(LinkedList<Carte> cartes){
+        this.hand.getCartes().addAll(cartes);
+        this.hand.addSurTable(cartes);
+    }
 
     public void setDealer(){
         this.dealer=true;
@@ -84,8 +88,8 @@ public class Joueur {
 
     public String mao(){
         String mao="";
-        for(Carte c: hand){
-            mao=mao+c.toString()+"\n";
+        for(Carte c: hand.getCartes()){
+            mao=mao + c.toString()+"\n";
         }
         return mao;
     }

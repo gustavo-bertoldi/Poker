@@ -20,10 +20,10 @@ public class Intelligence {
      */
     protected double qualiteMain = 0; // en quelle mesure est la hand bonne pourcentage
     /*
-    HighCard[0;0,1] 0,1 si Ace
-    OnePair[0,1;0,3] 0,2 si pair de aces
-    TwoPairs[0,3;0,45] 0,3 si aces et rois (considerer si pairs sur table)
-    ThreeOfAKind[0,45;0,6] 0,4 si aces
+    HighCard[0;0,1] 0,1 si Ace 2->14
+    OnePair[0,1;0,3] 0,2 si pair de aces 20->140
+    TwoPairs[0,3;0,45] 0,3 si aces et rois 200->2700 pair*10 +pair2*10
+    ThreeOfAKind[0,45;0,6] 0,4 si aces 20000->140000
     Straight[0,6;0,75] 0,5 si roi kicker
     Flush [0,75;0,85] 0,6 si roi kicker
     FullHouse [0,85;0,9] 0,7 si trois aces
