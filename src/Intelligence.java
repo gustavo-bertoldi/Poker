@@ -19,6 +19,7 @@ public class Intelligence {
     - prendre en compte les possibilites des autres mains si niveau haut
      */
     protected double qualiteMain = 0; // en quelle mesure est la hand bonne pourcentage
+
     /*
     HighCard[0;0,1] 0,1 si Ace 2->14
     OnePair[0,1;0,3] 0,2 si pair de aces 20->140
@@ -53,24 +54,24 @@ public class Intelligence {
     }
 
     public double qualiteHighCard(){ // appellee s'il y a high card
-        double qualite = 0;
-        qualite = hand.highCard().valeur/10; // indice multiplicatif de qualiteMain
+        double qualite = 0.0;
+        qualite = hand.highCard().valeur/10.0; // indice multiplicatif de qualiteMain
         return qualite;
     }
 
     public double qualitePair(){
-        double qualite = 0;
+        double qualite = 0.0;
         //completer methode
         return qualite;
     }
 
     public double qualiteThreeOfAKind(){
-        double qualite = 0;
+        double qualite = 0.0;
         //completer methode
         return qualite;
     }
     public double qualiteTwoPairs(){
-        double qualite = 0;
+        double qualite = 0.0;
         //completer methode
         return qualite;
     }
