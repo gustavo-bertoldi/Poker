@@ -166,9 +166,6 @@ public class Hand {
         }
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
-            while(flush.size()>5){ //ENLEVE LES CARTES SUPPLMENTAIRES SI AMAIS IL Y A PLUS DE 5 CARTES DE LE FLUSH
-                flush.removeLast();
-            }
             return flush;
         }
         else{
@@ -287,6 +284,7 @@ public class Hand {
 
         return straight;
     }
+
     public boolean isRoyalStraightPossible(){
         boolean possibilite = false;
         Carta ace = new Carta(14, 'p');
@@ -302,7 +300,6 @@ public class Hand {
 
         }
         return possibilite;
-
     }
 
 
@@ -337,18 +334,6 @@ public class Hand {
 
     public String toString(int t){
         return "valor: "+t;
-    }
-    //comentario novo
-    public LinkedList<Integer> removerRepetidas(){
-        LinkedList<Integer> semRepetidas=new LinkedList<Integer>();
-        for(Carta c:cartas){
-            semRepetidas.add(c.valor);
-        }
-        Set<Integer> hashSet = new HashSet<Integer>(semRepetidas);
-        semRepetidas.clear();
-        semRepetidas.addAll(hashSet);
-        Collections.sort(semRepetidas,Collections.reverseOrder());
-        return semRepetidas;
     }
 
 }
