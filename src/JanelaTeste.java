@@ -5,22 +5,29 @@ import java.awt.event.WindowEvent;
 
 public class JanelaTeste extends JFrame {
 
-    private Jeu jogo = new Jeu(20, 2);
+    private Jeu jogo = new Jeu(20,0);
 
 
     private JPanel principal = new JPanel(new BorderLayout());
     private JPanel CartesJogadorEsquerda = new JPanel(new FlowLayout());
     private JPanel CartesJogadorDireita = new JPanel(new FlowLayout());
     private JPanel CartesJogadorTopo = new JPanel(new GridLayout(1,3));
+    private JPanel baixo = new JPanel(new FlowLayout());
     private JPanel topo1 = new JPanel(new FlowLayout());
     private JPanel topo2 = new JPanel(new FlowLayout());
     private JPanel topo3 = new JPanel(new FlowLayout());
+    private JPanel functionsJogadorBaixo = new JPanel(new FlowLayout());
+    private JPanel infosJogadorBaixo = new JPanel(new FlowLayout());
     private JPanel CartesJogadorBaixo = new JPanel(new FlowLayout());
     private JPanel mesa = new JPanel(new FlowLayout());
     private JButton flop = new JButton("Flop");
     private JButton turn = new JButton("Turn");
     private JButton river = new JButton("River");
     private JButton restart = new JButton("Restart");
+    private JButton fold = new JButton("Fold");
+    private JButton call = new JButton("Call");
+    private JButton raise = new JButton("Raise");
+    private JTextField valeurRaise = new JTextField(6);
 
 
 
@@ -31,75 +38,72 @@ public class JanelaTeste extends JFrame {
         for(Carte c: jogo.getCartesMesa()){
             mesa.add(new JButton(c.icon));
         }
-
-        CartesJogadorBaixo.add(new JLabel(jogo.getJogadores().get(0).nom));
-        for(Carte c:jogo.getJogadores().get(0).getHand()){
-            CartesJogadorBaixo.add(new JButton(c.icon));
-        }
-        CartesJogadorBaixo.add(new JLabel("Argent: "+jogo.getJogadores().get(0).getArgent()));
-
-        CartesJogadorEsquerda.add(new JLabel(jogo.getJogadores().get(1).nom));
-        for(Carte c:jogo.getJogadores().get(1).getHand()){
-            CartesJogadorEsquerda.add(new JButton(c.icon));
-        }
-        CartesJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJogadores().get(1).getArgent()));
-
-        topo1.add(new JLabel(jogo.getJogadores().get(2).nom));
-        for(Carte c:jogo.getJogadores().get(2).getHand()){
-            topo1.add(new JButton(c.icon));
-        }
-        topo1.add(new JLabel("Argent: "+jogo.getJogadores().get(2).getArgent()));
-
-        topo2.add(new JLabel(jogo.getJogadores().get(3).nom));
-        for(Carte c:jogo.getJogadores().get(3).getHand()){
-            topo2.add(new JButton(c.icon));
-        }
-        topo2.add(new JLabel("Argent: "+jogo.getJogadores().get(3).getArgent()));
-
-        topo3.add(new JLabel(jogo.getJogadores().get(4).nom));
-        for(Carte c:jogo.getJogadores().get(4).getHand()){
-            topo3.add(new JButton(c.icon));
-        }
-        topo3.add(new JLabel("Argent: "+jogo.getJogadores().get(4).getArgent()));
-
-        CartesJogadorDireita.add(new JLabel(jogo.getJogadores().get(5).nom));
-        for(Carte c:jogo.getJogadores().get(5).getHand()){
-            CartesJogadorDireita.add(new JButton(c.icon));
-        }
-        CartesJogadorDireita.add(new JLabel("Argent: "+jogo.getJogadores().get(5).getArgent()));
-
-
+        mesa.add(new JLabel("Pot: "+jogo.getMesa().getPot()));
+        mesa.add(new JLabel("J ACT: "+jogo.joueurActif));
 
         flop.addActionListener(new EcouteurTable(this,'f'));
         turn.addActionListener(new EcouteurTable(this,'t'));
         river.addActionListener(new EcouteurTable(this,'r'));
         restart.addActionListener(new EcouteurTable(this,'x'));
-
-        /*
-        BoxLayout boxCentro = new BoxLayout(centro,BoxLayout.Y_AXIS);
-        BoxLayout boxDireita = new BoxLayout(direita,BoxLayout.Y_AXIS);
-        BoxLayout boxEsquerda = new BoxLayout(direita,BoxLayout.Y_AXIS);
-        direita.setLayout(boxDireita);
-        direita.setBorder(new EmptyBorder(new Insets(180, 0, 150, 0)));
-        centro.setLayout(boxCentro);
-        centro.setBorder(new EmptyBorder(new Insets(120, 100, 150, 100)));
-        esquerda.setLayout(boxEsquerda);
-        esquerda.setBorder(new EmptyBorder(new Insets(120, 100, 150, 100)));
-    */
+        fold.addActionListener(new EcouteurJoueur(this, 'f'));
+        call.addActionListener(new EcouteurJoueur(this, 'c'));
+        raise.addActionListener(new EcouteurJoueur(this, 'r'));
 
         mesa.setBorder(new EmptyBorder(new Insets(120,100,150,100)));
         CartesJogadorEsquerda.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
         CartesJogadorDireita.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
 
+        infosJogadorBaixo.add(new JLabel(jogo.getJoueurs().get(0).nom));
+        infosJogadorBaixo.add(new JLabel("Argent: "+jogo.getJoueurs().get(0).getArgent()));
+        for(Carte c: jogo.getJoueurs().get(0).getCartesInitiales()){
+            CartesJogadorBaixo.add(new JButton(c.icon));
+        }
 
-        CartesJogadorBaixo.add(flop);
-        CartesJogadorBaixo.add(turn);
-        CartesJogadorBaixo.add(river);
-        CartesJogadorBaixo.add(restart);
+        CartesJogadorEsquerda.add(new JLabel(jogo.getJoueurs().get(1).nom));
+        CartesJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJoueurs().get(1).getArgent()));
+        for(Carte c: jogo.getJoueurs().get(1).getCartesInitiales()){
+            CartesJogadorEsquerda.add(new JButton(c.icon));
+        }
+
+        topo1.add(new JLabel(jogo.getJoueurs().get(2).nom));
+        topo1.add(new JLabel("Argent: "+jogo.getJoueurs().get(2).getArgent()));
+        for(Carte c: jogo.getJoueurs().get(2).getCartesInitiales()){
+            topo1.add(new JButton(c.icon));
+        }
+
+        topo2.add(new JLabel(jogo.getJoueurs().get(3).nom));
+        topo2.add(new JLabel("Argent: "+jogo.getJoueurs().get(3).getArgent()));
+        for(Carte c: jogo.getJoueurs().get(3).getCartesInitiales()){
+            topo2.add(new JButton(c.icon));
+        }
+
+        topo3.add(new JLabel(jogo.getJoueurs().get(4).nom));
+        topo3.add(new JLabel("Argent: "+jogo.getJoueurs().get(4).getArgent()));
+        for(Carte c: jogo.getJoueurs().get(4).getCartesInitiales()){
+            topo3.add(new JButton(c.icon));
+        }
+
+        CartesJogadorDireita.add(new JLabel(jogo.getJoueurs().get(5).nom));
+        CartesJogadorDireita.add(new JLabel("Argent: "+jogo.getJoueurs().get(5).getArgent()));
+        for(Carte c: jogo.getJoueurs().get(5).getCartesInitiales()){
+            CartesJogadorDireita.add(new JButton(c.icon));
+        }
+
+        functionsJogadorBaixo.add(flop);
+        functionsJogadorBaixo.add(turn);
+        functionsJogadorBaixo.add(river);
+        functionsJogadorBaixo.add(restart);
+        functionsJogadorBaixo.add(fold);
+        functionsJogadorBaixo.add(call);
+        functionsJogadorBaixo.add(raise);
+        functionsJogadorBaixo.add(valeurRaise);
         CartesJogadorTopo.add(topo1);
         CartesJogadorTopo.add(topo2);
         CartesJogadorTopo.add(topo3);
-        principal.add(CartesJogadorBaixo, BorderLayout.SOUTH);
+        baixo.add(functionsJogadorBaixo);
+        baixo.add(infosJogadorBaixo);
+        baixo.add(CartesJogadorBaixo);
+        principal.add(baixo, BorderLayout.SOUTH);
         principal.add(CartesJogadorEsquerda, BorderLayout.WEST);
         principal.add(CartesJogadorTopo, BorderLayout.NORTH);
         principal.add(CartesJogadorDireita, BorderLayout.EAST);
@@ -118,35 +122,70 @@ public class JanelaTeste extends JFrame {
 
     public void flop(){
         jogo.getMesa().flop();
-        mettreAJourCartesTable();
-        revalidate();
-        repaint();
+        mettreAJourTable();
     }
 
     public void turn(){
         jogo.getMesa().turn();
-        mettreAJourCartesTable();
-        revalidate();
-        repaint();
+        mettreAJourTable();
     }
 
     public void river(){
         jogo.getMesa().river();
-        mettreAJourCartesTable();
-        revalidate();
-        repaint();
+        mettreAJourTable();
     }
 
-    public void mettreAJourCartesTable(){
+    public void mettreAJourTable(){
         mesa.removeAll();
         for(Carte c: jogo.getCartesMesa()){
             mesa.add(new JButton(c.icon));
         }
+        mesa.add(new JLabel("Pot: "+jogo.getMesa().getPot()));
+        mesa.add(new JLabel("J ACT: "+jogo.joueurActif));
+    }
+
+    public void mettreAJourCartesJoueur(int indice){
+        CartesJogadorBaixo.removeAll();
+        for(Carte c:jogo.getJoueurs().get(indice).getCartesInitiales()){
+            CartesJogadorBaixo.add(new JButton(c.icon));
+        }
+    }
+
+    public void mettreAJourInfosJoueur(int indice){
+        infosJogadorBaixo.removeAll();
+        infosJogadorBaixo.add(new JLabel(jogo.getJoueurs().get(indice).nom));
+        infosJogadorBaixo.add(new JLabel("Argent: "+jogo.getJoueurs().get(indice).getArgent()));
     }
 
     public void restart(){
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         new JanelaTeste();
+    }
+
+    public void call(){
+        jogo.parier(jogo.getPariMin(),0);
+        mettreAJourInfosJoueur(0);
+        mettreAJourTable();
+    }
+
+    public void fold(){
+        jogo.getJoueurs().get(0).fold();
+        mettreAJourCartesJoueur(0);
+        mettreAJourTable();
+    }
+
+    public void raise(){
+        jogo.parier(getRaise(),0);
+        mettreAJourInfosJoueur(0);
+        mettreAJourTable();
+    }
+
+    public int getRaise(){
+        return Integer.parseInt(valeurRaise.getText());
+    }
+
+    public Joueur getJouerActif(){
+        return jogo.getJoueurs().get(jogo.joueurActif);
     }
 }
 

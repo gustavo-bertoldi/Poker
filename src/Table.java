@@ -4,6 +4,7 @@ public class Table {
 
     private LinkedList<Carte> mesa= new LinkedList<>();
     private Paquet paquet;
+    private int pot;
 
     public Table(Paquet paquet){
         this.paquet=paquet;
@@ -11,6 +12,7 @@ public class Table {
 
     public void distribuirCartes(){
         Distributeur.distribuirCartesMesa(paquet,mesa);
+        pot=0;
     }
 
     public LinkedList<Carte> getMesa(){
@@ -29,6 +31,12 @@ public class Table {
         for(int i=0;i<3;i++){
             mesa.get(i).montrerCarte();
         }
+    }
+
+    public void ajouterAuPot(int q){pot=pot+q;}
+
+    public int getPot(){
+        return pot;
     }
 
     public void turn(){

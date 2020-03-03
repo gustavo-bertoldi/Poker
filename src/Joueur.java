@@ -3,6 +3,7 @@ import java.util.LinkedList;
 public class Joueur {
 
     private LinkedList<Carte> hand;
+    private LinkedList<Carte> cartesInitiales;
     protected String nom;
     protected static int nJoueurs=0;
     private int argent;
@@ -10,8 +11,8 @@ public class Joueur {
     private boolean dansJeu;
     private boolean bigBlind;
     private boolean smallBlind;
-    private boolean aParie;
     protected Intelligence intelligence;
+    protected boolean dejaJoue = false;
 
     public Joueur(String nom){ // création joueur humain
         nJoueurs++;
@@ -39,10 +40,21 @@ public class Joueur {
         return hand;
     }
 
+    public LinkedList<Carte> getCartesInitiales(){return cartesInitiales;}
 
-    public void parier(int q){
-        argent=argent+q;
-        aParie=true;
+    public boolean parier(int q){
+        if(q<=argent) {
+            argent = argent - q;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    public void jouer(){
+        dejaJoue=false;
+
     }
 
     public int getArgent(){
@@ -55,7 +67,8 @@ public class Joueur {
 
     public void ajouterArgent(int q){this.argent+=q;}
 
-    public void setHand(LinkedList<Carte> cartes){
+    public void setCartesInitiales(LinkedList<Carte> cartes){
+        this.cartesInitiales=cartes;
         this.hand=cartes;
     }
 
@@ -79,6 +92,9 @@ public class Joueur {
 
     public void fold(){
         this.dansJeu=false;
+        for(Carte c: cartesInitiales){
+            c.tournerCarte();
+        }
     }
 
     public boolean isDansJeu(){
@@ -101,14 +117,10 @@ public class Joueur {
         return smallBlind;
     }
 
-    public boolean aParie(){
-        return aParie;
-    }
 
     public void resetAll(){
         this.dealer=false;
         this.smallBlind=false;
         this.bigBlind=false;
-        this.aParie=false;
     }
 }

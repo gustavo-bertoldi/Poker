@@ -25,5 +25,7 @@ public class EcouteurTable implements ActionListener {
         else if(fun=='x'){
             j.restart();
         }
+        j.revalidate();
+        j.repaint();
     }
 }

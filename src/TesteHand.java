@@ -14,8 +14,8 @@ public class TesteHand {
 
         Hand h = new Hand(Cartes);
         Jeu j= new Jeu(400, 2);
-        LinkedList<Joueur> joueurs=j.getJogadores();
-        System.out.println(j.getJogadores().get(4).nom);
+        LinkedList<Joueur> joueurs=j.getJoueurs();
+        System.out.println(j.getJoueurs().get(4).nom);
         System.out.println(h.highCard().toString());
 
 

@@ -7,11 +7,12 @@ public class Jeu {
     private LinkedList<Joueur> joueurs = new LinkedList<Joueur>();
     private Paquet paquet;
     private Table mesa;
+    private int pariMin;
     private int tourDealer=0;
     private int tourBig;
     private int tourSmall;
     private int nJoueurs;
-    private int joueurActif;
+    protected int joueurActif;
     private int smallBlind;
     private int bigBlind;
 
@@ -38,11 +39,23 @@ public class Jeu {
         return mesa;
     }
 
-    public LinkedList<Joueur> getJogadores(){
+    public LinkedList<Joueur> getJoueurs(){
         return joueurs;
     }
 
+    public int getPariMin(){
+        return pariMin;
+    }
 
+    public void setPariMin(int pariMin){
+        this.pariMin=pariMin;
+    }
+
+    public void parier(int q, int indiceJoueur){
+        if(joueurs.get(indiceJoueur).parier(q)) {
+            mesa.ajouterAuPot(q);
+        }
+    }
 
     public Jeu(int smallBlind, int niveau){
         this.smallBlind=smallBlind;
@@ -99,63 +112,62 @@ public class Jeu {
     Cette methode controle la distribution du dealer, du small blind et du big blind dans
     la liste de joueurs
      */
-    public void prochaineTournee(){
+
+    public void prochainJoueur(){
         for(Joueur j: joueurs){
             j.resetAll();
         }
         if(nJoueurs<3){
             if(tourDealer==0){
                 joueurs.get(0).setDealer();
-                joueurs.get(0).setBigBlind();
                 joueurs.get(1).setSmallBlind();
-                tourBig=0;
-                tourSmall=1;
-                tourDealer++;
+                joueurs.get(0).setBigBlind();
+                tourDealer=1;
+                tourSmall=0;
+                tourBig=1;
             }
             else{
                 joueurs.get(1).setDealer();
-                joueurs.get(1).setBigBlind();
                 joueurs.get(0).setSmallBlind();
-                tourBig=1;
-                tourSmall=0;
+                joueurs.get(1).setBigBlind();
                 tourDealer=0;
+                tourSmall=1;
+                tourBig=0;
             }
         }
-        else {
-            if (tourDealer == 0) {
+        else{
+            if(tourDealer==nJoueurs){
                 joueurs.get(tourDealer).setDealer();
-                joueurs.get(nJoueurs).setSmallBlind();
-                joueurs.get(nJoueurs-1).setBigBlind();
-                tourBig=nJoueurs-1;
-                tourSmall=nJoueurs;
-                tourDealer++;
-            } else if(tourDealer==1) {
+                joueurs.get(tourBig).setBigBlind();
+                joueurs.get(tourSmall).setSmallBlind();
+                tourDealer=0;
+                tourBig++;
+                tourSmall++;
+            }
+            else if(tourDealer==nJoueurs-1){
                 joueurs.get(tourDealer).setDealer();
-                joueurs.get(tourDealer-1).setSmallBlind();
-                joueurs.get(nJoueurs).setBigBlind();
-                tourBig=nJoueurs;
-                tourSmall=tourDealer-1;
+                joueurs.get(tourSmall).setBigBlind();
+                joueurs.get(tourBig).setSmallBlind();
                 tourDealer++;
+                tourBig++;
+                tourSmall=0;
+            }
+            else if(tourDealer==nJoueurs-2){
+                joueurs.get(tourDealer).setDealer();
+                joueurs.get(tourSmall).setSmallBlind();
+                joueurs.get(tourBig).setBigBlind();
+                tourDealer++;
+                tourSmall++;
+                tourBig=0;
             }
             else{
                 joueurs.get(tourDealer).setDealer();
-                joueurs.get(tourDealer-1).setSmallBlind();
-                joueurs.get(tourDealer-2).setBigBlind();
-                tourBig=tourDealer-2;
-                tourSmall=tourDealer-1;
-                if(tourDealer==nJoueurs) {
-                    tourDealer=0;
-                }
-                else{
-                    tourDealer++;
-                }
+                joueurs.get(tourSmall).setSmallBlind();
+                joueurs.get(tourBig).setBigBlind();
+                tourDealer++;
+                tourSmall++;
+                tourBig++;
             }
-        }
-        if(tourBig==nJoueurs){
-            joueurActif=0;
-        }
-        else {
-            joueurActif=tourBig+1;
         }
     }
 
@@ -174,68 +186,28 @@ public class Jeu {
 
     public void sortirJoueur(int indice){
         joueurs.remove(indice);
+        nJoueurs--;
     }
 
-    /*public void demarrerTournee() {
-        int nJoueursActifs=nJoueurs;
-        boolean tourneeFinie = false;
-        boolean raisesFinies = false;
+   /* public Joueur demarrerTournee() {
         LinkedList<Joueur> joueursDansLeJeu = joueurs;
-        while (tourneeFinie == false) {
-            joueurs.get(tourBig).payer(bigBlind);
-            joueurs.get(tourSmall).payer(smallBlind);
-            for(int i=0;i<nJoueursActifs;i++){
-                joueursDansLeJeu.get(joueurActif).jouer();
-                if(joueurActif==nJoueursActifs){
-                    joueurActif=0;
-                }
-                else{
-                    joueurActif++;
-                }
-            }
-            while(!raisesFinies && n) {
-                int p=0;
-                for(Joueur j: joueursDansLeJeu ){
-                    if(j.aParie()){
-                        p++;
-                    }
-                }
-                if(p==0){
-                    raisesFinies=true;
-                    break;
-                }
-                joueursDansLeJeu = new LinkedList<>();
-                for (int i = 0; i < nJoueurs; i++) {
-                    if (joueurs.get(i).isDansJeu()) {
-                        joueursDansLeJeu.add(joueurs.get(i));
-                    }
-                }
-
-            }
-        }
-        prochaineTournee();
-    }
-    */
-
-    public void demarrerTournee(){
-        LinkedList<Joueur> joueursDansLeJeu = joueurs;
-        boolean unPari = false;
-        boolean tourneeFinie=false;
-        prochaineTournee();
-        while(!tourneeFinie){
-            joueurs.get(tourBig).parier(bigBlind);
-            joueurs.get(tourSmall).parier(smallBlind);
-            for(int i=0;i<joueursDansLeJeu.size();i++){
-                if(joueurActif==joueursDansLeJeu.size()-1){
+        prochainJoueur();
+        joueurs.get(tourBig).parier(bigBlind);
+        joueurs.get(tourSmall).parier(smallBlind);
+        while (joueursDansLeJeu.size() > 1) {
+            for (int i = 0; i < joueursDansLeJeu.size(); i++) {
+                if (joueurActif == joueursDansLeJeu.size() - 1) {
                     //joueursDansLeJeu.get(joueurActif).jouer();
-                    joueurActif=0;
-                }
-                else{
+                    joueurActif = 0;
+                } else {
                     //joueursDansLeJeu.get(joueurActif).jouer();
                     joueurActif++;
                 }
+                //joueursDansLeJeu.get(joueurActif).jouer();
+                joueursDansLeJeu.removeIf(j -> !j.isDansJeu());
             }
         }
-    }
+        return joueursDansLeJeu.get(0);
+    }*/
 
 }

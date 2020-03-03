@@ -11,7 +11,7 @@ public class Distributeur {
             i = (int) (p.paquet.size() * Math.random());
             hand.add(p.paquet.get(i));
             p.paquet.remove(i);
-            j.setHand(hand);
+            j.setCartesInitiales(hand);
         }
     }
 
