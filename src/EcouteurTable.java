@@ -3,8 +3,8 @@ import java.awt.event.ActionListener;
 
 public class EcouteurTable implements ActionListener {
 
-    private JanelaTeste j;
-    private char fun;
+    private JanelaTeste j; //La fenetre principale
+    private char fun; //Un char qui definira la fonction a executer selon le bouton appuyé
 
     public EcouteurTable (JanelaTeste j,char fun){
         this.j=j;

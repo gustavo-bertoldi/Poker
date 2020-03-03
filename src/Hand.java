@@ -4,9 +4,9 @@ import java.util.LinkedList;
 
 public class Hand  implements Comparable{
 
-    private LinkedList<Carte> cartes;
-    private LinkedList<Carte> surMain;
-    private LinkedList<Carte> surTable;
+    protected LinkedList<Carte> cartes = new LinkedList<>();
+    protected LinkedList<Carte> surMain= new LinkedList<>();
+    protected LinkedList<Carte> surTable= new LinkedList<>();
     private int valeurHand;
     /*
     Idée derrière valeurHand:
@@ -33,7 +33,7 @@ public class Hand  implements Comparable{
     public LinkedList<Carte> getCartes(){return cartes;}
 
     public void setHand(LinkedList<Carte> cartes){
-        this.cartes=cartes;
+        this.cartes.addAll(cartes);
     }
 
     public void addSurMain(LinkedList<Carte> cartesDistrib){

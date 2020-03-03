@@ -3,8 +3,10 @@ import java.awt.event.ActionListener;
 
 public class EcouteurJoueur implements ActionListener {
 
-    private JanelaTeste j;
-    private char fun;
+    private JanelaTeste j; //La fenetre principale
+    private char fun; /*Permet de executer une fonction slon le bouton appuyé
+    'f'-fold, 'c'-call et 'r' - raise
+    */
 
     public EcouteurJoueur (JanelaTeste j,char fun){
         this.j=j;
@@ -15,19 +17,16 @@ public class EcouteurJoueur implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(fun=='f'){
             j.fold();
-            j.revalidate();
-            j.repaint();
         }
         else if(fun=='c'){
             j.call();
-            j.revalidate();
-            j.repaint();
         }
         else if(fun=='r'){
             j.raise();
-            j.revalidate();
-            j.repaint();
+
         }
+        j.revalidate();
+        j.repaint();
         j.getJouerActif().dejaJoue=true;
     }
 }

@@ -18,7 +18,6 @@ public class TesteHand {
         System.out.println(j.getJoueurs().get(4).nom);
         System.out.println(h.highCard().toString());
 
-
     }
 
 }

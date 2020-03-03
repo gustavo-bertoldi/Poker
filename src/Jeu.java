@@ -4,18 +4,29 @@ import java.util.LinkedList;
 
 public class Jeu {
 
-    private LinkedList<Joueur> joueurs = new LinkedList<Joueur>();
-    private Paquet paquet;
+    private LinkedList<Joueur> joueurs = new LinkedList<Joueur>(); //Les joueurs dans le jeu - remplie dans le constructeur
+    private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table mesa;
-    private int pariMin;
-    private int tourDealer=0;
-    private int tourBig;
-    private int tourSmall;
-    private int nJoueurs;
-    protected int joueurActif;
-    private int smallBlind;
-    private int bigBlind;
+    private int valeurCall=200; //La valeur minimale de pari pour jouer, defini en fonction des paris des joueurs
+    private int tourDealer=0; //L'indice du joueur qui sera le dealer dans la ll joueurs
+    private int tourBig; //L'indice du jouer qui sera le big blind dans la ll joueurs
+    private int tourSmall; //L'indice du joueur qui sera le small blind dans la ll joueurs
+    private int nJoueurs; //Le numero actuel de joueurs dans le jeu
+    protected int joueurActif; //L'indice du joueur qui sera le prochain a jouer
+    private int smallBlind; //La valeur du small blind actuel
+    private int bigBlind; //La valeur du big blind actuel (2*smallBlind)
 
+    /*
+    Jeu a deux constructeurs, un prend en parametre:
+    @param int nJoueurs - numero de joueurs
+    @param int smallBlind - la valeur de la première small blind
+    @param int niveau - pour controler l'intelligence de l'ordinateur
+
+    Le constructeur cree un joueur human, et nJoueurs-1 ordinateurs, un paquet de cartes
+    une table et fait la distribution des cartes et de l'argent entre les joueurs et la table
+
+    Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
+     */
     public Jeu(int nJoeurs, int smallBlind, int niveau){
         this.smallBlind=smallBlind;
         this.bigBlind=2*smallBlind;
@@ -26,37 +37,15 @@ public class Jeu {
         }
         paquet= new Paquet();
         mesa = new Table(paquet);
-        distribuirCartes();
+        distribuerCartes();
         distribuerArgent(1500);
         montrerCartesJoueurActif();
     }
 
-    public LinkedList<Carte> getCartesMesa(){
-        return mesa.getMesa();
-    }
-
-    public Table getMesa(){
-        return mesa;
-    }
-
-    public LinkedList<Joueur> getJoueurs(){
-        return joueurs;
-    }
-
-    public int getPariMin(){
-        return pariMin;
-    }
-
-    public void setPariMin(int pariMin){
-        this.pariMin=pariMin;
-    }
-
-    public void parier(int q, int indiceJoueur){
-        if(joueurs.get(indiceJoueur).parier(q)) {
-            mesa.ajouterAuPot(q);
-        }
-    }
-
+    /*
+    Le deuxieme constructeur fait essentiellement la meme chose que le premier, mais
+    on met le nombre joueurs en 6 par default.
+     */
     public Jeu(int smallBlind, int niveau){
         this.smallBlind=smallBlind;
         this.bigBlind=2*smallBlind;
@@ -67,20 +56,79 @@ public class Jeu {
         }
         paquet= new Paquet();
         mesa = new Table(paquet);
-        distribuirCartes();
+        distribuerCartes();
         distribuerArgent(1500);
         montrerCartesJoueurActif();
     }
 
-    public void distribuirCartes(){
+    /*
+    Retourne une ll avec les cartes dans la table
+     */
+    public LinkedList<Carte> getCartesMesa(){
+        return mesa.getMesa();
+    }
+
+    /*
+    Retourne la table
+     */
+    public Table getMesa(){
+        return mesa;
+    }
+
+    /*
+    Retourne une ll avec les joueurs dans le jeu
+     */
+    public LinkedList<Joueur> getJoueurs(){
+        return joueurs;
+    }
+
+    /*
+    Retourne la valeur minimale de pari pour continuer le jeu, valeur de call
+     */
+    public int getValeurCall(){
+        return valeurCall;
+    }
+
+    /*
+    Permet de changer la valeur minimale pour jouer
+    @param int valeurCall - valeur a donner
+     */
+    public void setValeurCall(int valeurCall){
+        this.valeurCall=valeurCall;
+    }
+
+    /*
+    Permet de faire un joueur parier une certaine quantité
+    @param int q - quantité a parier par le joueur
+    @param int indiceJoueur - l'indice du joueur qui va parier dans la ll joueurs
+     */
+    public void parier(int q, int indiceJoueur){
+        if(joueurs.get(indiceJoueur).parier(q)) {
+            mesa.ajouterAuPot(q);
+        }
+    }
+
+    /*
+    Fait appel a la methode statique dans Distributeur pour distribuer deux cartes a chaque joueur de maniere
+    aleatoire, bien comme 5 cartes qui sera la table
+     */
+    public void distribuerCartes(){
         Distributeur.distribuirCartesJogadores(paquet,joueurs);
         mesa.distribuirCartes();
     }
 
+    /*
+    Fait appel a la methode statique dans Distributeur pour distribuer une quantité q d'argent à chaque
+    joueur dans la ll joueur
+    @param int q - quantite d'argent a distribuer
+     */
     public void distribuerArgent(int q){
         Distributeur.distributeurDArgentDebut(joueurs, q);
     }
 
+    /*
+    Methode de test
+     */
     public String maosJogadores(){
         String s="";
         for(Joueur j: joueurs){
@@ -89,11 +137,16 @@ public class Jeu {
         return s;
     }
 
-
+    /*
+    Methode de test
+     */
     public String visualizarMesa(){
         return mesa.visualizarMesa();
     }
 
+    /*
+    Methode de test
+     */
     public String visualizarBaralho(){
         String s="";
         for(Carte c : paquet.paquet){
@@ -102,22 +155,27 @@ public class Jeu {
         return s;
     }
 
+    /*
+    Change l'icon des cartes de joueur humain pour les afficher dans
+    l'interface graphique
+     */
     private void montrerCartesJoueurActif(){
-        for(Carte c:joueurs.get(0).getHand()){
+        for(Carte c:joueurs.get(0).getHand().getCartes()){
             c.montrerCarte();
         }
-
     }
+
     /*
+    METHODE INCOMPLETE
     Cette methode controle la distribution du dealer, du small blind et du big blind dans
     la liste de joueurs
      */
-
     public void prochainJoueur(){
+        //IL FAUT REMPLACER nJoueurs PAR LE NUMERO DE JOUEURS ACTIFS DANS LA TOURNEE - CREER METHODE POUR COMPTER
         for(Joueur j: joueurs){
             j.resetAll();
         }
-        if(nJoueurs<3){
+        if(nJoueurs<3){//Dans le cas ou il n'y a que deux joueurs dans actifs
             if(tourDealer==0){
                 joueurs.get(0).setDealer();
                 joueurs.get(1).setSmallBlind();
@@ -135,7 +193,7 @@ public class Jeu {
                 tourBig=0;
             }
         }
-        else{
+        else{ //Cas ou il y au moins 3 joueurs actifs
             if(tourDealer==nJoueurs){
                 joueurs.get(tourDealer).setDealer();
                 joueurs.get(tourBig).setBigBlind();
@@ -171,19 +229,33 @@ public class Jeu {
         }
     }
 
+    /*
+    Retourne la valeur de small blind Actuelle
+     */
     public int getSmallBlind() {
         return smallBlind;
     }
 
+    /*
+    Retourne la valeur de big blind actuelle
+     */
     public int getBigBlind(){
         return bigBlind;
     }
 
+    /*
+    Permet de changer les valeurs du small blind et du big blind actuelles
+    @param int smallBlind - valeur a prendre
+     */
     public void setSmallBlind(int smallBlind){
         this.smallBlind=smallBlind;
         this.bigBlind=2*smallBlind;
     }
 
+    /*
+    Quand un joueur perd, permet de le sortir du jeu bien comme de la ll de joueurs
+    @param int indice- indice du joueur a sortir
+     */
     public void sortirJoueur(int indice){
         joueurs.remove(indice);
         nJoueurs--;

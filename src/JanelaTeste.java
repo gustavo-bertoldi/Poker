@@ -40,6 +40,7 @@ public class JanelaTeste extends JFrame {
         }
         mesa.add(new JLabel("Pot: "+jogo.getMesa().getPot()));
         mesa.add(new JLabel("J ACT: "+jogo.joueurActif));
+        mesa.add(new JLabel("Call: "+jogo.getValeurCall()));
 
         flop.addActionListener(new EcouteurTable(this,'f'));
         turn.addActionListener(new EcouteurTable(this,'t'));
@@ -163,7 +164,7 @@ public class JanelaTeste extends JFrame {
     }
 
     public void call(){
-        jogo.parier(jogo.getPariMin(),0);
+        jogo.parier(jogo.getValeurCall(),0);
         mettreAJourInfosJoueur(0);
         mettreAJourTable();
     }
