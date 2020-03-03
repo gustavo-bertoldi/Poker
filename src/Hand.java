@@ -199,7 +199,7 @@ public class Hand  implements Comparable{
         }
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
-
+            //nao dei push antes coment atoa
             return flush;
         }
         else{
