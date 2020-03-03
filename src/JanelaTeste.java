@@ -1,5 +1,3 @@
-import kotlin.reflect.jvm.internal.impl.resolve.scopes.MemberScope;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -7,17 +5,17 @@ import java.awt.event.WindowEvent;
 
 public class JanelaTeste extends JFrame {
 
-    private Jogo jogo = new Jogo();
+    private Jeu jogo = new Jeu();
 
 
     private JPanel principal = new JPanel(new BorderLayout());
-    private JPanel cartasJogadorEsquerda = new JPanel(new FlowLayout());
-    private JPanel cartasJogadorDireita = new JPanel(new FlowLayout());
-    private JPanel cartasJogadorTopo = new JPanel(new GridLayout(1,3));
+    private JPanel CartesJogadorEsquerda = new JPanel(new FlowLayout());
+    private JPanel CartesJogadorDireita = new JPanel(new FlowLayout());
+    private JPanel CartesJogadorTopo = new JPanel(new GridLayout(1,3));
     private JPanel topo1 = new JPanel(new FlowLayout());
     private JPanel topo2 = new JPanel(new FlowLayout());
     private JPanel topo3 = new JPanel(new FlowLayout());
-    private JPanel cartasJogadorBaixo = new JPanel(new FlowLayout());
+    private JPanel CartesJogadorBaixo = new JPanel(new FlowLayout());
     private JPanel mesa = new JPanel(new FlowLayout());
     private JButton flop = new JButton("Flop");
     private JButton turn = new JButton("Turn");
@@ -30,45 +28,45 @@ public class JanelaTeste extends JFrame {
         super("Poker");
         this.setSize(1350 ,600);
 
-        for(Carta c: jogo.getCartasMesa()){
-            mesa.add(new JButton(c.icone));
+        for(Carte c: jogo.getCartesMesa()){
+            mesa.add(new JButton(c.icon));
         }
 
-        cartasJogadorBaixo.add(new JLabel(jogo.getJogadores().get(0).nome));
-        for(Carta c:jogo.getJogadores().get(0).getHand()){
-            cartasJogadorBaixo.add(new JButton(c.icone));
+        CartesJogadorBaixo.add(new JLabel(jogo.getJogadores().get(0).nome));
+        for(Carte c:jogo.getJogadores().get(0).getHand()){
+            CartesJogadorBaixo.add(new JButton(c.icon));
         }
-        cartasJogadorBaixo.add(new JLabel("Argent: "+jogo.getJogadores().get(0).getDinheiro()));
+        CartesJogadorBaixo.add(new JLabel("Argent: "+jogo.getJogadores().get(0).getDinheiro()));
 
-        cartasJogadorEsquerda.add(new JLabel(jogo.getJogadores().get(1).nome));
-        for(Carta c:jogo.getJogadores().get(1).getHand()){
-            cartasJogadorEsquerda.add(new JButton(c.icone));
+        CartesJogadorEsquerda.add(new JLabel(jogo.getJogadores().get(1).nome));
+        for(Carte c:jogo.getJogadores().get(1).getHand()){
+            CartesJogadorEsquerda.add(new JButton(c.icon));
         }
-        cartasJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJogadores().get(1).getDinheiro()));
+        CartesJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJogadores().get(1).getDinheiro()));
 
         topo1.add(new JLabel(jogo.getJogadores().get(2).nome));
-        for(Carta c:jogo.getJogadores().get(2).getHand()){
-            topo1.add(new JButton(c.icone));
+        for(Carte c:jogo.getJogadores().get(2).getHand()){
+            topo1.add(new JButton(c.icon));
         }
         topo1.add(new JLabel("Argent: "+jogo.getJogadores().get(2).getDinheiro()));
 
         topo2.add(new JLabel(jogo.getJogadores().get(3).nome));
-        for(Carta c:jogo.getJogadores().get(3).getHand()){
-            topo2.add(new JButton(c.icone));
+        for(Carte c:jogo.getJogadores().get(3).getHand()){
+            topo2.add(new JButton(c.icon));
         }
         topo2.add(new JLabel("Argent: "+jogo.getJogadores().get(3).getDinheiro()));
 
         topo3.add(new JLabel(jogo.getJogadores().get(4).nome));
-        for(Carta c:jogo.getJogadores().get(4).getHand()){
-            topo3.add(new JButton(c.icone));
+        for(Carte c:jogo.getJogadores().get(4).getHand()){
+            topo3.add(new JButton(c.icon));
         }
         topo3.add(new JLabel("Argent: "+jogo.getJogadores().get(4).getDinheiro()));
 
-        cartasJogadorDireita.add(new JLabel(jogo.getJogadores().get(5).nome));
-        for(Carta c:jogo.getJogadores().get(5).getHand()){
-            cartasJogadorDireita.add(new JButton(c.icone));
+        CartesJogadorDireita.add(new JLabel(jogo.getJogadores().get(5).nome));
+        for(Carte c:jogo.getJogadores().get(5).getHand()){
+            CartesJogadorDireita.add(new JButton(c.icon));
         }
-        cartasJogadorDireita.add(new JLabel("Argent: "+jogo.getJogadores().get(5).getDinheiro()));
+        CartesJogadorDireita.add(new JLabel("Argent: "+jogo.getJogadores().get(5).getDinheiro()));
 
 
 
@@ -90,21 +88,21 @@ public class JanelaTeste extends JFrame {
     */
 
         mesa.setBorder(new EmptyBorder(new Insets(120,100,150,100)));
-        cartasJogadorEsquerda.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
-        cartasJogadorDireita.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
+        CartesJogadorEsquerda.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
+        CartesJogadorDireita.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
 
 
-        cartasJogadorBaixo.add(flop);
-        cartasJogadorBaixo.add(turn);
-        cartasJogadorBaixo.add(river);
-        cartasJogadorBaixo.add(restart);
-        cartasJogadorTopo.add(topo1);
-        cartasJogadorTopo.add(topo2);
-        cartasJogadorTopo.add(topo3);
-        principal.add(cartasJogadorBaixo, BorderLayout.SOUTH);
-        principal.add(cartasJogadorEsquerda, BorderLayout.WEST);
-        principal.add(cartasJogadorTopo, BorderLayout.NORTH);
-        principal.add(cartasJogadorDireita, BorderLayout.EAST);
+        CartesJogadorBaixo.add(flop);
+        CartesJogadorBaixo.add(turn);
+        CartesJogadorBaixo.add(river);
+        CartesJogadorBaixo.add(restart);
+        CartesJogadorTopo.add(topo1);
+        CartesJogadorTopo.add(topo2);
+        CartesJogadorTopo.add(topo3);
+        principal.add(CartesJogadorBaixo, BorderLayout.SOUTH);
+        principal.add(CartesJogadorEsquerda, BorderLayout.WEST);
+        principal.add(CartesJogadorTopo, BorderLayout.NORTH);
+        principal.add(CartesJogadorDireita, BorderLayout.EAST);
         principal.add(mesa, BorderLayout.CENTER);
 
         this.add(principal);
@@ -141,8 +139,8 @@ public class JanelaTeste extends JFrame {
 
     public void mettreAJourCartesTable(){
         mesa.removeAll();
-        for(Carta c: jogo.getCartasMesa()){
-            mesa.add(new JButton(c.icone));
+        for(Carte c: jogo.getCartesMesa()){
+            mesa.add(new JButton(c.icon));
         }
     }
 

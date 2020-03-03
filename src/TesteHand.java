@@ -3,16 +3,16 @@ import java.util.LinkedList;
 public class TesteHand {
 
     public static void main(String[] args){
-        LinkedList<Carta> cartas = new LinkedList<Carta>();
-        cartas.add(new Carta(11,'o'));
-        cartas.add(new Carta(4,'o'));
-        cartas.add(new Carta(14,'o'));
-        cartas.add(new Carta(11,'o'));
-        cartas.add(new Carta(6,'o'));
-        cartas.add(new Carta(11,'o'));
-        cartas.add(new Carta(11,'o'));
+        LinkedList<Carte> Cartes = new LinkedList<Carte>();
+        Cartes.add(new Carte(11,'d'));
+        Cartes.add(new Carte(4,'d'));
+        Cartes.add(new Carte(14,'d'));
+        Cartes.add(new Carte(11,'d'));
+        Cartes.add(new Carte(6,'d'));
+        Cartes.add(new Carte(11,'d'));
+        Cartes.add(new Carte(11,'d'));
 
-        Hand h = new Hand(cartas);
+        Hand h = new Hand(Cartes);
 
 
 

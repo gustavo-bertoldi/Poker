@@ -1,40 +1,53 @@
-// comment differencier un joueur reel d'un ordinateur?
+import java.util.LinkedList;
+
 public class Joueur {
 
-    private double fiches;
-    private Hand hand;
-    private boolean isDealer;
-    private boolean isSmall;
-    private boolean isBig;
-    private String nom;
+    private LinkedList<Carte> hand;
+    protected String nome;
+    private static int nJogadores=0;
+    private int dinheiro;
+    private boolean dealer;
 
-    public Joueur(String nom){
-        this.nom = nom;
-        fiches = 1000;
-        hand=null;
-        isDealer = false;
-        isSmall = false;
-        isBig = false;
+    public Joueur(String nome){
+        nJogadores++;
+        this.nome=nome;
+        this.dinheiro=0;
+        this.dealer=false;
     }
 
-    public void devenirDealer(){
-        isDealer = true;
+    public Joueur(){
+        nJogadores++;
+        this.dinheiro=0;
+        this.nome="Jogador "+nJogadores;
+        this.dealer=false;
     }
 
-    public void devenirSmall(){
-        isSmall = true;
+    public LinkedList<Carte> getHand(){
+        return hand;
     }
 
-    public void devenirBig(){
-        isBig = true;
+    public void apostar(int q){
+        dinheiro=dinheiro-q;
     }
 
-    public void setHand(Carte[] cartes){
-        //
+    public void adicionarDinheiro(int q){
+        dinheiro=dinheiro+q;
     }
 
-
-    public String toString(){
-        return  "Joueur "+ nom + "; Fiches " + fiches + "; Dealer, Small, big" + isDealer + isSmall + isBig;
+    public int getDinheiro(){
+        return dinheiro;
     }
+
+    public void setHand(LinkedList<Carte> Cartes){
+        this.hand=Cartes;
+    }
+
+    public String mao(){
+        String mao="";
+        for(Carte c: hand){
+            mao=mao+c.toString()+"\n";
+        }
+        return mao;
+    }
+
 }

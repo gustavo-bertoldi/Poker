@@ -1,25 +1,25 @@
 import java.util.LinkedList;
 
-public class Mesa {
+public class Table {
 
-    private LinkedList<Carta> mesa= new LinkedList<>();
-    private Baralho baralho;
+    private LinkedList<Carte> mesa= new LinkedList<>();
+    private Paquet paquet;
 
-    public Mesa(Baralho baralho){
-        this.baralho=baralho;
+    public Table(Paquet paquet){
+        this.paquet=paquet;
     }
 
-    public void distribuirCartas(){
-        Distribuidor.distribuirCartasMesa(baralho,mesa);
+    public void distribuirCartes(){
+        Distributeur.distribuirCartesMesa(paquet,mesa);
     }
 
-    public LinkedList<Carta> getMesa(){
+    public LinkedList<Carte> getMesa(){
         return mesa;
     }
 
     public String visualizarMesa(){
         String s="";
-        for(Carta c: mesa){
+        for(Carte c: mesa){
             s=s+c.toString()+"\n";
         }
         return s;
