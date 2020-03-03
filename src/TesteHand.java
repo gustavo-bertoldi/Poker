@@ -13,13 +13,14 @@ public class TesteHand {
         Cartes.add(new Carte(11,'d'));
 
         Hand h = new Hand(Cartes);
-
-
-
-                System.out.println(h.highCard().toString());
+        Jeu j= new Jeu();
+        LinkedList<Joueur> joueurs=j.getJogadores();
+        System.out.println(j.getJogadores().get(4).nom);
+        System.out.println(h.highCard().toString());
 
 
     }
+
 }
 
 

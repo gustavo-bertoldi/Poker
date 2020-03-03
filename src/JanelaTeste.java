@@ -32,41 +32,41 @@ public class JanelaTeste extends JFrame {
             mesa.add(new JButton(c.icon));
         }
 
-        CartesJogadorBaixo.add(new JLabel(jogo.getJogadores().get(0).nome));
+        CartesJogadorBaixo.add(new JLabel(jogo.getJogadores().get(0).nom));
         for(Carte c:jogo.getJogadores().get(0).getHand()){
             CartesJogadorBaixo.add(new JButton(c.icon));
         }
-        CartesJogadorBaixo.add(new JLabel("Argent: "+jogo.getJogadores().get(0).getDinheiro()));
+        CartesJogadorBaixo.add(new JLabel("Argent: "+jogo.getJogadores().get(0).getArgent()));
 
-        CartesJogadorEsquerda.add(new JLabel(jogo.getJogadores().get(1).nome));
+        CartesJogadorEsquerda.add(new JLabel(jogo.getJogadores().get(1).nom));
         for(Carte c:jogo.getJogadores().get(1).getHand()){
             CartesJogadorEsquerda.add(new JButton(c.icon));
         }
-        CartesJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJogadores().get(1).getDinheiro()));
+        CartesJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJogadores().get(1).getArgent()));
 
-        topo1.add(new JLabel(jogo.getJogadores().get(2).nome));
+        topo1.add(new JLabel(jogo.getJogadores().get(2).nom));
         for(Carte c:jogo.getJogadores().get(2).getHand()){
             topo1.add(new JButton(c.icon));
         }
-        topo1.add(new JLabel("Argent: "+jogo.getJogadores().get(2).getDinheiro()));
+        topo1.add(new JLabel("Argent: "+jogo.getJogadores().get(2).getArgent()));
 
-        topo2.add(new JLabel(jogo.getJogadores().get(3).nome));
+        topo2.add(new JLabel(jogo.getJogadores().get(3).nom));
         for(Carte c:jogo.getJogadores().get(3).getHand()){
             topo2.add(new JButton(c.icon));
         }
-        topo2.add(new JLabel("Argent: "+jogo.getJogadores().get(3).getDinheiro()));
+        topo2.add(new JLabel("Argent: "+jogo.getJogadores().get(3).getArgent()));
 
-        topo3.add(new JLabel(jogo.getJogadores().get(4).nome));
+        topo3.add(new JLabel(jogo.getJogadores().get(4).nom));
         for(Carte c:jogo.getJogadores().get(4).getHand()){
             topo3.add(new JButton(c.icon));
         }
-        topo3.add(new JLabel("Argent: "+jogo.getJogadores().get(4).getDinheiro()));
+        topo3.add(new JLabel("Argent: "+jogo.getJogadores().get(4).getArgent()));
 
-        CartesJogadorDireita.add(new JLabel(jogo.getJogadores().get(5).nome));
+        CartesJogadorDireita.add(new JLabel(jogo.getJogadores().get(5).nom));
         for(Carte c:jogo.getJogadores().get(5).getHand()){
             CartesJogadorDireita.add(new JButton(c.icon));
         }
-        CartesJogadorDireita.add(new JLabel("Argent: "+jogo.getJogadores().get(5).getDinheiro()));
+        CartesJogadorDireita.add(new JLabel("Argent: "+jogo.getJogadores().get(5).getArgent()));
 
 
 
