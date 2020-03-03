@@ -167,26 +167,58 @@ public class JanelaTeste extends JFrame {
         jogo.parier(jogo.getValeurCall(),0);
         mettreAJourInfosJoueur(0);
         mettreAJourTable();
+        getJouerActif().dejaJoue=true;
+        prochainJoueur();
     }
 
     public void fold(){
         jogo.getJoueurs().get(0).fold();
         mettreAJourCartesJoueur(0);
         mettreAJourTable();
+        getJouerActif().dejaJoue=true;
+        prochainJoueur();
     }
 
     public void raise(){
         jogo.parier(getRaise(),0);
         mettreAJourInfosJoueur(0);
         mettreAJourTable();
-    }
-
-    public int getRaise(){
-        return Integer.parseInt(valeurRaise.getText());
+        getJouerActif().dejaJoue=true;
     }
 
     public Joueur getJouerActif(){
         return jogo.getJoueurs().get(jogo.joueurActif);
+    }
+
+    public int getRaise(){
+        int ret=0;
+        boolean ok=true;
+        try {
+            ret = Integer.parseInt(valeurRaise.getText());
+        }
+        catch(Exception e){
+            ok=false;
+            ret=0;
+        }
+        if(ok){
+            prochainJoueur();
+        }
+        return ret;
+    }
+
+    public void prochainJoueur(){
+        functionsJogadorBaixo.setVisible(false);
+        jogo.prochainJoueur();
+        mettreAJourTable();
+        revalidate();
+        repaint();
+    }
+
+    public void faireJoueurActif(){
+        if(jogo.joueurActif==0){
+            functionsJogadorBaixo.setVisible(true);
+        }
+        jogo.getJoueurs().get(jogo.joueurActif).jouer();
     }
 }
 

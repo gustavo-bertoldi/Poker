@@ -178,6 +178,7 @@ public class Joueur {
         return smallBlind;
     }
 
+
     /*
     Permet de reinitialiser toutes les atributs dealer, small blind et big blind du joueur
      */
@@ -185,5 +186,6 @@ public class Joueur {
         this.dealer=false;
         this.smallBlind=false;
         this.bigBlind=false;
+        this.dejaJoue=false;
     }
 }

@@ -23,10 +23,8 @@ public class EcouteurJoueur implements ActionListener {
         }
         else if(fun=='r'){
             j.raise();
-
         }
         j.revalidate();
         j.repaint();
-        j.getJouerActif().dejaJoue=true;
     }
 }
