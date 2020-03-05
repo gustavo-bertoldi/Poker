@@ -9,7 +9,7 @@ public class Hand  implements Comparable{
     protected LinkedList<Carte> surTable= new LinkedList<>();
     private int valeurHand;
     /*
-    Idée derrière valeurHand:
+    Idée derrière valeurHand: *IDEIA FODA*
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
     - VALEURS:
     Hand                           Calcul                                                                               Range                      DONE
