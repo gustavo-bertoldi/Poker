@@ -105,7 +105,7 @@ public class Joueur {
      */
     public void ajouterCartes(LinkedList<Carte> cartes){
         this.hand.getCartes().addAll(cartes);
-        this.hand.addSurTable(cartes);
+        this.hand.setSurTable(cartes);
     }
 
     /*

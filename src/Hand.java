@@ -12,16 +12,17 @@ public class Hand  implements Comparable{
     Idée derrière valeurHand:
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
     - VALEURS:
-    Hand                           Calcul                                                              Range                DONE
-    HC                             valeurHand = valeur*10                                      [20;140]                     OK
-    Pair                           valeurHand = (valeur)*100 +highSurMain                      [202;1414]                   OK
-    TwoPairs                       valeurHand = Valeur1*1000 + valeur2*100+hSM Valeur1>Valeur2 [3.202;15,314]               OK
-    ThreeOAK                       valeurHand = (valeur)*10.000 + hSM                          [20.002;140.014]             OK
-    Straight                       valeurHand = (highCard)*100.000 +highSurMain                [500.001;1.400.014]
-    Flush(sans straight)           valeurHand = (2*1.000.000) + highSurMain                    [2.000.006;2.000.014]        OK
-    FullHouse                      valeurHand = valeurTOAK*1.000.000 + valeurPair*100          [2.001.400;14.001.300]       OK
-    FourOAK                        valeurHand = 2*10.000.000 + valeur*100 * hSM                [20.000.002;20.000.014]      OK
-    StraightFlush                  valeurHand = 2*100.000.000 + highSurMain                    [200.000.005;200.000.014]
+    Hand                           Calcul                                                                               Range                      DONE
+    HC                             valeurHand = valeur*100                                                          [200;1.400]                     OK
+    Pair                           valeurHand = (valeur)*1000 +10*highSurMain+ lowSurMain                           [2.034;15.431]                  OK
+    TwoPairs                       valeurHand = Valeur1*10.000 + valeur2*100+ 10*highSurMain+ lowSurMain            [20.345;153.130]                OK
+    ThreeOAK                       valeurHand = (valeur)*100.000 + 10*highSurMain+ lowSurMain                       [200.034;1.400.100]             OK
+    Straight                       valeurHand = 5.000.000 + valuer                                                  [5.000.005;5.000.014]           OK
+    Flush                          valeurHand = 10.000.000 + (high)*10.000+(second)*1.000+...+(last)                [10.075.432;10.154.301]         OK  *SUGESTAO*
+    FullHouse                      valeurHand = 20.000.000 + valeurTOAK*10.000 + valeurPair*1.000                   [20.023.000;20.153.000]         OK
+    FourOAK                        valeurHand = 30.000.000 + valeur*10.000 + highSurMain*1000 + lowSurMain*100      [30.024.300;30.154.200]         OK
+    StraightFlush                  valeurHand = 40.000.000 + valeur                                                 [40.000.005;40.000.013]         OK
+    RoyalStraightFlush             valeurHand = 50.000.000                                                           50.000.000                     OK
      */
     //Methods avec Straight ne considerent pas le cas ou le straight est sur la table,...
 
@@ -36,16 +37,20 @@ public class Hand  implements Comparable{
         this.cartes.addAll(cartes);
     }
 
-    public void addSurMain(LinkedList<Carte> cartesDistrib){
+    public void setSurMain(LinkedList<Carte> cartesDistrib){
         surMain.addAll(cartesDistrib);
         Collections.sort(surMain, Collections.reverseOrder());
     }
-    public void addSurTable(LinkedList<Carte> miseSurTable){
-        surTable.addAll(miseSurTable);
+    public void setSurTable(LinkedList<Carte> misesSurTable){
+        surTable.addAll(misesSurTable);
         Collections.sort(surMain, Collections.reverseOrder());
     }
     public int getHighSurMain(){
         return surMain.get(0).valeur;
+    }
+
+    public int getLowSurMain(){
+        return surMain.get(1).valeur;
     }
     /*
     Verifie la quantite de pairs dans une hand et retourne une LL avec les cartes trouvées
@@ -53,7 +58,6 @@ public class Hand  implements Comparable{
     public LinkedList<Carte> pairs(){
         int q=0; //Quantité de valeurs égales trouvées
         LinkedList<Carte> valeursTrouvees = new LinkedList<>();
-
         for(int i=2;i<=14;i++){ // i répresente chaque valuer possible des cartes
             LinkedList<Carte> candidats = new LinkedList<>();
             for(Carte c : cartes){ //Pour chaque carte dans hand on compare sa valeur avec chaque valeur possible, si égales, on aout cette carte à la liste candidats
@@ -68,15 +72,15 @@ public class Hand  implements Comparable{
             }
             q=0; //Fin de la boucle, le compteur de cartes égales est mis à 0
         }
-        if(valeursTrouvees.size()>2) {
+        if(valeursTrouvees.size()>2) {  //Cas 2 pairs
             Collections.sort(valeursTrouvees, Collections.reverseOrder());
             while(valeursTrouvees.size()>4) { //si plus d'un pair
                 valeursTrouvees.removeLast();
             }
-            valeurHand = (valeursTrouvees.get(0).valeur*10000) + (valeursTrouvees.getLast().valeur*100) +getHighSurMain();
+            valeurHand = 10000*valeursTrouvees.getFirst().valeur + 100*valeursTrouvees.getLast().valeur + 10*getHighSurMain() + getLowSurMain();
             return valeursTrouvees;
         }else if(valeursTrouvees.size() == 2){ // si un pair
-            valeurHand = (valeursTrouvees.get(0).valeur*100) +getHighSurMain();
+            valeurHand = 1000*valeursTrouvees.getFirst().valeur +  10*getHighSurMain() +getLowSurMain();
             return valeursTrouvees;
         }else{return null;}
     }
@@ -104,7 +108,7 @@ public class Hand  implements Comparable{
             while(valeursTrouvees.size()>3){
                 valeursTrouvees.removeLast();
             }
-            valeurHand = (valeursTrouvees.get(0).valeur*10000) +getHighSurMain();
+            valeurHand = 30000000 + 10000*valeursTrouvees.getFirst().valeur +1000*getHighSurMain() + 100*getLowSurMain();
             return valeursTrouvees;
         }
         else{return null;}
@@ -199,7 +203,7 @@ public class Hand  implements Comparable{
         }
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
-            valeurHand = 2000000 +getHighSurMain();
+            valeurHand = 10000000 + 10000*flush.get(0).valeur + 1000*flush.get(1).valeur + 100*flush.get(2).valeur+10*flush.get(3).valeur+flush.get(4).valeur;
             return flush;
         }
         else{
@@ -212,7 +216,7 @@ public class Hand  implements Comparable{
      */
     public Carte highCard(){ // changee pour prendre la plus haute sur main
        Collections.sort(surMain, Collections.reverseOrder());
-       valeurHand = getHighSurMain()*10;
+       valeurHand = getHighSurMain()*100;
        return surMain.get(0);
     }
 
@@ -228,7 +232,7 @@ public class Hand  implements Comparable{
             int valTOAK = threeOfAKind().get(0).valeur;
             fullHouse.addAll(pairs());
             fullHouse.addAll(threeOfAKind());
-            valeurHand = valTOAK*1000000 +valPair*100;
+            valeurHand = 20000000 + valTOAK*10000 + valPair*1000;
             return fullHouse;
         }
         else{
@@ -244,6 +248,7 @@ public class Hand  implements Comparable{
         /* Idée de la méthode: verifier si la liste flush() contient un Straight
         */
         LinkedList<Carte> straightF = straight(flush);
+        valeurHand=40000000+straightF.getFirst().valeur;
         return straightF;
     }
     // si straight
