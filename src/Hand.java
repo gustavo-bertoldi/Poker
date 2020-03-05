@@ -27,15 +27,27 @@ public class Hand  implements Comparable{
      */
     //Methods avec Straight ne considerent pas le cas ou le straight est sur la table,...
 
-    public Hand(LinkedList<Carte> cartes){
-        this.cartes=cartes;
-        Collections.sort(cartes, Collections.reverseOrder());
+    public Hand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
+        this.surMain=cartesSurMain;
+        this.surTable=cartesSurTable;
+        cartes.addAll(surMain);
+        cartes.addAll(surTable);
+        Collections.sort(cartes,Collections.reverseOrder());
     }
 
     public LinkedList<Carte> getCartes(){return cartes;}
 
     public void setHand(LinkedList<Carte> cartes){
         this.cartes.addAll(cartes);
+    }
+
+    public String getDescription(){
+        if(description!=null){
+            return description;
+        }
+        else{
+            return "";
+        }
     }
 
     public void setSurMain(LinkedList<Carte> cartesDistrib){
@@ -48,6 +60,14 @@ public class Hand  implements Comparable{
     }
     public int getHighSurMain(){
         return surMain.get(0).valeur;
+    }
+
+    private void ajouterDescriptionKicker(Carte k){
+        description+=". Kicker "+k.description(false);
+    }
+
+    public int getValeurHand(){
+        return valeurHand;
     }
 
     public int getLowSurMain(){
@@ -141,7 +161,7 @@ public class Hand  implements Comparable{
         }
         if(valeursTrouvees.size()>0){
             valeurHand = 2*10000000 + (valeursTrouvees.get(0).valeur*100) + getHighSurMain();
-            description = "Carre de"+valeursTrouvees.getFirst().description(true);
+            description = "Carre de "+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }
         else{return null;}
@@ -233,7 +253,7 @@ public class Hand  implements Comparable{
      */
     public LinkedList<Carte> fullHouse(){
         LinkedList<Carte> fullHouse = new LinkedList<Carte>();
-        if(pairs().size()==2 && threeOfAKind().size()>=1){ //possibilité d'avoir deux pairs et une TOAK
+        if(pairs()!=null && threeOfAKind()!=null && pairs().size()>=2 && threeOfAKind().size()>=1){ //possibilité d'avoir deux pairs et une TOAK
             LinkedList<Carte> pairs = pairs();
             int valPair = pairs().get(0).valeur;
             int valTOAK = threeOfAKind().get(0).valeur;
@@ -256,7 +276,10 @@ public class Hand  implements Comparable{
         /* Idée de la méthode: verifier si la liste flush() contient un Straight
         */
         LinkedList<Carte> straightF = straight(flush);
-        valeurHand=40000000+straightF.getFirst().valeur;
+        if(straightF!=null) {
+            valeurHand = 40000000 + straightF.getFirst().valeur;
+            description = "Straight flush, carte haute "+straightF.getFirst().description(false);
+        }
         return straightF;
     }
     // si straight
@@ -291,8 +314,8 @@ public class Hand  implements Comparable{
 
         if(straight.size() <5) {
             straight = null;
-            if(cartes.get(7).valeur==1){ // si pas de straight 12345, rechanger la valeur du ace pour ne pas gener les autres methodes
-                cartes.get(7).valeur = 14;
+            if(cartes.getLast().valeur==1){ // si pas de straight 12345, rechanger la valeur du ace pour ne pas gener les autres methodes
+                cartes.getLast().valeur = 14;
             }
         }
 
@@ -358,7 +381,8 @@ public class Hand  implements Comparable{
     RETORNA TRUE SE HOUVER UM ROYAL STRAIGHT FLUSH NA HAND E FALSE SE NAO HOUVER
      */
     private boolean royalStraightFlush(LinkedList<Carte> straightFlush){
-        if(straightFlush.get(0).valeur ==14){
+        if(straightFlush!=null && straightFlush.get(0).valeur ==14){
+            description="Royal Straight Flush";
             return true;
         }
         else{
@@ -394,5 +418,39 @@ public class Hand  implements Comparable{
         return "valeur: "+t;
     }
 
+    public LinkedList<Carte> calculerValeurHand(){
+        LinkedList<Carte> result = new LinkedList<Carte>();
+        description="";
+            /*if(royalStraightFlush(straightFlush(flush()))){
+                result=flush();
+            }
+            else if(straightFlush(flush())!=null){
+                result=flush();
+            }*/
+            if(fourOfAKind()!=null){
+                result=fourOfAKind();
+            }
+            else if(fullHouse()!=null){
+                result=fullHouse();
+            }
+            else if(flush()!=null){
+                result=flush();
+            }
+            else if(straight()!=null){
+                result=straight();
+            }
+            else if(threeOfAKind()!=null){
+                result=threeOfAKind();
+            }
+            else if(pairs()!=null){
+                result=pairs();
+            }
+            else{
+                result.add(highCard());
+            }
+        return result;
+    }
+
 }
+
 

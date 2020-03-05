@@ -45,7 +45,7 @@ public class Intelligence {
     }
     public void setSurMain(LinkedList<Carte> surMain){
         this.surMain = surMain;
-        hand = new Hand(surMain);
+        hand.setSurMain(surMain);
     }
 
     public void setSurTable(LinkedList<Carte> tourneesSurTable){

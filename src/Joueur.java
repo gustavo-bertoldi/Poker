@@ -96,8 +96,7 @@ public class Joueur {
      */
     public void setCartesInitiales(LinkedList<Carte> cartes){
         this.cartesInitiales=cartes;
-        this.hand =new Hand(cartes);
-        this.hand.surMain = cartes;
+        this.hand.setSurMain(cartes);
     }
     /*
     Permet d'ajouter les cartes donnes en parametre a la ll hand
