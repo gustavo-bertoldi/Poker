@@ -50,6 +50,41 @@ public class Carte extends Object implements Comparable{
         }
     }
 
+    public String description(boolean pluriel){
+        String descp="";
+        if(valeur<=10){
+            descp=""+valeur;
+        }
+        else if(valeur==11){
+            if(pluriel) {
+                descp = "valets";
+            }
+            else{
+                descp="valet";
+            }
+        }
+        else if(valeur==12){
+            if(pluriel) {
+                descp = "dames";
+            }
+            else{
+                descp="dame";
+            }
+        }
+        else if(valeur==13){
+            if(pluriel) {
+                descp = "rois";
+            }
+            else{
+                descp="roi";
+            }
+        }
+        else if(valeur==14){
+            descp="as";
+        }
+        return descp;
+    }
+
     private void redimensionar(int w, int h){
         Image img = icon.getImage();
         BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);

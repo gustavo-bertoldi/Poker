@@ -7,6 +7,7 @@ public class Hand  implements Comparable{
     protected LinkedList<Carte> cartes = new LinkedList<>();
     protected LinkedList<Carte> surMain= new LinkedList<>();
     protected LinkedList<Carte> surTable= new LinkedList<>();
+    private String description; //Description textuelle de chaque hand Ex: Pair de dames
     private int valeurHand;
     /*
     Idée derrière valeurHand: *IDEIA FODA*
@@ -78,9 +79,11 @@ public class Hand  implements Comparable{
                 valeursTrouvees.removeLast();
             }
             valeurHand = 10000*valeursTrouvees.getFirst().valeur + 100*valeursTrouvees.getLast().valeur + 10*getHighSurMain() + getLowSurMain();
+            description = "Deux pairs, "+valeursTrouvees.getFirst().description(true)+" et "+valeursTrouvees.getLast().description(true);
             return valeursTrouvees;
         }else if(valeursTrouvees.size() == 2){ // si un pair
             valeurHand = 1000*valeursTrouvees.getFirst().valeur +  10*getHighSurMain() +getLowSurMain();
+            description = "Pair de "+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }else{return null;}
     }
@@ -109,6 +112,7 @@ public class Hand  implements Comparable{
                 valeursTrouvees.removeLast();
             }
             valeurHand = 30000000 + 10000*valeursTrouvees.getFirst().valeur +1000*getHighSurMain() + 100*getLowSurMain();
+            description = "Brelan de "+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }
         else{return null;}
@@ -137,6 +141,7 @@ public class Hand  implements Comparable{
         }
         if(valeursTrouvees.size()>0){
             valeurHand = 2*10000000 + (valeursTrouvees.get(0).valeur*100) + getHighSurMain();
+            description = "Carre de"+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }
         else{return null;}
@@ -204,6 +209,7 @@ public class Hand  implements Comparable{
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
             valeurHand = 10000000 + 10000*flush.get(0).valeur + 1000*flush.get(1).valeur + 100*flush.get(2).valeur+10*flush.get(3).valeur+flush.get(4).valeur;
+            description = "Flush, carte haute "+flush.getFirst().description(false);
             return flush;
         }
         else{
@@ -217,6 +223,7 @@ public class Hand  implements Comparable{
     public Carte highCard(){ // changee pour prendre la plus haute sur main
        Collections.sort(surMain, Collections.reverseOrder());
        valeurHand = getHighSurMain()*100;
+       description = "Carte haute "+cartes.getFirst().description(false);
        return surMain.get(0);
     }
 
@@ -233,6 +240,7 @@ public class Hand  implements Comparable{
             fullHouse.addAll(pairs());
             fullHouse.addAll(threeOfAKind());
             valeurHand = 20000000 + valTOAK*10000 + valPair*1000;
+            description = "Full House, trois "+pairs.getFirst().description(true)+", deux "+threeOfAKind().getFirst().description(true);
             return fullHouse;
         }
         else{
@@ -323,7 +331,9 @@ public class Hand  implements Comparable{
         if(straight.size() <5) {
             straight = null; // pas besoin de rechanger la valeur parce qu'on utilise flush et pas cartes
         }
-
+        if(straight!=null){
+            description="Suite, carte haute "+straight.getFirst().description(false);
+        }
         return straight;
     }
 
