@@ -1,5 +1,6 @@
 import com.sun.jdi.connect.spi.TransportService;
 
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class Jeu {
@@ -256,10 +257,38 @@ public class Jeu {
     Quand un joueur perd, permet de le sortir du jeu bien comme de la ll de joueurs
     @param int indice- indice du joueur a sortir
      */
-    public void sortirJoueur(int indice){
+    public void sortirJoueur(int indice) {
         joueurs.remove(indice);
         nJoueurs--;
     }
+
+    /*
+    Methode private, retourne une ll avec les hands des joueurs dea triee
+     */
+    private LinkedList<Hand> getAllHands(){
+        LinkedList<Hand> hands = new LinkedList<>();
+        for(Joueur j:joueurs){
+            hands.add(j.getHand());
+        }
+        Collections.sort(hands,Collections.reverseOrder());
+        return hands;
+    }
+
+    /*
+    Retourne la hand gagnante, si split pot, retou
+     */
+    public LinkedList<Hand> handsGagnantes(){
+        LinkedList<Hand> handsGagnantes = new LinkedList<>();
+        LinkedList<Hand> allHands = getAllHands();
+        handsGagnantes.add(allHands.getFirst());
+        for(int i=1;i<allHands.size();i++){
+            if(allHands.get(i)==allHands.get(0)){
+                handsGagnantes.add(allHands.get(i));
+            }
+        }
+        return handsGagnantes;
+    }
+
 
    /* public Joueur demarrerTournee() {
         LinkedList<Joueur> joueursDansLeJeu = joueurs;
