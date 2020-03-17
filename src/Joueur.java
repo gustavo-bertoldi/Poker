@@ -8,7 +8,7 @@ public class Joueur {
     protected static int nJoueurs=0; //UTILISE POUR DIFERENCIER LES JOUEURS ORDINATEURS
     private int argent; //L'ARGENT
     private boolean dealer; //SI LE JOUEUR EST LE DEALER
-    private boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FLOPPé)
+    private boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
     private boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
     private boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
     protected Intelligence intelligence;
@@ -88,7 +88,8 @@ public class Joueur {
     /*
     Permet de modifier la somme d'argent actuelle, au cas ou le joueur ait gagne ou perdu de l'argent
      */
-    public void ajouterArgent(int q){this.argent+=q;}
+    public void ajouterArgent(int q){
+        this.argent += q;}
 
     /*
     Permet de definir les deux cartes initiales du jours, ajoute ces deux premier cartes a la hand
