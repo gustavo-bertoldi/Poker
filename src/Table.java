@@ -2,34 +2,20 @@ import java.util.LinkedList;
 
 public class Table {
 
-    private LinkedList<Carte> mesa= new LinkedList<>();
-    private Paquet paquet;
+    private LinkedList<Carte> cartesTable = new LinkedList<>();
     private int pot;
 
-    public Table(Paquet paquet){
-        this.paquet=paquet;
-    }
+    public Table(){
 
-    public void distribuirCartes(){
-        Distributeur.distribuirCartesMesa(paquet,mesa);
-        pot=0;
     }
 
     public LinkedList<Carte> getMesa(){
-        return mesa;
-    }
-
-    public String visualizarMesa(){
-        String s="";
-        for(Carte c: mesa){
-            s=s+c.toString()+"\n";
-        }
-        return s;
+        return cartesTable;
     }
 
     public void flop(){
         for(int i=0;i<3;i++){
-            mesa.get(i).montrerCarte();
+            cartesTable.get(i).montrerCarte();
         }
     }
 
@@ -40,10 +26,14 @@ public class Table {
     }
 
     public void turn(){
-        mesa.get(3).montrerCarte();
+        cartesTable.get(3).montrerCarte();
     }
 
     public void river(){
-        mesa.get(4).montrerCarte();
+        cartesTable.get(4).montrerCarte();
+    }
+
+    public void setCartesTable(LinkedList<Carte> cartesTable){
+        this.cartesTable=cartesTable;
     }
 }

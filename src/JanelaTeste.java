@@ -198,7 +198,6 @@ public class JanelaTeste extends JFrame {
         }
         catch(Exception e){
             ok=false;
-            ret=0;
         }
         if(ok){
             prochainJoueur();
