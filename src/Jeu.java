@@ -28,9 +28,7 @@ public class Jeu {
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(int nJoeurs, int smallBlind, int niveau){
-        this.smallBlind=smallBlind;
-        this.bigBlind=2*smallBlind;
+    public Jeu(int nJoeurs, int niveau){
         this.nJoueurs=nJoeurs;
         joueurs.add(new Joueur(niveau));
         for(int i=1;i<nJoueurs;i++){
@@ -47,9 +45,7 @@ public class Jeu {
     Le deuxieme constructeur fait essentiellement la meme chose que le premier, mais
     on met le nombre joueurs en 6 par default.
      */
-    public Jeu(int smallBlind, int niveau){
-        this.smallBlind=smallBlind;
-        this.bigBlind=2*smallBlind;
+    public Jeu(int niveau){
         this.nJoueurs=6;
         joueurs.add(new Joueur(niveau));
         for(int i=1;i<6;i++){
@@ -289,26 +285,19 @@ public class Jeu {
         return handsGagnantes;
     }
 
-
-   /* public Joueur demarrerTournee() {
-        LinkedList<Joueur> joueursDansLeJeu = joueurs;
-        prochainJoueur();
-        joueurs.get(tourBig).parier(bigBlind);
-        joueurs.get(tourSmall).parier(smallBlind);
-        while (joueursDansLeJeu.size() > 1) {
-            for (int i = 0; i < joueursDansLeJeu.size(); i++) {
-                if (joueurActif == joueursDansLeJeu.size() - 1) {
-                    //joueursDansLeJeu.get(joueurActif).jouer();
-                    joueurActif = 0;
-                } else {
-                    //joueursDansLeJeu.get(joueurActif).jouer();
-                    joueurActif++;
-                }
-                //joueursDansLeJeu.get(joueurActif).jouer();
-                joueursDansLeJeu.removeIf(j -> !j.isDansJeu());
-            }
+    private void distribuerCartesJoueurs(){
+        for (Joueur j : joueurs){
+            LinkedList<Carte> cartesJoueur = new LinkedList<>();
+            int i = (int) ((paquet.size()) * Math.random());
+            cartesJoueur.add(paquet.get(i));
+            paquet.remove(i);
+            i = (int) ((paquet.size()) * Math.random());
+            cartesJoueur.add(paquet.get(i));
+            paquet.remove(i);
         }
-        return joueursDansLeJeu.get(0);
-    }*/
+    }
+
+
+
 
 }

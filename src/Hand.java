@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -7,47 +8,38 @@ public class Hand  implements Comparable{
     protected LinkedList<Carte> cartes = new LinkedList<>();
     protected LinkedList<Carte> surMain= new LinkedList<>();
     protected LinkedList<Carte> surTable= new LinkedList<>();
-    private String description; //Description textuelle de chaque hand Ex: Pair de dames
-    private int valeurHand;
+    private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
+    private int valeurHand = -1;
     /*
     Idée derrière valeurHand: *IDEIA FODA*
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
     - VALEURS:
     Hand                           Calcul                                                                               Range                      DONE
-    HC                             valeurHand = valeur*100                                                          [200;1.400]                     OK
-    Pair                           valeurHand = (valeur)*1000 +10*highSurMain+ lowSurMain                           [2.034;15.431]                  OK
-    TwoPairs                       valeurHand = Valeur1*10.000 + valeur2*100+ 10*highSurMain+ lowSurMain            [20.345;153.130]                OK
-    ThreeOAK                       valeurHand = (valeur)*100.000 + 10*highSurMain+ lowSurMain                       [200.034;1.400.100]             OK
-    Straight                       valeurHand = 5.000.000 + valuer                                                  [5.000.005;5.000.014]           OK
-    Flush                          valeurHand = 10.000.000 + (high)*10.000+(second)*1.000+...+(last)                [10.075.432;10.154.301]         OK  *SUGESTAO*
-    FullHouse                      valeurHand = 20.000.000 + valeurTOAK*10.000 + valeurPair*1.000                   [20.023.000;20.153.000]         OK
-    FourOAK                        valeurHand = 30.000.000 + valeur*10.000 + highSurMain*1000 + lowSurMain*100      [30.024.300;30.154.200]         OK
-    StraightFlush                  valeurHand = 40.000.000 + valeur                                                 [40.000.005;40.000.013]         OK
-    RoyalStraightFlush             valeurHand = 50.000.000                                                           50.000.000                     OK
+    HC                    valeurHand = high*10.000 + second*1.000 + third*100 + fourth*10 + fifth                  [200;1.400]                     OK
+    Pair                  valeurHand = valeurPair*100.000 + high*100 + 10*second + third                           [2.034;15.431]                  OK
+    TwoPairs              valeurHand = valeurPair1*1.000.000 + valeurPair2*10 + high                               [20.345;153.130]                OK
+    ThreeOAK              valeurHand = valeurTOAK*10.000.000 + 10*high + second                                    [200.034;1.400.100]             OK
+    Straight              valeurHand = 200.000.000 + high                                                          [5.000.005;5.000.014]           OK
+    Flush                 valeurHand = 300.000.000 + high*10.000 + second*1.000+ 100*third + 10*forth + fifth      [10.075.432;10.154.301]         OK  *SUGESTAO*
+    FullHouse             valeurHand = 400.000.000 + valeurTOAK*10 + valeurPair                                    [20.023.000;20.153.000]         OK
+    FourOAK               valeurHand = 500.000.000 + valeurFOAK*10.000 + high                                      [30.024.300;30.154.200]         OK
+    StraightFlush         valeurHand = 600.000.000 + high                                                          [40.000.005;40.000.013]         OK
+    RoyalStraightFlush    valeurHand = 700.000.000                                                                 700.000.000                     OK
      */
     //Methods avec Straight ne considerent pas le cas ou le straight est sur la table,...
 
-    public Hand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
-        this.surMain=cartesSurMain;
-        this.surTable=cartesSurTable;
-        cartes.addAll(surMain);
-        cartes.addAll(surTable);
-        Collections.sort(cartes,Collections.reverseOrder());
+    public Hand(){
     }
 
     public LinkedList<Carte> getCartes(){return cartes;}
 
     public void setHand(LinkedList<Carte> cartes){
         this.cartes.addAll(cartes);
+        Collections.sort(this.cartes,Collections.reverseOrder());
     }
 
     public String getDescription(){
-        if(description!=null){
-            return description;
-        }
-        else{
-            return "";
-        }
+        return description;
     }
 
     public void setSurMain(LinkedList<Carte> cartesDistrib){
@@ -58,20 +50,9 @@ public class Hand  implements Comparable{
         surTable.addAll(misesSurTable);
         Collections.sort(surMain, Collections.reverseOrder());
     }
-    public int getHighSurMain(){
-        return surMain.get(0).valeur;
-    }
-
-    private void ajouterDescriptionKicker(Carte k){
-        description+=". Kicker "+k.description(false);
-    }
 
     public int getValeurHand(){
         return valeurHand;
-    }
-
-    public int getLowSurMain(){
-        return surMain.get(1).valeur;
     }
     /*
     Verifie la quantite de pairs dans une hand et retourne une LL avec les cartes trouvées
@@ -98,12 +79,8 @@ public class Hand  implements Comparable{
             while(valeursTrouvees.size()>4) { //si plus d'un pair
                 valeursTrouvees.removeLast();
             }
-            valeurHand = 10000*valeursTrouvees.getFirst().valeur + 100*valeursTrouvees.getLast().valeur + 10*getHighSurMain() + getLowSurMain();
-            description = "Deux pairs, "+valeursTrouvees.getFirst().description(true)+" et "+valeursTrouvees.getLast().description(true);
             return valeursTrouvees;
         }else if(valeursTrouvees.size() == 2){ // si un pair
-            valeurHand = 1000*valeursTrouvees.getFirst().valeur +  10*getHighSurMain() +getLowSurMain();
-            description = "Pair de "+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }else{return null;}
     }
@@ -131,8 +108,6 @@ public class Hand  implements Comparable{
             while(valeursTrouvees.size()>3){
                 valeursTrouvees.removeLast();
             }
-            valeurHand = 30000000 + 10000*valeursTrouvees.getFirst().valeur +1000*getHighSurMain() + 100*getLowSurMain();
-            description = "Brelan de "+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }
         else{return null;}
@@ -160,8 +135,6 @@ public class Hand  implements Comparable{
             q=0; //fin de la boucle, q est mis a 0
         }
         if(valeursTrouvees.size()>0){
-            valeurHand = 2*10000000 + (valeursTrouvees.get(0).valeur*100) + getHighSurMain();
-            description = "Carre de "+valeursTrouvees.getFirst().description(true);
             return valeursTrouvees;
         }
         else{return null;}
@@ -228,8 +201,6 @@ public class Hand  implements Comparable{
         }
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
-            valeurHand = 10000000 + 10000*flush.get(0).valeur + 1000*flush.get(1).valeur + 100*flush.get(2).valeur+10*flush.get(3).valeur+flush.get(4).valeur;
-            description = "Flush, carte haute "+flush.getFirst().description(false);
             return flush;
         }
         else{
@@ -240,11 +211,8 @@ public class Hand  implements Comparable{
     /*
         Retourne la carte de valeur plus haute dans la hand
      */
-    public Carte highCard(){ // changee pour prendre la plus haute sur main
-       Collections.sort(surMain, Collections.reverseOrder());
-       valeurHand = getHighSurMain()*100;
-       description = "Carte haute "+cartes.getFirst().description(false);
-       return surMain.get(0);
+    public Carte highCard(){
+       return cartes.getFirst();
     }
 
     /*
@@ -254,13 +222,12 @@ public class Hand  implements Comparable{
     public LinkedList<Carte> fullHouse(){
         LinkedList<Carte> fullHouse = new LinkedList<Carte>();
         if(pairs()!=null && threeOfAKind()!=null && pairs().size()>=2 && threeOfAKind().size()>=1){ //possibilité d'avoir deux pairs et une TOAK
-            LinkedList<Carte> pairs = pairs();
-            int valPair = pairs().get(0).valeur;
-            int valTOAK = threeOfAKind().get(0).valeur;
-            fullHouse.addAll(pairs());
-            fullHouse.addAll(threeOfAKind());
-            valeurHand = 20000000 + valTOAK*10000 + valPair*1000;
-            description = "Full House, trois "+pairs.getFirst().description(true)+", deux "+threeOfAKind().getFirst().description(true);
+            LinkedList<Carte> pair = pairs();
+            LinkedList<Carte> brelan = threeOfAKind();
+            fullHouse.addAll(pair);
+            fullHouse.addAll(brelan);
+            valeurHand = 400000000 + brelan.getFirst().valeur + pair.getFirst().valeur;
+            description = "Full House, trois "+pairs().getFirst().description(true)+", deux "+threeOfAKind().getFirst().description(true);
             return fullHouse;
         }
         else{
@@ -271,16 +238,16 @@ public class Hand  implements Comparable{
     /*
     RETORNA UMA LISTA COM OS valeurES DO STRAIGHT FLUSH EM ORDEM DESCRESCENTE
      */
-    public LinkedList<Carte> straightFlush(LinkedList<Carte> flush) {
+    public LinkedList<Carte> straightFlush() {
         // verif de flush()!=null et staight()!=null pas necessaire, car deja ne sera appellee si les deux sont dif de null
         /* Idée de la méthode: verifier si la liste flush() contient un Straight
         */
-        LinkedList<Carte> straightF = straight(flush);
-        if(straightF!=null) {
-            valeurHand = 40000000 + straightF.getFirst().valeur;
-            description = "Straight flush, carte haute "+straightF.getFirst().description(false);
+        if(flush()!=null){
+            return straight(flush());
         }
-        return straightF;
+        else{
+            return null;
+        }
     }
     // si straight
     public LinkedList<Carte> straight(){
@@ -322,7 +289,9 @@ public class Hand  implements Comparable{
 
         return straight;
     }
-    public LinkedList<Carte> straight(LinkedList<Carte> flush){
+
+
+    private LinkedList<Carte> straight(LinkedList<Carte> flush){
         // meme methode mais en utilisant flush a la place de cartes, appelle juste dans straightFlush()
         LinkedList<Carte> straight = new LinkedList<Carte>();
         if(!isRoyalStraightPossible() && flush.get(0).valeur==14){
@@ -354,9 +323,6 @@ public class Hand  implements Comparable{
         if(straight.size() <5) {
             straight = null; // pas besoin de rechanger la valeur parce qu'on utilise flush et pas cartes
         }
-        if(straight!=null){
-            description="Suite, carte haute "+straight.getFirst().description(false);
-        }
         return straight;
     }
 
@@ -380,14 +346,8 @@ public class Hand  implements Comparable{
     /*
     RETORNA TRUE SE HOUVER UM ROYAL STRAIGHT FLUSH NA HAND E FALSE SE NAO HOUVER
      */
-    private boolean royalStraightFlush(LinkedList<Carte> straightFlush){
-        if(straightFlush!=null && straightFlush.get(0).valeur ==14){
-            description="Royal Straight Flush";
-            return true;
-        }
-        else{
-            return false;
-        }
+    public boolean royalStraightFlush(){
+            return straightFlush()!=null && straightFlush().get(0).valeur == 14;
     }
 
     public int compareTo(Object h2) {
@@ -400,53 +360,69 @@ public class Hand  implements Comparable{
         return comparaison;
     }
 
-
-    public String toString(LinkedList<Carte> lista){
-        String result="";
-        if(lista==null){
-            result= "Lista vazia";
-        }
-        else {
-            for(int i=0;i<lista.size();i++){
-                result=result+"valeur Carte: "+lista.get(i).valeur +"\n";
-            }
-        }
-        return result;
-    }
-
-    public String toString(int t){
-        return "valeur: "+t;
-    }
-
     public LinkedList<Carte> calculerValeurHand(){
         LinkedList<Carte> result = new LinkedList<Carte>();
+        LinkedList<Carte> kickers = cartes;
         description="";
-            /*if(royalStraightFlush(straightFlush(flush()))){
+            if(royalStraightFlush()){
                 result=flush();
+                description = "Royal straight flush";
+                valeurHand = 700000000;
             }
-            else if(straightFlush(flush())!=null){
-                result=flush();
-            }*/
-            if(fourOfAKind()!=null){
+            else if(straightFlush()!=null){
+                result=straightFlush();
+                description = "Straight flush, carte haute "+result.getFirst().description(false);
+                valeurHand = 600000000 + result.getFirst().valeur;
+
+            }
+            else if(fourOfAKind()!=null){
                 result=fourOfAKind();
+                kickers.removeAll(result);
+                Collections.sort(kickers,Collections.reverseOrder());
+                valeurHand = 500000000 + 10*result.getFirst().valeur + kickers.getFirst().valeur;
+                description = "Carre de "+result.getFirst().description(false)+". Kicker : "+kickers.getFirst().description(false);
             }
             else if(fullHouse()!=null){
                 result=fullHouse();
+                /*
+                La valeurHand et la description du full house sont calculées dans la methode fullHouse()
+                 */
             }
             else if(flush()!=null){
                 result=flush();
+                valeurHand = 300000000 + 10000*result.getFirst().valeur + 1000*result.get(1).valeur + 100*result.get(2).valeur + 10*result.get(3).valeur + result.get(4).valeur;
+                description = "Flush, carte haute "+result.getFirst().description(false);
             }
             else if(straight()!=null){
                 result=straight();
+                valeurHand = 200000000 + result.getFirst().valeur;
+                description = "Suite, carte haute "+result.getFirst().description(false);
             }
             else if(threeOfAKind()!=null){
                 result=threeOfAKind();
+                kickers.removeAll(result);
+                Collections.sort(kickers, Collections.reverseOrder());
+                valeurHand=10000000 + 10*kickers.getFirst().valeur + kickers.get(1).valeur;
+                description = "Brelan de "+result.getFirst().description(false)+". Kicker : "+kickers.getFirst().description(false);
             }
             else if(pairs()!=null){
                 result=pairs();
+                kickers.removeAll(result);
+                Collections.sort(kickers, Collections.reverseOrder());
+                if(result.size()==2){
+                    valeurHand = result.getFirst().valeur*100000 + kickers.getFirst().valeur*100 + kickers.get(1).valeur*10 + kickers.get(2).valeur;
+                    description = "Pair de "+result.getFirst().description(false)+". Kicker : "+kickers.getFirst().description(false);
+                }
+                else if(result.size()==4){
+                    valeurHand = 1000000*result.getFirst().valeur + 10*result.getLast().valeur + kickers.getFirst().valeur;
+                    description = "Deux pairs, "+result.getFirst().description(true)+" et "+result.getLast().description(true)+". Kicker : "+kickers.getFirst().description(false);
+                }
             }
             else{
                 result.add(highCard());
+                kickers.removeAll(result);
+                valeurHand = 10000*cartes.getFirst().valeur + 1000*cartes.get(1).valeur + 100*cartes.get(2).valeur + 10*cartes.get(3).valeur + cartes.get(4).valeur;
+                description+="Carte haute "+highCard().valeur+". Kicker : "+kickers.getFirst().description(false);
             }
         return result;
     }

@@ -56,37 +56,37 @@ public class JanelaTeste extends JFrame {
 
         infosJogadorBaixo.add(new JLabel(jogo.getJoueurs().get(0).nom));
         infosJogadorBaixo.add(new JLabel("Argent: "+jogo.getJoueurs().get(0).getArgent()));
-        for(Carte c: jogo.getJoueurs().get(0).getCartesInitiales()){
+        for(Carte c: jogo.getJoueurs().get(0).getCartesSurMain()){
             CartesJogadorBaixo.add(new JButton(c.icon));
         }
 
         CartesJogadorEsquerda.add(new JLabel(jogo.getJoueurs().get(1).nom));
         CartesJogadorEsquerda.add(new JLabel("Argent: "+jogo.getJoueurs().get(1).getArgent()));
-        for(Carte c: jogo.getJoueurs().get(1).getCartesInitiales()){
+        for(Carte c: jogo.getJoueurs().get(1).getCartesSurMain()){
             CartesJogadorEsquerda.add(new JButton(c.icon));
         }
 
         topo1.add(new JLabel(jogo.getJoueurs().get(2).nom));
         topo1.add(new JLabel("Argent: "+jogo.getJoueurs().get(2).getArgent()));
-        for(Carte c: jogo.getJoueurs().get(2).getCartesInitiales()){
+        for(Carte c: jogo.getJoueurs().get(2).getCartesSurMain()){
             topo1.add(new JButton(c.icon));
         }
 
         topo2.add(new JLabel(jogo.getJoueurs().get(3).nom));
         topo2.add(new JLabel("Argent: "+jogo.getJoueurs().get(3).getArgent()));
-        for(Carte c: jogo.getJoueurs().get(3).getCartesInitiales()){
+        for(Carte c: jogo.getJoueurs().get(3).getCartesSurMain()){
             topo2.add(new JButton(c.icon));
         }
 
         topo3.add(new JLabel(jogo.getJoueurs().get(4).nom));
         topo3.add(new JLabel("Argent: "+jogo.getJoueurs().get(4).getArgent()));
-        for(Carte c: jogo.getJoueurs().get(4).getCartesInitiales()){
+        for(Carte c: jogo.getJoueurs().get(4).getCartesSurMain()){
             topo3.add(new JButton(c.icon));
         }
 
         CartesJogadorDireita.add(new JLabel(jogo.getJoueurs().get(5).nom));
         CartesJogadorDireita.add(new JLabel("Argent: "+jogo.getJoueurs().get(5).getArgent()));
-        for(Carte c: jogo.getJoueurs().get(5).getCartesInitiales()){
+        for(Carte c: jogo.getJoueurs().get(5).getCartesSurMain()){
             CartesJogadorDireita.add(new JButton(c.icon));
         }
 
@@ -147,7 +147,7 @@ public class JanelaTeste extends JFrame {
 
     public void mettreAJourCartesJoueur(int indice){
         CartesJogadorBaixo.removeAll();
-        for(Carte c:jogo.getJoueurs().get(indice).getCartesInitiales()){
+        for(Carte c:jogo.getJoueurs().get(indice).getCartesSurMain()){
             CartesJogadorBaixo.add(new JButton(c.icon));
         }
     }
