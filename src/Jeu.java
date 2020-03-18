@@ -6,6 +6,7 @@ import java.util.LinkedList;
 public class Jeu {
 
     private LinkedList<Joueur> joueurs = new LinkedList<Joueur>(); //Les joueurs dans le jeu - remplie dans le constructeur
+    private CircularLinkedList joueursCirc = new CircularLinkedList(joueurs); //essai avec circular LL
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
     private int valeurCall=200; //La valeur minimale de pari pour jouer, defini en fonction des paris des joueurs
@@ -16,6 +17,13 @@ public class Jeu {
     protected int joueurActif; //L'indice du joueur qui sera le prochain a jouer
     private int smallBlind; //La valeur du small blind actuel
     private int bigBlind; //La valeur du big blind actuel (2*smallBlind)
+
+    /*      DÉRROULEMENT JEU
+    - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
+    - Au début, pos Dealer = joueurs.size()-3, pos SB = joueurs.size()-2, posBB = joueurs.size()-1 étant le dernier a decider
+    - S'il y a un pari, le joueur qui a parié prend la position joueurs.size() et tous les autres changent aussi.
+
+     */
 
     /*
     Jeu a deux constructeurs, un prend en parametre:
@@ -39,6 +47,7 @@ public class Jeu {
         distribuerCartesJoueurs();
         distribuerCartesTable();
         distribuerArgent(1500);
+
     }
 
     /*
@@ -56,7 +65,32 @@ public class Jeu {
         distribuerCartesJoueurs();
         distribuerCartesTable();
         distribuerArgent(1500);
+
     }
+
+    public Jeu(int niveau, char c){ //boolean juste pour differencier de l'autre methode
+        this.nJoueurs=6;
+        if(c=='d'){
+            for(int i=0;i<nJoueurs;i++){
+                Joueur j = new Joueur ((char)i);
+                if(i==4){
+                    j.dealer = true;
+                }
+                joueursCirc.addNode(j);
+            }
+        }
+        if(c=='a'){
+            for(int i=0;i<nJoueurs;i++){
+                Joueur j = new Joueur ("joueur " +i);
+                if(i==4){
+                    j.playing = true;
+                }
+                joueursCirc.addNode(j);
+            }
+        }
+
+    }
+
 
     /*
     Retourne une ll avec les cartes dans la table
@@ -264,8 +298,129 @@ public class Jeu {
             j.setArgent(q);
         }
     }
+     /*
+                                        Méthodes pour dérroulement
+     */
+
+    /*
+                                    Méthode pour changer Dealer, SB et BB
+     */
+    public void changerDealer(){ //FONCTIONNELLE VOIR MAIN
+        Node current = joueursCirc.head; // toujours partir de la tete de la liste
+        do{
+            current = current.prochainNode;
+        }while(!current.joueur.dealer ); // parcourir CLL jusqu'a ce que l'on trouve le dealer
+        (current.joueur).dealer = false; //Dealer ne l'est plus
+        (current.prochainNode.joueur).smallBlind = false; // SB ne l'est plus
+        (current.prochainNode.joueur).dealer = true; // SB deviant dealer
+        (current.prochainNode.prochainNode).joueur.bigBlind = false; // BB ne l'est plus
+        (current.prochainNode.prochainNode).joueur.smallBlind = true; // BB deviant SB
+        (current.prochainNode.prochainNode.prochainNode).joueur.bigBlind = true; // le prochain joueur deviant BB
+    }
+
+    public void avancerJeu(){ // methode a appeller des qu'une decision est prise par le joueur actif (Peut etre inutile)
+        Node current = joueursCirc.head; // toujours partir de la tete de la liste
+        do {
+                current = current.prochainNode;
+        } while (!current.joueur.playing);
+        current.joueur.playing = false;
+        current.prochainNode.joueur.playing = true;
+
+    }
+    /*
+                        Methode pour definir l'ordre du premier tour de decisions à partir du BB
+     */
+    public void definirPositionsBB() {
+        Node current = joueursCirc.head; // partir de la tete de la liste jusqua trouver le BB
+        int pos = 0; // ça va définir l'ordre sur le tour de paris
+        do {
+            current = current.prochainNode;
+        } while (!current.joueur.bigBlind);// en sortant de la boucle current == BB
+        Node bigBlind = current;
+        do {
+            current = current.prochainNode;
+            current.joueur.position = pos; //celui juste apres le BB commence à decider
+            pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+        } while (current!=bigBlind);
+
+        // à la fin le but est que celui a gauche du BB ait pos == 0 et BB ait pos la plus grande
+    }
+    /*
+                    Methode pour definir l'ordre des prises de decision suite a un pari
+                                (Donc, à être appellée si qqun parie)
+     */
+    public void definirPositionsPari(Joueur joueurQuiAParie) {
+        Node current = joueursCirc.head; // partir de la tete de la liste jusqua trouver le BB
+        int pos = 0; // ça va définir l'ordre sur le tour de paris
+        do {
+            current = current.prochainNode;
+        } while (current.joueur!=joueurQuiAParie);// en sortant de la boucle current == BB
+        Node aParie = current; // Node correspondant au joueur qui a parie
+        do {
+            current = current.prochainNode;
+            current.joueur.position = pos; //celui juste apres le BB commence à decider
+            pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+        } while (current!=aParie);
+        // à la fin le but est que celui a gauche du aParie ait pos == 0 et BB ait pos la plus grande
+    }
+    /*
+                    Methode pour definir les positions en fonction de la position du dealer
+                                (utilisée pour fin de tour de paris)
+     */
+    public void definirPositionsDealer() {
+        Node current = joueursCirc.head; // partir de la tete de la liste jusqua trouver le Dealer
+        int pos = 0; // ça va définir l'ordre sur le tour de paris
+        do {
+            current = current.prochainNode;
+        } while (!current.joueur.dealer);// en sortant de la boucle current == BB
+        Node dealerNode = current; // Node correspondant au joueur qui a parie
+        do {
+            current = current.prochainNode;
+            current.joueur.position = pos; //celui juste apres le dealer commence à decider
+            pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+        } while (current != dealerNode);
+        // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
+    }
+
+
+
+    public static void main(String[] args) {
+        Jeu j = new Jeu(0, 'a');
+        System.out.println("Table complete");
+        j.joueursCirc.display();
+       // TEST CHANGER DEALER
+
+        System.out.println("L'affichage s'arrete au dealer");
+        j.joueursCirc.parcourir('d');
+        j.changerDealer();
+        System.out.println("On vient de changer de dealer");
+        j.joueursCirc.parcourir('d');
+        j.changerDealer();
+        System.out.println("On vient de changer de dealer");
+        j.joueursCirc.parcourir('d');
+        j.changerDealer();
+        System.out.println("On vient de changer de dealer");
+        j.joueursCirc.parcourir('d');
+        j.changerDealer();
+        System.out.println("On vient de changer de dealer");
+        j.joueursCirc.parcourir('d');
+
+        // TEST DERROULEMENT JOUEUR ACTIF  // "PROBLEME"(?) SI i ==0 sur jeu()
+
+        System.out.println("L'affichage s'arrete au joueur actif");
+        j.joueursCirc.parcourir('a');
+        j.avancerJeu();
+        System.out.println("avance");
+        j.joueursCirc.parcourir('a');
+        j.avancerJeu();
+        System.out.println("avance");
+        j.joueursCirc.parcourir('a');
+        j.avancerJeu();
+        System.out.println("avance");
+        j.joueursCirc.parcourir('a');
 
 
 
 
+    }
 }

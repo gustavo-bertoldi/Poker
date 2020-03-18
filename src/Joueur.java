@@ -7,12 +7,19 @@ public class Joueur {
     protected String nom; //NOM DU JOUEUR
     protected static int nJoueurs=0; //UTILISE POUR DIFERENCIER LES JOUEURS ORDINATEURS
     private int argent; //L'ARGENT
-    private boolean dealer; //SI LE JOUEUR EST LE DEALER
-    private boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
-    private boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
-    private boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
     protected Intelligence intelligence;
-    protected boolean dejaJoue = false;
+    //Attributs à utiliser pour déroulement du jeu
+    protected boolean dealer; //SI LE JOUEUR EST LE DEALER
+    protected boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
+    protected boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
+    protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
+
+    protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
+    protected boolean playing = false;
+    protected int position; // position sur tour de paris
+    /*
+
+     */
 
     public Joueur(String nom){ // création joueur humain
         nJoueurs++;
@@ -187,5 +194,8 @@ public class Joueur {
         this.smallBlind=false;
         this.bigBlind=false;
         this.dejaJoue=false;
+    }
+    public String toString(){
+        return nom;
     }
 }
