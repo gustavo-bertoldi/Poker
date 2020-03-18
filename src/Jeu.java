@@ -7,7 +7,7 @@ public class Jeu {
 
     private LinkedList<Joueur> joueurs = new LinkedList<Joueur>(); //Les joueurs dans le jeu - remplie dans le constructeur
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
-    private Table mesa;
+    private Table table;
     private int valeurCall=200; //La valeur minimale de pari pour jouer, defini en fonction des paris des joueurs
     private int tourDealer=0; //L'indice du joueur qui sera le dealer dans la ll joueurs
     private int tourBig; //L'indice du jouer qui sera le big blind dans la ll joueurs
@@ -28,52 +28,48 @@ public class Jeu {
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(int nJoeurs, int smallBlind, int niveau){
-        this.smallBlind=smallBlind;
-        this.bigBlind=2*smallBlind;
+    public Jeu(int nJoeurs, int niveau){
         this.nJoueurs=nJoeurs;
         joueurs.add(new Joueur(niveau));
         for(int i=1;i<nJoueurs;i++){
             joueurs.add(new Ordinateur(niveau));
         }
         paquet= new Paquet();
-        mesa = new Table(paquet);
-        distribuerCartes();
+        table = new Table();
+        distribuerCartesJoueurs();
+        distribuerCartesTable();
         distribuerArgent(1500);
-        montrerCartesJoueurActif();
     }
 
     /*
     Le deuxieme constructeur fait essentiellement la meme chose que le premier, mais
     on met le nombre joueurs en 6 par default.
      */
-    public Jeu(int smallBlind, int niveau){
-        this.smallBlind=smallBlind;
-        this.bigBlind=2*smallBlind;
+    public Jeu(int niveau){
         this.nJoueurs=6;
         joueurs.add(new Joueur(niveau));
         for(int i=1;i<6;i++){
             joueurs.add(new Ordinateur(niveau));
         }
         paquet= new Paquet();
-        mesa = new Table(paquet);
-        distribuerCartes();
+        table = new Table();
+        distribuerCartesJoueurs();
+        distribuerCartesTable();
         distribuerArgent(1500);
-        montrerCartesJoueurActif();
     }
 
     /*
     Retourne une ll avec les cartes dans la table
      */
     public LinkedList<Carte> getCartesMesa(){
-        return mesa.getMesa();
+        return table.getMesa();
     }
 
     /*
     Retourne la table
      */
     public Table getMesa(){
-        return mesa;
+        return table;
     }
 
     /*
@@ -105,55 +101,8 @@ public class Jeu {
      */
     public void parier(int q, int indiceJoueur){
         if(joueurs.get(indiceJoueur).parier(q)) {
-            mesa.ajouterAuPot(q);
+            table.ajouterAuPot(q);
         }
-    }
-
-    /*
-    Fait appel a la methode statique dans Distributeur pour distribuer deux cartes a chaque joueur de maniere
-    aleatoire, bien comme 5 cartes qui sera la table
-     */
-    public void distribuerCartes(){
-        Distributeur.distribuirCartesJogadores(paquet,joueurs);
-        mesa.distribuirCartes();
-    }
-
-    /*
-    Fait appel a la methode statique dans Distributeur pour distribuer une quantité q d'argent à chaque
-    joueur dans la ll joueur
-    @param int q - quantite d'argent a distribuer
-     */
-    public void distribuerArgent(int q){
-        Distributeur.distributeurDArgentDebut(joueurs, q);
-    }
-
-    /*
-    Methode de test
-     */
-    public String maosJogadores(){
-        String s="";
-        for(Joueur j: joueurs){
-            s=s+j.mao()+"\n";
-        }
-        return s;
-    }
-
-    /*
-    Methode de test
-     */
-    public String visualizarMesa(){
-        return mesa.visualizarMesa();
-    }
-
-    /*
-    Methode de test
-     */
-    public String visualizarBaralho(){
-        String s="";
-        for(Carte c : paquet.paquet){
-            s=s+c.toString()+"\n";
-        }
-        return s;
     }
 
     /*
@@ -289,26 +238,34 @@ public class Jeu {
         return handsGagnantes;
     }
 
-
-   /* public Joueur demarrerTournee() {
-        LinkedList<Joueur> joueursDansLeJeu = joueurs;
-        prochainJoueur();
-        joueurs.get(tourBig).parier(bigBlind);
-        joueurs.get(tourSmall).parier(smallBlind);
-        while (joueursDansLeJeu.size() > 1) {
-            for (int i = 0; i < joueursDansLeJeu.size(); i++) {
-                if (joueurActif == joueursDansLeJeu.size() - 1) {
-                    //joueursDansLeJeu.get(joueurActif).jouer();
-                    joueurActif = 0;
-                } else {
-                    //joueursDansLeJeu.get(joueurActif).jouer();
-                    joueurActif++;
-                }
-                //joueursDansLeJeu.get(joueurActif).jouer();
-                joueursDansLeJeu.removeIf(j -> !j.isDansJeu());
-            }
+    private void distribuerCartesJoueurs(){
+        for (Joueur j : joueurs){
+            LinkedList<Carte> cartesJoueur = new LinkedList<>();
+            int i = (int) ((paquet.size()) * Math.random());
+            cartesJoueur.add(paquet.get(i));
+            paquet.remove(i);
+            i = (int) ((paquet.size()) * Math.random());
+            cartesJoueur.add(paquet.get(i));
+            paquet.remove(i);
         }
-        return joueursDansLeJeu.get(0);
-    }*/
+    }
+
+    private void distribuerCartesTable(){
+        LinkedList<Carte> cartesTable = new LinkedList<>();
+        for(int i = 0 ; i < 5 ; i++){
+            int m = (int) ((paquet.size()) * Math.random());
+            cartesTable.add(paquet.get(m));
+        }
+        table.setCartesTable(cartesTable);
+    }
+
+    private void distribuerArgent(int q){
+        for (Joueur j : joueurs){
+            j.setArgent(q);
+        }
+    }
+
+
+
 
 }

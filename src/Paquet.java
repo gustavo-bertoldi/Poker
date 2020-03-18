@@ -27,4 +27,16 @@ public class Paquet {
         Paquet b = new Paquet();
         System.out.println(b.toString());
     }
+
+    public int size(){
+        return paquet.size();
+    }
+
+    public Carte get(int i){
+        return paquet.get(i);
+    }
+
+    public Carte remove(int i){
+        return paquet.remove(i);
+    }
 }

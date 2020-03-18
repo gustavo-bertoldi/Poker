@@ -2,8 +2,8 @@ import java.util.LinkedList;
 
 public class Joueur {
 
-    private Hand hand; //LL AVEC TOUTES LES CARTES DISPONIBLES
-    private LinkedList<Carte> cartesInitiales; //LL AVEC LES 2 CARTES INITIALES
+    private Hand hand= new Hand(); //LL AVEC TOUTES LES CARTES DISPONIBLES
+    private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //LL AVEC LES 2 CARTES INITIALES
     protected String nom; //NOM DU JOUEUR
     protected static int nJoueurs=0; //UTILISE POUR DIFERENCIER LES JOUEURS ORDINATEURS
     private int argent; //L'ARGENT
@@ -49,7 +49,7 @@ public class Joueur {
     /*
     Retourne les deux cartes initiales du joueur e forme de ll de cartes
      */
-    public LinkedList<Carte> getCartesInitiales(){return cartesInitiales;}
+    public LinkedList<Carte> getCartesSurMain(){return cartesSurMain;}
 
     /*
     Permet au joueur de parier si la quantite desiree est inferieure ou egale à la somme d'argent
@@ -95,8 +95,8 @@ public class Joueur {
     Permet de definir les deux cartes initiales du jours, ajoute ces deux premier cartes a la hand
     @param LinkedList<Carte> cartes - ll avec les deux cartes initiales
      */
-    public void setCartesInitiales(LinkedList<Carte> cartes){
-        this.cartesInitiales=cartes;
+    public void setCartesSurMain(LinkedList<Carte> cartes){
+        this.cartesSurMain.addAll(cartes);
         this.hand.setSurMain(cartes);
     }
     /*
@@ -138,7 +138,7 @@ public class Joueur {
      */
     public void fold(){
         this.dansJeu=false;
-        for(Carte c: cartesInitiales){
+        for(Carte c: cartesSurMain){
             c.tournerCarte();
         }
     }
