@@ -1,4 +1,4 @@
-import java.awt.event.ActionEvent;
+/*import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class EcouteurJoueur implements ActionListener {
@@ -6,7 +6,6 @@ public class EcouteurJoueur implements ActionListener {
     private JanelaTeste j; //La fenetre principale
     private char fun; /*Permet de executer une fonction slon le bouton appuyé
     'f'-fold, 'c'-call et 'r' - raise
-    */
 
     public EcouteurJoueur (JanelaTeste j,char fun){
         this.j=j;
@@ -27,4 +26,4 @@ public class EcouteurJoueur implements ActionListener {
         j.revalidate();
         j.repaint();
     }
-}
+}*/

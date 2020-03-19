@@ -1,4 +1,4 @@
-import javax.swing.*;
+/*import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowEvent;
@@ -110,6 +110,7 @@ public class JanelaTeste extends JFrame {
         principal.add(CartesJogadorDireita, BorderLayout.EAST);
         principal.add(mesa, BorderLayout.CENTER);
 
+
         this.add(principal);
 
 
@@ -168,7 +169,6 @@ public class JanelaTeste extends JFrame {
         mettreAJourInfosJoueur(0);
         mettreAJourTable();
         getJouerActif().dejaJoue=true;
-        prochainJoueur();
     }
 
     public void fold(){
@@ -176,7 +176,6 @@ public class JanelaTeste extends JFrame {
         mettreAJourCartesJoueur(0);
         mettreAJourTable();
         getJouerActif().dejaJoue=true;
-        prochainJoueur();
     }
 
     public void raise(){
@@ -199,19 +198,9 @@ public class JanelaTeste extends JFrame {
         catch(Exception e){
             ok=false;
         }
-        if(ok){
-            prochainJoueur();
-        }
         return ret;
     }
 
-    public void prochainJoueur(){
-        functionsJogadorBaixo.setVisible(false);
-        jogo.prochainJoueur();
-        mettreAJourTable();
-        revalidate();
-        repaint();
-    }
 
     public void faireJoueurActif(){
         if(jogo.joueurActif==0){
@@ -219,5 +208,6 @@ public class JanelaTeste extends JFrame {
         }
         jogo.getJoueurs().get(jogo.joueurActif).jouer();
     }
-}
+
+}*/
 

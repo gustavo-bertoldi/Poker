@@ -38,9 +38,8 @@ public class Jeu {
      */
     public Jeu(int nJoeurs, int niveau){
         this.nJoueurs=nJoeurs;
-        joueurs.add(new Joueur(niveau));
-        for(int i=1;i<nJoueurs;i++){
-            joueurs.add(new Ordinateur(niveau));
+        for(int i=0;i<nJoueurs;i++){
+            joueurs.add(new Joueur(niveau));
         }
         paquet= new Paquet();
         table = new Table();
@@ -95,14 +94,14 @@ public class Jeu {
     /*
     Retourne une ll avec les cartes dans la table
      */
-    public LinkedList<Carte> getCartesMesa(){
-        return table.getMesa();
+    public LinkedList<Carte> getCartesTable(){
+        return table.getTable();
     }
 
     /*
     Retourne la table
      */
-    public Table getMesa(){
+    public Table getTable(){
         return table;
     }
 
@@ -281,6 +280,7 @@ public class Jeu {
             i = (int) ((paquet.size()) * Math.random());
             cartesJoueur.add(paquet.get(i));
             paquet.remove(i);
+            j.setCartesSurMain(cartesJoueur);
         }
     }
 

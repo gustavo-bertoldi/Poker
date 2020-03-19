@@ -9,7 +9,7 @@ public class Table {
 
     }
 
-    public LinkedList<Carte> getMesa(){
+    public LinkedList<Carte> getTable(){
         return cartesTable;
     }
 
