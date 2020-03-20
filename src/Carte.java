@@ -16,19 +16,19 @@ public class Carte extends Object implements Comparable{
         this.valeur=valeur;
         this.couleur=couleur;
         this.icon=new ImageIcon("src/res/back.png");
-        redimensionar(70,93);
+        redimensionar(84,112);
         tournée=true;
     }
 
     public void tournerCarte(){
         icon=new ImageIcon("src/res/back.png");
-        redimensionar(70,93);
+        redimensionar(84,112);
         tournée=true;
     }
 
     public void montrerCarte(){
         icon=new ImageIcon("src/res/"+valeur+"_"+couleur+".png");
-        redimensionar(70,93);
+        redimensionar(84,112);
         tournée=false;
     }
 

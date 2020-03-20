@@ -1,32 +1,29 @@
-/*import java.awt.event.ActionEvent;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class EcouteurTable implements ActionListener {
 
-    private JanelaTeste j; //La fenetre principale
+    private FenetreJeu f; //La fenetre principale
     private char fun; //Un char qui definira la fonction a executer selon le bouton appuyé
 
-    public EcouteurTable (JanelaTeste j,char fun){
-        this.j=j;
+    public EcouteurTable (FenetreJeu f,char fun){
+        this.f=f;
         this.fun=fun;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if(fun=='f'){
-            j.flop();
+            f.flop();
         }
         else if(fun=='t'){
-            j.turn();
+            f.turn();
         }
         else if(fun=='r'){
-            j.river();
+            f.river();
         }
         else if(fun=='x'){
-            j.restart();
+            f.restart();
         }
-        j.revalidate();
-        j.repaint();
     }
 }
-*/

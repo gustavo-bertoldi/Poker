@@ -1,7 +1,10 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 public class FenetreJeu extends JFrame {
@@ -25,15 +28,23 @@ public class FenetreJeu extends JFrame {
     private JButton raise;
     private JButton fold;
 
-    private JComboBox<String> raiseField;
+    private JButton flop;
+    private JButton turn;
+    private JButton river;
+    private JButton restart;
+
+    private JLabel valeurActuelleSlider;
+    private JSlider raiseSlider;
 
     private LinkedList<JPanel> joueursOrdinateursCartes;
 
     public FenetreJeu(int nJoueurs){
         super("Poker");
-        this.setSize(1350 ,700);
+        this.setSize(1350 ,750);
 
         this.nJoueurs = nJoueurs;
+        jeu = new Jeu(nJoueurs,0);
+
 
         joueursOrdinateursCartes = new LinkedList<>();
         jPrincipalCartes = new JPanel();
@@ -43,21 +54,57 @@ public class FenetreJeu extends JFrame {
         call = new JButton("Call");
         raise = new JButton("Raise");
         fold = new JButton("Fold");
-        raiseField = new JComboBox<>();
+
+        flop = new JButton("Flop");
+        flop.addActionListener(new EcouteurTable(this,'f'));
+        turn = new JButton("Turn");
+        turn.addActionListener(new EcouteurTable(this, 't'));
+        river = new JButton("River");
+        river.addActionListener(new EcouteurTable(this,'r'));
+        restart = new JButton("Restart");
+        restart.addActionListener(new EcouteurTable(this,'x'));
+
+        //CONFIGURATION DU JSLIDER
+        raiseSlider = new JSlider(2*jeu.getBigBlind(), jeu.getJoueurs().getFirst().getArgent(), 2*jeu.getBigBlind());
+        valeurActuelleSlider = new JLabel();
+        raiseSlider.setMinorTickSpacing(10);
+        raiseSlider.setSnapToTicks(true);
+        Hashtable<Integer, JLabel> valeursSlider = new Hashtable<Integer, JLabel>();
+        valeursSlider.put(jeu.getBigBlind(), new JLabel(""+jeu.getBigBlind()));
+        valeursSlider.put(jeu.getJoueurs().getFirst().getArgent(), new JLabel(""+jeu.getJoueurs().getFirst().getArgent()));
+        raiseSlider.setLabelTable(valeursSlider);
+        raiseSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (raiseSlider.getValue()==jeu.getJoueurs().getFirst().getArgent()){
+                    valeurActuelleSlider.setText("All in: "+raiseSlider.getValue());
+                }
+                else {
+                    valeurActuelleSlider.setText("Raise: " + raiseSlider.getValue());
+                }
+            }
+        });
+        raiseSlider.setPaintLabels(true);
+
 
         jPrincipalFonctions = new JPanel(new FlowLayout());
         jPrincipalFonctions.add(fold);
         jPrincipalFonctions.add(call);
         jPrincipalFonctions.add(raise);
-        jPrincipalFonctions.add(raiseField);
+        jPrincipalFonctions.add(raiseSlider);
+        jPrincipalFonctions.add(valeurActuelleSlider);
+        jPrincipalFonctions.add(flop);
+        jPrincipalFonctions.add(turn);
+        jPrincipalFonctions.add(river);
+        jPrincipalFonctions.add(restart);
 
         //Affichage des cartes de cahque joueur aindi comme celles de la table
-        jeu = new Jeu(nJoueurs,0);
 
         for(int i=2; i<=nJoueurs;i++){
             joueursOrdinateursCartes.add(new JPanel());
         }
-        ajouterCartesJoueursEtTable();
+        ajouterCartesJoueurs();
+        ajouterCartesTable();
         creerLayout();
 
         this.add(principal);
@@ -68,7 +115,7 @@ public class FenetreJeu extends JFrame {
     /*
     Recupere l'icon des cartes des joueurs et celles de la table pour leur afficher dans la fenetre
      */
-    private void ajouterCartesJoueursEtTable(){
+    private void ajouterCartesJoueurs(){
         for (Carte c : jeu.getJoueurs().get(0).getCartesSurMain()){
             c.montrerCarte();
             jPrincipalCartes.add(new JLabel(c.icon));
@@ -79,11 +126,12 @@ public class FenetreJeu extends JFrame {
                 joueursOrdinateursCartes.get(i-1).add(new JLabel(c.icon));
             }
         }
+    }
 
+    private void ajouterCartesTable(){
         for (Carte c : jeu.getCartesTable()){
             tableCartes.add(new JLabel(c.icon));
         }
-
     }
 
     /*
@@ -163,6 +211,35 @@ public class FenetreJeu extends JFrame {
             principal.add(centre, BorderLayout.CENTER);
 
         }
+    }
+
+    protected void flop(){
+        jeu.getCartesTable().get(0).montrerCarte();
+        jeu.getCartesTable().get(1).montrerCarte();
+        jeu.getCartesTable().get(2).montrerCarte();
+        mettreAJourTable();
+    }
+
+    protected void turn(){
+        jeu.getCartesTable().get(3).montrerCarte();
+        mettreAJourTable();
+    }
+
+    protected void river(){
+        jeu.getCartesTable().get(4).montrerCarte();
+        mettreAJourTable();
+    }
+
+    protected void restart(){
+        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        new FenetreJeu(nJoueurs);
+    }
+
+    private void mettreAJourTable(){
+        tableCartes.removeAll();
+        ajouterCartesTable();
+        revalidate();
+        repaint();
     }
 
     public static void main(String[] args){
