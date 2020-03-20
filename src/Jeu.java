@@ -45,6 +45,7 @@ public class Jeu {
         table = new Table();
         distribuerCartesJoueurs();
         distribuerCartesTable();
+        setHands();
         distribuerArgent(1500);
 
     }
@@ -289,8 +290,18 @@ public class Jeu {
         for(int i = 0 ; i < 5 ; i++){
             int m = (int) ((paquet.size()) * Math.random());
             cartesTable.add(paquet.get(m));
+            paquet.remove(m);
         }
         table.setCartesTable(cartesTable);
+    }
+
+    private void setHands(){
+        for (Joueur j : joueurs){
+            LinkedList<Carte> hand = new LinkedList<>();
+            hand.addAll(j.getCartesSurMain());
+            hand.addAll(table.getTable());
+            j.setHand(hand);
+        }
     }
 
     private void distribuerArgent(int q){

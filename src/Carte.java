@@ -52,7 +52,10 @@ public class Carte extends Object implements Comparable{
 
     public String description(boolean pluriel){
         String descp="";
-        if(valeur<=10){
+        if(valeur<=10 && pluriel){
+            descp=""+valeur+"s";
+        }
+        else if(valeur<=10 && !pluriel){
             descp=""+valeur;
         }
         else if(valeur==11){

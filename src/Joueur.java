@@ -53,6 +53,10 @@ public class Joueur {
         return hand;
     }
 
+    public void setHand(LinkedList<Carte> hand){
+        this.hand.setHand(hand);
+    }
+
     /*
     Retourne les deux cartes initiales du joueur e forme de ll de cartes
      */

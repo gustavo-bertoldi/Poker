@@ -39,6 +39,7 @@ public class Hand  implements Comparable{
     }
 
     public String getDescription(){
+        calculerValeurHand();
         return description;
     }
 
@@ -375,7 +376,7 @@ public class Hand  implements Comparable{
                 valeurHand = 600000000 + result.getFirst().valeur;
 
             }
-            else if(fourOfAKind()!=null){
+            if(fourOfAKind()!=null){
                 result=fourOfAKind();
                 kickers.removeAll(result);
                 Collections.sort(kickers,Collections.reverseOrder());
@@ -411,7 +412,7 @@ public class Hand  implements Comparable{
                 Collections.sort(kickers, Collections.reverseOrder());
                 if(result.size()==2){
                     valeurHand = result.getFirst().valeur*100000 + kickers.getFirst().valeur*100 + kickers.get(1).valeur*10 + kickers.get(2).valeur;
-                    description = "Pair de "+result.getFirst().description(false)+". Kicker : "+kickers.getFirst().description(false);
+                    description = "Pair de "+result.getFirst().description(true)+". Kicker : "+kickers.getFirst().description(false);
                 }
                 else if(result.size()==4){
                     valeurHand = 1000000*result.getFirst().valeur + 10*result.getLast().valeur + kickers.getFirst().valeur;
@@ -422,7 +423,7 @@ public class Hand  implements Comparable{
                 result.add(highCard());
                 kickers.removeAll(result);
                 valeurHand = 10000*cartes.getFirst().valeur + 1000*cartes.get(1).valeur + 100*cartes.get(2).valeur + 10*cartes.get(3).valeur + cartes.get(4).valeur;
-                description+="Carte haute "+highCard().valeur+". Kicker : "+kickers.getFirst().description(false);
+                description+="Carte haute "+highCard().description(false)+". Kicker : "+kickers.getFirst().description(false);
             }
         return result;
     }

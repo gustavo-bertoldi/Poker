@@ -3,6 +3,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -37,6 +39,7 @@ public class FenetreJeu extends JFrame {
     private JSlider raiseSlider;
 
     private LinkedList<JPanel> joueursOrdinateursCartes;
+    private LinkedList<JPanel> joueursOrdinateurs;
 
     public FenetreJeu(int nJoueurs){
         super("Poker");
@@ -47,6 +50,7 @@ public class FenetreJeu extends JFrame {
 
 
         joueursOrdinateursCartes = new LinkedList<>();
+        joueursOrdinateurs = new LinkedList<>();
         jPrincipalCartes = new JPanel();
         tableCartes = new JPanel();
         principal = new JPanel(new BorderLayout());
@@ -101,7 +105,8 @@ public class FenetreJeu extends JFrame {
         //Affichage des cartes de cahque joueur aindi comme celles de la table
 
         for(int i=2; i<=nJoueurs;i++){
-            joueursOrdinateursCartes.add(new JPanel());
+            joueursOrdinateursCartes.add(new JPanel(new FlowLayout()));
+            joueursOrdinateurs.add(new JPanel(new BorderLayout()));
         }
         ajouterCartesJoueurs();
         ajouterCartesTable();
@@ -125,6 +130,9 @@ public class FenetreJeu extends JFrame {
             for (Carte c : jeu.getJoueurs().get(i).getCartesSurMain()){
                 joueursOrdinateursCartes.get(i-1).add(new JLabel(c.icon));
             }
+            joueursOrdinateurs.get(i-1).add(joueursOrdinateursCartes.get(i-1), BorderLayout.CENTER);
+            joueursOrdinateurs.get(i-1).add(new JLabel(jeu.getJoueurs().get(i).nom, SwingConstants.CENTER), BorderLayout.NORTH);
+            joueursOrdinateurs.get(i-1).add(new JLabel("Argent: "+jeu.getJoueurs().get(i).getArgent(), SwingConstants.CENTER), BorderLayout.SOUTH);
         }
     }
 
@@ -142,27 +150,28 @@ public class FenetreJeu extends JFrame {
         if(nJoueurs==6) {
             //CENTRE
             centre = new JPanel();
-            centre.setBorder(new EmptyBorder(new Insets(180, 100, 0, 100)));
+            centre.setBorder(new EmptyBorder(new Insets(150, 100, 0, 100)));
             centre.add(tableCartes);
 
             //OUEST
             ouest = new JPanel(new BorderLayout());
-            ouest.setBorder(new EmptyBorder(new Insets(120, 0, 150, 0)));
-            ouest.add(joueursOrdinateursCartes.get(0), BorderLayout.CENTER);
+            ouest.setBorder(new EmptyBorder(new Insets(80, 0, 150, 0)));
+            ouest.add(joueursOrdinateurs.get(0), BorderLayout.CENTER);
 
             //NORD
             nord = new JPanel(new GridLayout(1,3,100,0));
-            nord.add(joueursOrdinateursCartes.get(1));
-            nord.add(joueursOrdinateursCartes.get(2));
-            nord.add(joueursOrdinateursCartes.get(3));
+            nord.add(joueursOrdinateurs.get(1));
+            nord.add(joueursOrdinateurs.get(2));
+            nord.add(joueursOrdinateurs.get(3));
 
             //EST
             est = new JPanel(new BorderLayout());
-            est.setBorder(new EmptyBorder(new Insets(120,0,150,0)));
-            est.add(joueursOrdinateursCartes.get(4), BorderLayout.CENTER);
+            est.setBorder(new EmptyBorder(new Insets(80,0,150,0)));
+            est.add(joueursOrdinateurs.get(4), BorderLayout.CENTER);
 
             //SUD
             sud = new JPanel(new BorderLayout());
+            sud.add(new JLabel(jeu.getJoueurs().getFirst().nom, SwingConstants.CENTER));
             sud.add(jPrincipalFonctions, BorderLayout.SOUTH);
             sud.add(jPrincipalCartes, BorderLayout.CENTER);
 
@@ -177,27 +186,27 @@ public class FenetreJeu extends JFrame {
         else if (nJoueurs == 9){
             //CENTRE
             centre = new JPanel();
-            centre.setBorder(new EmptyBorder(new Insets(180, 100, 0, 100)));
+            centre.setBorder(new EmptyBorder(new Insets(150, 100, 0, 100)));
             centre.add(tableCartes);
 
             //OUEST
             ouest = new JPanel(new BorderLayout());
-            ouest.setBorder(new EmptyBorder(new Insets(100, 0, 0, 0)));
-            ouest.add(joueursOrdinateursCartes.get(0), BorderLayout.SOUTH);
-            ouest.add(joueursOrdinateursCartes.get(1), BorderLayout.NORTH);
+            ouest.setBorder(new EmptyBorder(new Insets(40, 0, 0, 0)));
+            ouest.add(joueursOrdinateurs.get(0), BorderLayout.SOUTH);
+            ouest.add(joueursOrdinateurs.get(1), BorderLayout.NORTH);
 
             //NORD
-            nord = new JPanel(new GridLayout(1,4,100,0));
-            nord.add(joueursOrdinateursCartes.get(2));
-            nord.add(joueursOrdinateursCartes.get(3));
-            nord.add(joueursOrdinateursCartes.get(4));
-            nord.add(joueursOrdinateursCartes.get(5));
+            nord = new JPanel(new GridLayout(1,4,60,0));
+            nord.add(joueursOrdinateurs.get(2));
+            nord.add(joueursOrdinateurs.get(3));
+            nord.add(joueursOrdinateurs.get(4));
+            nord.add(joueursOrdinateurs.get(5));
 
             //EST
             est = new JPanel(new BorderLayout());
-            est.setBorder(new EmptyBorder(new Insets(100,0,0,0)));
-            est.add(joueursOrdinateursCartes.get(6), BorderLayout.NORTH);
-            est.add(joueursOrdinateursCartes.get(7), BorderLayout.SOUTH);
+            est.setBorder(new EmptyBorder(new Insets(40,0,0,0)));
+            est.add(joueursOrdinateurs.get(6), BorderLayout.NORTH);
+            est.add(joueursOrdinateurs.get(7), BorderLayout.SOUTH);
 
             //SUD
             sud = new JPanel(new BorderLayout());
@@ -227,6 +236,7 @@ public class FenetreJeu extends JFrame {
 
     protected void river(){
         jeu.getCartesTable().get(4).montrerCarte();
+        jPrincipalCartes.add(new JLabel("Hand: "+jeu.getJoueurs().getFirst().getHand().getDescription()));
         mettreAJourTable();
     }
 
@@ -240,6 +250,12 @@ public class FenetreJeu extends JFrame {
         ajouterCartesTable();
         revalidate();
         repaint();
+    }
+
+    private void controleDeJeu(boolean joue){
+        if(joue){
+            jeu.prochainJoueur();
+        }
     }
 
     public static void main(String[] args){
