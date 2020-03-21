@@ -53,13 +53,17 @@ public class Joueur {
         return hand;
     }
 
-    public void setHand(LinkedList<Carte> hand){
-        this.hand.setHand(hand);
+    public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
+        hand.setHand(cartesSurMain,cartesSurTable);
+    }
+
+    public void setCartesSurMain(LinkedList<Carte> cartesSurMain) {
+        this.cartesSurMain = cartesSurMain;
     }
 
     /*
-    Retourne les deux cartes initiales du joueur e forme de ll de cartes
-     */
+        Retourne les deux cartes initiales du joueur e forme de ll de cartes
+         */
     public LinkedList<Carte> getCartesSurMain(){return cartesSurMain;}
 
     /*
@@ -102,22 +106,6 @@ public class Joueur {
     public void ajouterArgent(int q){
         this.argent += q;}
 
-    /*
-    Permet de definir les deux cartes initiales du jours, ajoute ces deux premier cartes a la hand
-    @param LinkedList<Carte> cartes - ll avec les deux cartes initiales
-     */
-    public void setCartesSurMain(LinkedList<Carte> cartes){
-        this.cartesSurMain.addAll(cartes);
-        this.hand.setSurMain(cartes);
-    }
-    /*
-    Permet d'ajouter les cartes donnes en parametre a la ll hand
-    @param LinkedList<Carte> cartes - cartes a ajouter a hand
-     */
-    public void ajouterCartes(LinkedList<Carte> cartes){
-        this.hand.getCartes().addAll(cartes);
-        this.hand.setSurTable(cartes);
-    }
 
     /*
     Permet de definir le joueur comme dealer

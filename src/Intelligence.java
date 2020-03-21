@@ -43,7 +43,7 @@ public class Intelligence {
     public Intelligence(int i) {
         niveau = i; //i donne par Jeu
     }
-    public void setSurMain(LinkedList<Carte> surMain){
+   /* public void setSurMain(LinkedList<Carte> surMain){
         this.surMain = surMain;
         hand.setSurMain(surMain);
     }
@@ -51,7 +51,7 @@ public class Intelligence {
     public void setSurTable(LinkedList<Carte> tourneesSurTable){
         surTable.addAll(tourneesSurTable); // ajoute toutes les cartes prises comme parametre à surTable
         hand.setHand(tourneesSurTable);
-    }
+    }*/
 
     public double qualiteHighCard(){ // appellee s'il y a high card
         double qualite = 0.0;

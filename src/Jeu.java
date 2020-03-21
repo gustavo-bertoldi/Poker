@@ -297,10 +297,7 @@ public class Jeu {
 
     private void setHands(){
         for (Joueur j : joueurs){
-            LinkedList<Carte> hand = new LinkedList<>();
-            hand.addAll(j.getCartesSurMain());
-            hand.addAll(table.getTable());
-            j.setHand(hand);
+            j.setHand(j.getCartesSurMain(),getCartesTable());
         }
     }
 

@@ -7,7 +7,10 @@ public class TesteHand {
 
         Joueur j1 = j.getJoueurs().get(8);
 
-
+        LinkedList<Carte> teste = new LinkedList<>();
+        if(teste==null){
+            System.out.println("boaa");
+        }
 
     }
 

@@ -108,9 +108,11 @@ public class FenetreJeu extends JFrame {
             joueursOrdinateursCartes.add(new JPanel(new FlowLayout()));
             joueursOrdinateurs.add(new JPanel(new BorderLayout()));
         }
+
         ajouterCartesJoueurs();
         ajouterCartesTable();
         creerLayout();
+
 
         this.add(principal);
 
@@ -237,6 +239,9 @@ public class FenetreJeu extends JFrame {
     protected void river(){
         jeu.getCartesTable().get(4).montrerCarte();
         jPrincipalCartes.add(new JLabel("Hand: "+jeu.getJoueurs().getFirst().getHand().getDescription()));
+        for(Carte c : jeu.getJoueurs().getFirst().getHand().hand){
+            jPrincipalCartes.add(new JLabel(c.icon));
+        }
         mettreAJourTable();
     }
 
