@@ -209,5 +209,7 @@ public class JanelaTeste extends JFrame {
         jogo.getJoueurs().get(jogo.joueurActif).jouer();
     }
 
-}*/
+}
+
+ */
 

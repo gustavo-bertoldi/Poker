@@ -71,6 +71,7 @@ public class CircularLinkedList {
     }
 
 
+
     public static void main(String[] args) {
         CircularLinkedList cl = new CircularLinkedList(6);
         //Adds data to the list

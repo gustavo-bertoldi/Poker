@@ -187,6 +187,11 @@ public class Joueur {
         this.bigBlind=false;
         this.dejaJoue=false;
     }
+
+    public boolean equals(Object o){
+        Joueur j = (Joueur)o;
+        return j.nom.equals(this.nom);
+    }
     public String toString(){
         return nom;
     }

@@ -13,7 +13,7 @@ public class FenetreJeu extends JFrame {
 
     private int nJoueurs;
 
-    private Jeu jeu;
+    protected Jeu jeu;
 
     private JPanel principal;
     private JPanel jPrincipalFonctions;
@@ -34,6 +34,7 @@ public class FenetreJeu extends JFrame {
     private JButton turn;
     private JButton river;
     private JButton restart;
+    private JButton dealer;
 
     private JLabel valeurActuelleSlider;
     private JSlider raiseSlider;
@@ -41,12 +42,12 @@ public class FenetreJeu extends JFrame {
     private LinkedList<JPanel> joueursOrdinateursCartes;
     private LinkedList<JPanel> joueursOrdinateurs;
 
-    public FenetreJeu(int nJoueurs){
+    public FenetreJeu(Jeu j, int nJoueurs){
         super("Poker");
         this.setSize(1350 ,750);
 
         this.nJoueurs = nJoueurs;
-        jeu = new Jeu(nJoueurs,0);
+        jeu = j; // changer pour creer Circular LL
 
 
         joueursOrdinateursCartes = new LinkedList<>();
@@ -67,20 +68,27 @@ public class FenetreJeu extends JFrame {
         river.addActionListener(new EcouteurTable(this,'r'));
         restart = new JButton("Restart");
         restart.addActionListener(new EcouteurTable(this,'x'));
+        dealer = new JButton("Dealer");
+        dealer.addActionListener(new EcouteurTable(this, 'd'));
 
         //CONFIGURATION DU JSLIDER
-        raiseSlider = new JSlider(2*jeu.getBigBlind(), jeu.getJoueurs().getFirst().getArgent(), 2*jeu.getBigBlind());
+       // 1 // raiseSlider = new JSlider(2*jeu.getBigBlind(), jeu.getJoueurs().getFirst().getArgent(), 2*jeu.getBigBlind()); // pas de GetFirst()
+        raiseSlider = new JSlider(2*jeu.getBigBlind(), jeu.getHeadJoueur().getArgent(), 2*jeu.getBigBlind());
+
         valeurActuelleSlider = new JLabel();
         raiseSlider.setMinorTickSpacing(10);
         raiseSlider.setSnapToTicks(true);
         Hashtable<Integer, JLabel> valeursSlider = new Hashtable<Integer, JLabel>();
         valeursSlider.put(jeu.getBigBlind(), new JLabel(""+jeu.getBigBlind()));
-        valeursSlider.put(jeu.getJoueurs().getFirst().getArgent(), new JLabel(""+jeu.getJoueurs().getFirst().getArgent()));
+       // 2 // valeursSlider.put(jeu.getJoueurs().getFirst().getArgent(), new JLabel(""+jeu.getJoueurs().getFirst().getArgent()));
+        valeursSlider.put(jeu.getHeadJoueur().getArgent(), new JLabel(""+jeu.getHeadJoueur().getArgent()));
+
         raiseSlider.setLabelTable(valeursSlider);
         raiseSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (raiseSlider.getValue()==jeu.getJoueurs().getFirst().getArgent()){
+             // 3 //   if (raiseSlider.getValue()==jeu.getJoueurs().getFirst().getArgent()){
+                if (raiseSlider.getValue()==jeu.getHeadJoueur().getArgent()){
                     valeurActuelleSlider.setText("All in: "+raiseSlider.getValue());
                 }
                 else {
@@ -101,6 +109,7 @@ public class FenetreJeu extends JFrame {
         jPrincipalFonctions.add(turn);
         jPrincipalFonctions.add(river);
         jPrincipalFonctions.add(restart);
+        jPrincipalFonctions.add(dealer);
 
         //Affichage des cartes de cahque joueur aindi comme celles de la table
 
@@ -108,7 +117,7 @@ public class FenetreJeu extends JFrame {
             joueursOrdinateursCartes.add(new JPanel(new FlowLayout()));
             joueursOrdinateurs.add(new JPanel(new BorderLayout()));
         }
-
+        ajouterNomsJoueurs();
         ajouterCartesJoueurs();
         ajouterCartesTable();
         creerLayout();
@@ -123,11 +132,27 @@ public class FenetreJeu extends JFrame {
     Recupere l'icon des cartes des joueurs et celles de la table pour leur afficher dans la fenetre
      */
     private void ajouterCartesJoueurs(){
-        for (Carte c : jeu.getJoueurs().get(0).getCartesSurMain()){
+       // 4 // for (Carte c : jeu.getJoueurs().get(0).getCartesSurMain()){ // possiblement pas besoin de for (sont tjrs deux cartes)
+        for (Carte c : jeu.getHeadJoueur().getCartesSurMain()){
             c.montrerCarte();
             jPrincipalCartes.add(new JLabel(c.icon));
         }
+        Node current = jeu.getHead().prochainNode;
+        int posJoueur = 0;
+        do{
+             for(JPanel j : joueursOrdinateurs){
+                 posJoueur = joueursOrdinateurs.indexOf(j);
+                 for (Carte c : current.joueur.getCartesSurMain()){
+                     c.montrerCarte();
+                     joueursOrdinateursCartes.get(posJoueur).add(new JLabel(c.icon));
+                 }
+                 j.add(joueursOrdinateursCartes.get(posJoueur), BorderLayout.CENTER);
+                 j.add(new JLabel("Argent: "+current.joueur.getArgent(), SwingConstants.CENTER), BorderLayout.SOUTH);
+                 current=current.prochainNode;
+             }
 
+        }while(!current.joueur.equals(jeu.getHeadJoueur())); //tant que le prochain joueur n'est pas le joueur reel
+        /* BOUCLE CHANGEE
         for (int i=1; i<nJoueurs ; i++){
             for (Carte c : jeu.getJoueurs().get(i).getCartesSurMain()){
                 joueursOrdinateursCartes.get(i-1).add(new JLabel(c.icon));
@@ -136,6 +161,20 @@ public class FenetreJeu extends JFrame {
             joueursOrdinateurs.get(i-1).add(new JLabel(jeu.getJoueurs().get(i).nom, SwingConstants.CENTER), BorderLayout.NORTH);
             joueursOrdinateurs.get(i-1).add(new JLabel("Argent: "+jeu.getJoueurs().get(i).getArgent(), SwingConstants.CENTER), BorderLayout.SOUTH);
         }
+         */
+    }
+    public void ajouterNomsJoueurs(){
+        Node current = jeu.getHead();
+        int posLinkedList = 0;
+        do{
+            current = current.prochainNode;
+            if(current.joueur.dealer){
+                joueursOrdinateurs.get(posLinkedList).add(new JLabel("DEALER", SwingConstants.CENTER), BorderLayout.NORTH);
+            }else{
+                joueursOrdinateurs.get(posLinkedList).add(new JLabel(current.joueur.nom, SwingConstants.CENTER), BorderLayout.NORTH);
+            }
+            posLinkedList++;
+        }while(!current.prochainNode.equals(jeu.getHead())); //tant que le prochain joueur n'est pas le joueur reel
     }
 
     private void ajouterCartesTable(){
@@ -173,7 +212,8 @@ public class FenetreJeu extends JFrame {
 
             //SUD
             sud = new JPanel(new BorderLayout());
-            sud.add(new JLabel(jeu.getJoueurs().getFirst().nom, SwingConstants.CENTER));
+            // 5 // sud.add(new JLabel(jeu.getJoueurs().getFirst().nom, SwingConstants.CENTER));
+            sud.add(new JLabel(jeu.getHeadJoueur().nom, SwingConstants.CENTER));
             sud.add(jPrincipalFonctions, BorderLayout.SOUTH);
             sud.add(jPrincipalCartes, BorderLayout.CENTER);
 
@@ -238,8 +278,10 @@ public class FenetreJeu extends JFrame {
 
     protected void river(){
         jeu.getCartesTable().get(4).montrerCarte();
-        jPrincipalCartes.add(new JLabel("Hand: "+jeu.getJoueurs().getFirst().getHand().getDescription()));
-        for(Carte c : jeu.getJoueurs().getFirst().getHand().hand){
+        // 6 //  jPrincipalCartes.add(new JLabel("Hand: "+jeu.getJoueurs().getFirst().getHand().getDescription()));
+        jPrincipalCartes.add(new JLabel("Hand: "+jeu.getHeadJoueur().getHand().getDescription()));
+        // 7 //for(Carte c : jeu.getJoueurs().getFirst().getHand().hand){
+        for(Carte c : jeu.getHeadJoueur().getHand().hand){
             jPrincipalCartes.add(new JLabel(c.icon));
         }
         mettreAJourTable();
@@ -247,7 +289,12 @@ public class FenetreJeu extends JFrame {
 
     protected void restart(){
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        new FenetreJeu(nJoueurs);
+        jeu.reinitialiser();
+        new FenetreJeu(jeu, nJoueurs);
+    }
+    protected void dealer(){
+        jeu.changerDealer();
+        restart();
     }
 
     private void mettreAJourTable(){
@@ -264,6 +311,6 @@ public class FenetreJeu extends JFrame {
     }
 
     public static void main(String[] args){
-         FenetreJeu fj = new FenetreJeu(9);
+        // FenetreJeu fj = new FenetreJeu(9);
     }
 }

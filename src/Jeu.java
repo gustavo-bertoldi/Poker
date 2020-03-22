@@ -1,14 +1,17 @@
 import com.sun.jdi.connect.spi.TransportService;
 
+import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 
 public class Jeu {
 
+    private FenetreJeu fenetreJeu;
     private LinkedList<Joueur> joueurs = new LinkedList<Joueur>(); //Les joueurs dans le jeu - remplie dans le constructeur
     private CircularLinkedList joueursCirc = new CircularLinkedList(joueurs); //essai avec circular LL
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
+    private int niveau;
     private int valeurCall=200; //La valeur minimale de pari pour jouer, defini en fonction des paris des joueurs
     private int tourDealer=0; //L'indice du joueur qui sera le dealer dans la ll joueurs
     private int tourBig; //L'indice du jouer qui sera le big blind dans la ll joueurs
@@ -36,10 +39,17 @@ public class Jeu {
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(int nJoeurs, int niveau){
+    public Jeu(int nJoeurs, int niveau){  // methode utilisee pour l'instant
         this.nJoueurs=nJoeurs;
+        this.niveau = niveau;
         for(int i=0;i<nJoueurs;i++){
-            joueurs.add(new Joueur(niveau));
+            Joueur j = new Joueur(niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
+            joueurs.add(j);
+            if(i==4){
+                j.dealer=true;
+            }
+            joueursCirc.addNode(j);
+
         }
         paquet= new Paquet();
         table = new Table();
@@ -47,7 +57,7 @@ public class Jeu {
         distribuerCartesTable();
         setHands();
         distribuerArgent(1500);
-
+        fenetreJeu = new FenetreJeu(this, nJoueurs);
     }
 
     /*
@@ -272,8 +282,20 @@ public class Jeu {
         return handsGagnantes;
     }
 
-    private void distribuerCartesJoueurs(){
-        for (Joueur j : joueurs){
+    private void distribuerCartesJoueurs(){ // la seule chose a changer pour joueursCirc est le parcours de la liste
+        Node current = joueursCirc.head;
+        do{
+            LinkedList<Carte> cartesJoueur = new LinkedList<>();
+            int i = (int) ((paquet.size()) * Math.random());
+            cartesJoueur.add(paquet.get(i));
+            paquet.remove(i);
+            i = (int) ((paquet.size()) * Math.random());
+            cartesJoueur.add(paquet.get(i));
+            paquet.remove(i);
+            current.joueur.setCartesSurMain(cartesJoueur);
+            current = current.prochainNode;
+        }while(!current.equals(joueursCirc.head));
+        /* for (Joueur j : joueurs){
             LinkedList<Carte> cartesJoueur = new LinkedList<>();
             int i = (int) ((paquet.size()) * Math.random());
             cartesJoueur.add(paquet.get(i));
@@ -283,6 +305,8 @@ public class Jeu {
             paquet.remove(i);
             j.setCartesSurMain(cartesJoueur);
         }
+
+         */
     }
 
     private void distribuerCartesTable(){
@@ -296,15 +320,29 @@ public class Jeu {
     }
 
     private void setHands(){
-        for (Joueur j : joueurs){
+        Node current = joueursCirc.head;
+        do{
+            current.joueur.setHand(current.joueur.getCartesSurMain(),getCartesTable());
+            current = current.prochainNode;
+        }while(!current.prochainNode.equals(joueursCirc.head));
+        /* for (Joueur j : joueurs){
             j.setHand(j.getCartesSurMain(),getCartesTable());
         }
+
+        */
     }
 
     private void distribuerArgent(int q){
-        for (Joueur j : joueurs){
+        Node current = joueursCirc.head;
+        do{
+            current.joueur.setArgent(q);
+            current = current.prochainNode;
+        }while(!current.equals(joueursCirc.head));
+       /* for (Joueur j : joueurs){
             j.setArgent(q);
         }
+
+        */
     }
      /*
                                         Méthodes pour dérroulement
@@ -324,6 +362,9 @@ public class Jeu {
         (current.prochainNode.prochainNode).joueur.bigBlind = false; // BB ne l'est plus
         (current.prochainNode.prochainNode).joueur.smallBlind = true; // BB deviant SB
         (current.prochainNode.prochainNode.prochainNode).joueur.bigBlind = true; // le prochain joueur deviant BB
+        fenetreJeu.ajouterNomsJoueurs();
+        fenetreJeu.repaint();
+        fenetreJeu.revalidate();
     }
 
     public void avancerJeu(){ // methode a appeller des qu'une decision est prise par le joueur actif (Peut etre inutile)
@@ -389,46 +430,33 @@ public class Jeu {
         } while (current != dealerNode);
         // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
     }
+   public void reinitialiser(){  // methode utilisee pour l'instant
+        paquet= new Paquet();
+        table = new Table();
+        distribuerCartesJoueurs(); // changer parcours de la liste
+        distribuerCartesTable();
+        setHands(); // parcours de liste
+        fenetreJeu = new FenetreJeu(this, nJoueurs);
+    }
 
+    public Joueur getHeadJoueur(){
+        return joueursCirc.head.joueur;
+    }
+
+    public Node getHead(){
+        return joueursCirc.head;
+    }
+
+    public Joueur getTailJoueur(){ // PE inutile
+        return joueursCirc.tail.joueur;
+    }
+
+    public CircularLinkedList getJoueursCirc(){
+        return joueursCirc;
+    }
 
 
     public static void main(String[] args) {
-        Jeu j = new Jeu(0, 'a');
-        System.out.println("Table complete");
-        j.joueursCirc.display();
-       // TEST CHANGER DEALER
-
-        System.out.println("L'affichage s'arrete au dealer");
-        j.joueursCirc.parcourir('d');
-        j.changerDealer();
-        System.out.println("On vient de changer de dealer");
-        j.joueursCirc.parcourir('d');
-        j.changerDealer();
-        System.out.println("On vient de changer de dealer");
-        j.joueursCirc.parcourir('d');
-        j.changerDealer();
-        System.out.println("On vient de changer de dealer");
-        j.joueursCirc.parcourir('d');
-        j.changerDealer();
-        System.out.println("On vient de changer de dealer");
-        j.joueursCirc.parcourir('d');
-
-        // TEST DERROULEMENT JOUEUR ACTIF  // "PROBLEME"(?) SI i ==0 sur jeu()
-
-        System.out.println("L'affichage s'arrete au joueur actif");
-        j.joueursCirc.parcourir('a');
-        j.avancerJeu();
-        System.out.println("avance");
-        j.joueursCirc.parcourir('a');
-        j.avancerJeu();
-        System.out.println("avance");
-        j.joueursCirc.parcourir('a');
-        j.avancerJeu();
-        System.out.println("avance");
-        j.joueursCirc.parcourir('a');
-
-
-
-
+        Jeu j = new Jeu(6,0);
     }
 }
