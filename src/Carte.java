@@ -33,12 +33,7 @@ public class Carte extends Object implements Comparable{
     }
 
     public boolean equals(Carte c){
-        if(valeur==c.valeur && couleur==c.couleur){
-            return true;
-        }
-        else{
-            return false;
-        }
+        return this.valeur==c.valeur && this.couleur==c.couleur;
     }
 
     public boolean equalsvaleur(Carte c){

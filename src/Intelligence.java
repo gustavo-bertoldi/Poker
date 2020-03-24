@@ -55,7 +55,7 @@ public class Intelligence {
 
     public double qualiteHighCard(){ // appellee s'il y a high card
         double qualite = 0.0;
-        qualite = hand.highCard().valeur/10.0; // indice multiplicatif de qualiteMain
+        //qualite = hand.highCard().valeur/10.0; // indice multiplicatif de qualiteMain
         return qualite;
     }
 

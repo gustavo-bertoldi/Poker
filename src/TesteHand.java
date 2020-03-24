@@ -3,14 +3,21 @@ import java.util.LinkedList;
 public class TesteHand {
 
     public static void main(String[] args){
-        Jeu j = new Jeu(9,0);
+        LinkedList<Carte> surTable = new LinkedList<>();
+        LinkedList<Carte> surMain = new LinkedList<>();
+        surMain.add(new Carte(14,'p'));
+        surMain.add(new Carte(2,'c'));
+        surTable.add(new Carte(4,'d'));
+        surTable.add(new Carte(5,'d'));
+        surTable.add(new Carte(6,'d'));
+        surTable.add(new Carte(7,'t'));
+        surTable.add(new Carte(8,'d'));
 
-        Joueur j1 = j.getJoueurs().get(8);
+        Hand h = new Hand();
+        h.setHand(surMain,surTable);
+        h.calculerValeurHand();
+        System.out.println(h.getDescription());
 
-        LinkedList<Carte> teste = new LinkedList<>();
-        if(teste==null){
-            System.out.println("boaa");
-        }
 
     }
 
