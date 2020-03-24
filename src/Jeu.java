@@ -1,5 +1,3 @@
-import com.sun.jdi.connect.spi.TransportService;
-
 import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -20,6 +18,7 @@ public class Jeu {
     protected int joueurActif; //L'indice du joueur qui sera le prochain a jouer
     private int smallBlind; //La valeur du small blind actuel
     private int bigBlind; //La valeur du big blind actuel (2*smallBlind)
+    protected String nomJoueur;
 
     /*      DÉRROULEMENT JEU
     - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
@@ -42,6 +41,7 @@ public class Jeu {
     public Jeu(int nJoeurs, int niveau){  // methode utilisee pour l'instant
         this.nJoueurs=nJoeurs;
         this.niveau = niveau;
+        nomJoueur = "BALTAZAR"; // ça viendra du constructeur, mais mis par default pour simplicite
         for(int i=0;i<nJoueurs;i++){
             Joueur j = new Joueur(niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
             joueurs.add(j);
@@ -301,6 +301,11 @@ public class Jeu {
         Node current = joueursCirc.head; // toujours partir de la tete de la liste
         do{
             current = current.prochainNode;
+        }while(!current.joueur.playing );
+        current.joueur.playing=false; // parcourir la table jusqua trouver le dernier à jouer et lui affecter false pour playing
+        current = joueursCirc.head;
+        do{
+            current = current.prochainNode;
         }while(!current.joueur.dealer ); // parcourir CLL jusqu'a ce que l'on trouve le dealer
         (current.joueur).dealer = false; //Dealer ne l'est plus
         (current.prochainNode.joueur).smallBlind = false; // SB ne l'est plus
@@ -308,6 +313,7 @@ public class Jeu {
         (current.prochainNode.prochainNode).joueur.bigBlind = false; // BB ne l'est plus
         (current.prochainNode.prochainNode).joueur.smallBlind = true; // BB deviant SB
         (current.prochainNode.prochainNode.prochainNode).joueur.bigBlind = true; // le prochain joueur deviant BB
+        (current.prochainNode.prochainNode.prochainNode.prochainNode).joueur.playing = true;
         fenetreJeu.ajouterNomsJoueurs();
         fenetreJeu.repaint();
         fenetreJeu.revalidate();

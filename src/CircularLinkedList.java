@@ -70,6 +70,14 @@ public class CircularLinkedList {
 
     }
 
+    public Node get(Joueur joueur){
+        Node current = head;
+        do{
+            current = current.prochainNode;
+        }while(!current.joueur.equals(joueur));
+        return current;
+    }
+
 
 
     public static void main(String[] args) {

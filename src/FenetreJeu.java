@@ -16,6 +16,7 @@ public class FenetreJeu extends JFrame {
     protected Jeu jeu;
 
     private JPanel principal;
+
     private JPanel jPrincipalFonctions;
     private JPanel jPrincipalCartes;
     private JPanel tableCartes;
@@ -41,13 +42,16 @@ public class FenetreJeu extends JFrame {
     private JLabel smallLabel;
     private JLabel bigLabel;
     private JLabel playingLabel;
+    private JLabel nomJoueur;
 
 
     private JLabel valeurActuelleSlider;
     private JSlider raiseSlider;
 
     private LinkedList<JPanel> joueursOrdinateursCartes;
+    private LinkedList<JPanel> joueursCartesPanels;
     private LinkedList<JPanel> joueursOrdinateurs;
+    private LinkedList<JPanel> joueursPanels; //par defaut le joueurPanels(0) est le joueur humain
 
     public FenetreJeu(Jeu j, int nJoueurs){
         super("Poker");
@@ -67,11 +71,12 @@ public class FenetreJeu extends JFrame {
         smallLabel = new JLabel("SMALL",SwingConstants.LEFT);
         bigLabel = new JLabel("BIG",SwingConstants.LEFT);
         playingLabel = new JLabel("ACTIF",SwingConstants.LEFT);
+        nomJoueur = new JLabel(jeu.nomJoueur);
 
         call = new JButton("Call");
         raise = new JButton("Raise");
         fold = new JButton("Fold");
-        jouer = new JButton("jouer");
+        jouer = new JButton("Jouer");
         jouer.addActionListener(new EcouteurTable(this, 'j'));
 
         flop = new JButton("Flop");
@@ -137,6 +142,7 @@ public class FenetreJeu extends JFrame {
         }
         ajouterNomsJoueurs();
         ajouterCartesJoueurs();
+        ajouterPositionsJoueurs();
         ajouterCartesTable();
         creerLayout();
 
@@ -181,12 +187,21 @@ public class FenetreJeu extends JFrame {
         }
          */
     }
-    public void ajouterNomsJoueurs(){
+    public void ajouterNomsJoueurs(){ //création du jeu
         Node current = jeu.getHead();
         int posLinkedList = 0;
+        jPrincipalCartes.add(nomJoueur);
         do{
             current = current.prochainNode;
             joueursOrdinateurs.get(posLinkedList).add(new JLabel(current.joueur.nom, SwingConstants.CENTER), BorderLayout.NORTH);
+            posLinkedList++;
+        }while(!current.prochainNode.equals(jeu.getHead())); //tant que le prochain joueur n'est pas le joueur reel
+    }
+     public void ajouterPositionsJoueurs(){ // creation du jeu, changerDealer() et avancerJeu()
+        Node current = jeu.getHead();
+        int posLinkedList = 0;
+            do{
+            current = current.prochainNode;
             if(current.joueur.dealer){
                 joueursOrdinateurs.get(posLinkedList).add(dealerLabel, BorderLayout.WEST);
             }
@@ -313,7 +328,7 @@ public class FenetreJeu extends JFrame {
         // 6 //  jPrincipalCartes.add(new JLabel("Hand: "+jeu.getJoueurs().getFirst().getHand().getDescription()));
         jPrincipalCartes.add(new JLabel("Hand: "+jeu.getHeadJoueur().getHand().getDescription()));
         // 7 //for(Carte c : jeu.getJoueurs().getFirst().getHand().hand){
-        for(Carte c : jeu.getHeadJoueur().getHand().hand){
+        for(Carte c : jeu.getHeadJoueur().getHand().getCartesHand()){
             jPrincipalCartes.add(new JLabel(c.icon));
         }
         mettreAJourTable();
@@ -332,11 +347,8 @@ public class FenetreJeu extends JFrame {
     protected void avancerJeu(){
         jeu.avancerJeu();
         ajouterNomsJoueurs();
+        ajouterPositionsJoueurs();
         mettreAJourTable();
-    }
-
-    private void ajouterPositionsJoueurs() {
-
     }
 
     private void mettreAJourTable(){
@@ -345,14 +357,6 @@ public class FenetreJeu extends JFrame {
         revalidate();
         repaint();
     }
-    /*
-    private void controleDeJeu(boolean joue){
-        if(joue){
-            jeu.prochainJoueur();
-        }
-    }
-
-     */
 
     public static void main(String[] args){
 
