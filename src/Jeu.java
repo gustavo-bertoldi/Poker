@@ -45,9 +45,19 @@ public class Jeu {
         for(int i=0;i<nJoueurs;i++){
             Joueur j = new Joueur(niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
             joueurs.add(j);
-            if(i==4){
+            if(i==2){
                 j.dealer=true;
             }
+            if(i==3){
+                j.smallBlind=true;
+            }
+            if(i==4){
+                j.bigBlind=true;
+            }
+            if(i==5){
+                j.playing=true;
+            }
+
             joueursCirc.addNode(j);
 
         }
@@ -153,73 +163,9 @@ public class Jeu {
     Change l'icon des cartes de joueur humain pour les afficher dans
     l'interface graphique
      */
-    private void montrerCartesJoueurActif(){
-        for(Carte c:joueurs.get(0).getHand().getCartes()){
+    private void montrerCartesJoueurActif() {
+        for (Carte c : joueurs.get(0).getHand().getCartes()) {
             c.montrerCarte();
-        }
-    }
-
-    /*
-    METHODE INCOMPLETE
-    Cette methode controle la distribution du dealer, du small blind et du big blind dans
-    la liste de joueurs
-     */
-    public void prochainJoueur(){
-        //IL FAUT REMPLACER nJoueurs PAR LE NUMERO DE JOUEURS ACTIFS DANS LA TOURNEE - CREER METHODE POUR COMPTER
-        for(Joueur j: joueurs){
-            j.resetAll();
-        }
-        if(nJoueurs<3){//Dans le cas ou il n'y a que deux joueurs dans actifs
-            if(tourDealer==0){
-                joueurs.get(0).setDealer();
-                joueurs.get(1).setSmallBlind();
-                joueurs.get(0).setBigBlind();
-                tourDealer=1;
-                tourSmall=0;
-                tourBig=1;
-            }
-            else{
-                joueurs.get(1).setDealer();
-                joueurs.get(0).setSmallBlind();
-                joueurs.get(1).setBigBlind();
-                tourDealer=0;
-                tourSmall=1;
-                tourBig=0;
-            }
-        }
-        else{ //Cas ou il y au moins 3 joueurs actifs
-            if(tourDealer==nJoueurs){
-                joueurs.get(tourDealer).setDealer();
-                joueurs.get(tourBig).setBigBlind();
-                joueurs.get(tourSmall).setSmallBlind();
-                tourDealer=0;
-                tourBig++;
-                tourSmall++;
-            }
-            else if(tourDealer==nJoueurs-1){
-                joueurs.get(tourDealer).setDealer();
-                joueurs.get(tourSmall).setBigBlind();
-                joueurs.get(tourBig).setSmallBlind();
-                tourDealer++;
-                tourBig++;
-                tourSmall=0;
-            }
-            else if(tourDealer==nJoueurs-2){
-                joueurs.get(tourDealer).setDealer();
-                joueurs.get(tourSmall).setSmallBlind();
-                joueurs.get(tourBig).setBigBlind();
-                tourDealer++;
-                tourSmall++;
-                tourBig=0;
-            }
-            else{
-                joueurs.get(tourDealer).setDealer();
-                joueurs.get(tourSmall).setSmallBlind();
-                joueurs.get(tourBig).setBigBlind();
-                tourDealer++;
-                tourSmall++;
-                tourBig++;
-            }
         }
     }
 
@@ -436,6 +382,7 @@ public class Jeu {
         distribuerCartesJoueurs(); // changer parcours de la liste
         distribuerCartesTable();
         setHands(); // parcours de liste
+        fenetreJeu.dispatchEvent(new WindowEvent(fenetreJeu, WindowEvent.WINDOW_CLOSING));
         fenetreJeu = new FenetreJeu(this, nJoueurs);
     }
 

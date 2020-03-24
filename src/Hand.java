@@ -5,10 +5,10 @@ import java.util.LinkedList;
 
 public class Hand  implements Comparable{
 
-    protected LinkedList<Carte> cartes = new LinkedList<>();
-    protected LinkedList<Carte> surMain= new LinkedList<>();
-    protected LinkedList<Carte> surTable= new LinkedList<>();
-    protected LinkedList<Carte> hand = new LinkedList<>();
+    protected LinkedList<Carte> cartes;
+    protected LinkedList<Carte> surMain;
+    protected LinkedList<Carte> surTable;
+    protected LinkedList<Carte> hand;
     private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
     private int valeurHand = -1;
     /*
@@ -30,6 +30,10 @@ public class Hand  implements Comparable{
     //Methods avec Straight ne considerent pas le cas ou le straight est sur la table,...
 
     public Hand(){
+        cartes = new LinkedList<>();
+        surMain= new LinkedList<>();
+        surTable= new LinkedList<>();
+        hand = new LinkedList<>();
     }
 
     public LinkedList<Carte> getCartes(){return cartes;}
