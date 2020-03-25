@@ -20,6 +20,8 @@ public class FenetreJeu extends JFrame {
     private JPanel jPrincipalFonctions;
     private JPanel jPrincipalCartes;
     private JPanel tableCartes;
+    private JPanel infosJoueurGagnant;
+    private JPanel cartesHandGagnante;
 
     private JPanel sud;
     private JPanel ouest;
@@ -56,7 +58,7 @@ public class FenetreJeu extends JFrame {
 
     public FenetreJeu(Jeu j, int nJoueurs){
         super("Poker");
-        this.setSize(1350 ,750);
+        this.setSize(1350 ,760);
 
         this.nJoueurs = nJoueurs;
         jeu = j; // changer pour creer Circular LL
@@ -67,6 +69,8 @@ public class FenetreJeu extends JFrame {
         jPrincipalCartes = new JPanel();
         tableCartes = new JPanel();
         principal = new JPanel(new BorderLayout());
+        infosJoueurGagnant = new JPanel(new BorderLayout());
+        cartesHandGagnante = new JPanel(new FlowLayout());
 
         dealerLabel = new JLabel("DEALER", SwingConstants.LEFT);
         smallLabel = new JLabel("SMALL",SwingConstants.LEFT);
@@ -243,7 +247,7 @@ public class FenetreJeu extends JFrame {
 
             //OUEST
             ouest = new JPanel(new BorderLayout());
-            ouest.setBorder(new EmptyBorder(new Insets(80, 0, 150, 0)));
+            ouest.setBorder(new EmptyBorder(new Insets(50, 0, 150, 0)));
             ouest.add(joueursOrdinateurs.get(0), BorderLayout.CENTER);
 
             //NORD
@@ -254,7 +258,7 @@ public class FenetreJeu extends JFrame {
 
             //EST
             est = new JPanel(new BorderLayout());
-            est.setBorder(new EmptyBorder(new Insets(80,0,150,0)));
+            est.setBorder(new EmptyBorder(new Insets(50,0,150,0)));
             est.add(joueursOrdinateurs.get(4), BorderLayout.CENTER);
 
             //SUD
@@ -263,6 +267,7 @@ public class FenetreJeu extends JFrame {
             sud.add(new JLabel(jeu.getHeadJoueur().nom, SwingConstants.CENTER));
             sud.add(jPrincipalFonctions, BorderLayout.SOUTH);
             sud.add(jPrincipalCartes, BorderLayout.CENTER);
+            sud.add(infosJoueurGagnant, BorderLayout.WEST);
 
             principal.add(sud, BorderLayout.SOUTH);
             principal.add(ouest, BorderLayout.WEST);
@@ -301,6 +306,7 @@ public class FenetreJeu extends JFrame {
             sud = new JPanel(new BorderLayout());
             sud.add(jPrincipalFonctions,BorderLayout.SOUTH);
             sud.add(jPrincipalCartes,BorderLayout.CENTER);
+            sud.add(infosJoueurGagnant, BorderLayout.WEST);
 
             principal.add(sud, BorderLayout.SOUTH);
             principal.add(ouest, BorderLayout.WEST);
@@ -340,8 +346,7 @@ public class FenetreJeu extends JFrame {
 
     protected void restart(){
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        jeu.reinitialiser();
-        new FenetreJeu(jeu, nJoueurs);
+        jeu = new Jeu(nJoueurs,0);
     }
     protected void dealer(){
         jeu.changerDealer();
@@ -357,12 +362,22 @@ public class FenetreJeu extends JFrame {
 
     protected void gagnant(){
         if(jeu.joueursGagnants().size()==1){
-            jPrincipalCartes.add(new JLabel(jeu.joueursGagnants().getFirst().nom));
+            infosJoueurGagnant.add(new JLabel(jeu.joueursGagnants().getFirst().nom, SwingConstants.CENTER), BorderLayout.NORTH);
             for(Carte c: jeu.joueursGagnants().getFirst().getHand().getCartesHand()){
-                jPrincipalCartes.add(new JLabel(c.icon));
+                cartesHandGagnante.add(new JLabel(c.icon));
             }
+            infosJoueurGagnant.add(cartesHandGagnante, BorderLayout.CENTER);
+            infosJoueurGagnant.add(new JLabel(jeu.joueursGagnants().getFirst().getHand().getDescription(), SwingConstants.CENTER), BorderLayout.SOUTH);
         }
-        jPrincipalCartes.add(new JLabel(jeu.joueursGagnants().getFirst().getHand().getDescription()));
+        else{
+            LinkedList<Joueur> g = jeu.joueursGagnants();
+            String noms="|| ";
+            for (Joueur j : g){
+                noms += j.nom+" || ";
+            }
+            infosJoueurGagnant.add(new JLabel(noms, SwingConstants.CENTER), BorderLayout.NORTH);
+            infosJoueurGagnant.add(new JLabel(jeu.joueursGagnants().getFirst().getHand().getDescription(), SwingConstants.CENTER), BorderLayout.CENTER);
+        }
         revalidate();
         repaint();
     }

@@ -382,15 +382,6 @@ public class Jeu {
         } while (current != dealerNode);
         // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
     }
-   public void reinitialiser(){  // methode utilisee pour l'instant
-        paquet= new Paquet();
-        table = new Table();
-        distribuerCartesJoueurs(); // changer parcours de la liste
-        distribuerCartesTable();
-        setHands(); // parcours de liste
-        fenetreJeu.dispatchEvent(new WindowEvent(fenetreJeu, WindowEvent.WINDOW_CLOSING));
-        fenetreJeu = new FenetreJeu(this, nJoueurs);
-    }
 
     public Joueur getHeadJoueur(){
         return joueursCirc.head.joueur;
@@ -582,9 +573,11 @@ public class Jeu {
                 g.add(j1.getFirst());
             }
             else {
-                for (Joueur j: j1){
-                    if(j.getHand().getValeurHand() != j1.getFirst().getHand().getValeurHand()){
-                        j1.remove(j);
+
+                for (int i=0; i<j1.size(); i++){
+                    Joueur test = j1.get(i);
+                    if(test.getHand().getValeurHand() != j1.getFirst().getHand().getValeurHand()){
+                        j1.remove(test);
                     }
                 }
                 g.addAll(j1);
@@ -596,7 +589,7 @@ public class Jeu {
 
 
     public static void main(String[] args) {
-        Jeu j = new Jeu(6,0);
+        Jeu j = new Jeu(9,0);
         System.out.println("Valeurs des hands:\n");
         for(int i=0; i<j.getJoueurs().size();i++){
             System.out.println(i+1 +" : "+j.getJoueurs().get(i).getHand().getValeurHand()+"\n");
