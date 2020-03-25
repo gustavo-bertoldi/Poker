@@ -1,6 +1,8 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedList;
 
-public class Joueur {
+public class Joueur implements Comparable{
 
     private Hand hand= new Hand(); //LL AVEC TOUTES LES CARTES DISPONIBLES
     private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //LL AVEC LES 2 CARTES INITIALES
@@ -121,16 +123,6 @@ public class Joueur {
         return dealer;
     }
 
-    /*
-    Methode de test
-     */
-    public String mao(){
-        String mao="";
-        for(Carte c: hand.getCartes()){
-            mao=mao + c.toString()+"\n";
-        }
-        return mao;
-    }
 
     /*
     Action de fold dans le jeu, fait tourner les cartes du joueur dans l'interface graphique
@@ -186,6 +178,16 @@ public class Joueur {
         this.smallBlind=false;
         this.bigBlind=false;
         this.dejaJoue=false;
+    }
+
+    public int compareTo(Object j2) {
+        int comparaison = 0;
+        if (this.getHand().getValeurHand() > ((Joueur)j2).getHand().getValeurHand()) {
+            comparaison = 1;
+        } else if (this.getHand().getValeurHand() < ((Joueur)j2).getHand().getValeurHand()) {
+            comparaison = -1;
+        }
+        return comparaison;
     }
 
     public boolean equals(Object o){

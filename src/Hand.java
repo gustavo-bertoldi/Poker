@@ -32,7 +32,7 @@ public class Hand  implements Comparable{
     public Hand(){
     }
 
-    public LinkedList<Carte> getCartes(){return cartes;}
+    public LinkedList<Carte> getToutesCartes(){return cartes;}
 
     public LinkedList<Carte> getSurMain() {
         return surMain;
@@ -43,7 +43,6 @@ public class Hand  implements Comparable{
     public LinkedList<Carte> getCartesHand() {return hand;}
 
     public String getDescription(){
-        calculerValeurHand();
         return description;
     }
 
@@ -52,7 +51,11 @@ public class Hand  implements Comparable{
     }
 
     public void ajouterValeurKicker(int valeurKicker){
-        valeurHand+=valeurKicker;
+        valeurHand=valeurHand+valeurKicker;
+    }
+
+    public void ajouterCarteKicker(Carte kicker){
+        hand.add(kicker);
     }
 
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
@@ -62,6 +65,7 @@ public class Hand  implements Comparable{
         this.cartes.addAll(surTable);
         this.cartes.addAll(surMain);
         Collections.sort(cartes, Collections.reverseOrder());
+        calculerValeurHand();
     }
 
     public int getValeurHand(){
@@ -415,7 +419,7 @@ public class Hand  implements Comparable{
                     description = "Pair de "+result.getFirst().description(true);
                 }
                 else if (result.size()==4){
-                    valeurHand = 100*result.getFirst().valeur;
+                    valeurHand = 100*result.getFirst().valeur + result.getLast().valeur;
                     description = "Deux pairs, "+result.getFirst().description(true)+" et "+result.getLast().description(true);
                 }
             }
@@ -425,92 +429,6 @@ public class Hand  implements Comparable{
                 description = "Carte haute, "+result.getFirst().description(false);
             }
             hand=result;
-    }
-
-    /*
-    Methode qui ajoute les valeurs du kicker dans chaque hand au cas ou il y un possible match nul
-    Retourne true si avec les valeurs du kickers il y une hand gagnante
-    Retourne false si le match est toujours nul
-    @ param LinkedList<Hand> handsEgales - Une LinkedList avec les possible hands egales lors de la comparaison dans jeu
-     */
-    public boolean ajouterKicker (LinkedList<Hand> handsEgales){
-        for (Hand h : handsEgales){
-            LinkedList<Carte> kickers = h.getCartes();
-            kickers.removeAll(h.getCartesHand());
-            Collections.sort(kickers, Collections.reverseOrder());
-            if (h.getValeurHand()<=14){ //Cas carte haute
-                LinkedList<Carte> surMainSansHaute = h.getSurMain();
-                surMainSansHaute.remove(h.getCartesHand().removeFirst()); //On s'assure que la carte haute ne sera pas le kicker meme s'elle est sur main
-                if (surMainSansHaute.contains(kickers.getFirst()) || surMainSansHaute.contains(kickers.get(1)) || surMainSansHaute.contains(kickers.get(2)) || surMainSansHaute.contains(kickers.get(3))){
-                    h.ajouterValeurKicker(surMainSansHaute.getFirst().valeur);
-                    h.ajouterDescription(". Kicker "+surMainSansHaute.getFirst().description(false));
-                }
-                else {
-                    h.ajouterDescription(". Partage du pot");
-                }
-            }
-
-            else if (h.getValeurHand()>=20 && h.getValeurHand()<=140){ //Cas pair
-                LinkedList<Carte> surMainSansPair = h.getSurMain();
-                surMainSansPair.removeAll(h.getCartesHand());
-                if(surMainSansPair.contains(kickers.getFirst()) || surMainSansPair.contains(kickers.get(1)) || surMainSansPair.contains(kickers.get(2))){
-                    h.ajouterValeurKicker(surMainSansPair.getFirst().valeur);
-                    h.ajouterDescription(". Kicker "+surMainSansPair.getFirst().description(false));
-                }
-                else {
-                    h.ajouterDescription(". Partage du pot");
-                }
-            }
-
-            else if (h.getValeurHand()>=230 && h.getValeurHand()<=1530){ //Cas deux pairs
-                LinkedList<Carte> surMainSansDeuxPairs = h.getSurMain();
-                surMainSansDeuxPairs.removeAll(h.getCartesHand());
-                if (surMainSansDeuxPairs.contains(kickers.getFirst())){
-                    h.ajouterValeurKicker(surMainSansDeuxPairs.getFirst().valeur);
-                    h.ajouterDescription(". Kicker "+surMainSansDeuxPairs.getFirst().description(false));
-                }
-                else{
-                    h.ajouterDescription(". Partage du pot");
-                }
-            }
-
-            else if (h.getValeurHand()>=2000 && h.getValeurHand()<=14000){ //Cas brelan
-                LinkedList<Carte> surMainSansBrelan = h.getSurMain();
-                surMainSansBrelan.removeAll(h.getCartesHand());
-                if(surMainSansBrelan.contains(kickers.getFirst()) || surMainSansBrelan.contains(kickers.get(1))){
-                    h.ajouterValeurKicker(surMainSansBrelan.getFirst().valeur);
-                    h.ajouterDescription(". Kicker "+surMainSansBrelan.getFirst().description(false));
-                }
-                else{
-                    h.ajouterDescription(". Partage du pot");
-                }
-            }
-
-            else if (h.getValeurHand()>=300002 && h.getValeurHand()<=300014){
-                LinkedList<Carte> surMainSansCarre = h.getSurMain();
-                surMainSansCarre.removeAll(h.getCartesHand());
-                if(surMainSansCarre.contains(kickers.getFirst())){
-                    h.ajouterValeurKicker(surMainSansCarre.getFirst().valeur);
-                    h.ajouterDescription(". Kicker "+surMainSansCarre.getFirst().description(false));
-                }
-                else {
-                    h.ajouterDescription(". Partage du pot");
-                }
-
-            }
-
-            else {
-                h.ajouterDescription(". Partage du pot");
-            }
-        }
-
-        Collections.sort(handsEgales, Collections.reverseOrder());
-        if (handsEgales.getFirst().getValeurHand()>handsEgales.get(1).getValeurHand()){
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 }
 

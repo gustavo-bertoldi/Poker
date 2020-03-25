@@ -37,6 +37,7 @@ public class FenetreJeu extends JFrame {
     private JButton river;
     private JButton restart;
     private JButton dealer;
+    private JButton gagnant;
 
     private JLabel dealerLabel;
     private JLabel smallLabel;
@@ -89,6 +90,8 @@ public class FenetreJeu extends JFrame {
         restart.addActionListener(new EcouteurTable(this,'x'));
         dealer = new JButton("Dealer");
         dealer.addActionListener(new EcouteurTable(this, 'd'));
+        gagnant = new JButton("Gagnant");
+        gagnant.addActionListener(new EcouteurTable(this,'g'));
 
 
         //CONFIGURATION DU JSLIDER
@@ -131,6 +134,7 @@ public class FenetreJeu extends JFrame {
         jPrincipalFonctions.add(restart);
         jPrincipalFonctions.add(dealer);
         jPrincipalFonctions.add(jouer);
+        jPrincipalFonctions.add(gagnant);
 
        // joueursOrdinateurs.addFirst(jPrincipalFonctions);
         //joueursOrdinateursCartes.addFirst(jPrincipalCartes);
@@ -349,6 +353,18 @@ public class FenetreJeu extends JFrame {
         ajouterNomsJoueurs();
         ajouterPositionsJoueurs();
         mettreAJourTable();
+    }
+
+    protected void gagnant(){
+        if(jeu.joueursGagnants().size()==1){
+            jPrincipalCartes.add(new JLabel(jeu.joueursGagnants().getFirst().nom));
+            for(Carte c: jeu.joueursGagnants().getFirst().getHand().getCartesHand()){
+                jPrincipalCartes.add(new JLabel(c.icon));
+            }
+        }
+        jPrincipalCartes.add(new JLabel(jeu.joueursGagnants().getFirst().getHand().getDescription()));
+        revalidate();
+        repaint();
     }
 
     private void mettreAJourTable(){

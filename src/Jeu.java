@@ -1,3 +1,5 @@
+import com.sun.jdi.connect.spi.TransportService;
+
 import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -164,7 +166,7 @@ public class Jeu {
     l'interface graphique
      */
     private void montrerCartesJoueurActif() {
-        for (Carte c : joueurs.get(0).getHand().getCartes()) {
+        for (Carte c : joueurs.get(0).getHand().getToutesCartes()) {
             c.montrerCarte();
         }
     }
@@ -266,16 +268,14 @@ public class Jeu {
     }
 
     private void setHands(){
-        Node current = joueursCirc.head;
+        /*Node current = joueursCirc.head;
         do{
             current.joueur.setHand(current.joueur.getCartesSurMain(),getCartesTable());
             current = current.prochainNode;
-        }while(!current.prochainNode.equals(joueursCirc.head));
-        /* for (Joueur j : joueurs){
+        }while(!current.prochainNode.equals(joueursCirc.head));*/
+        for (Joueur j : joueurs){
             j.setHand(j.getCartesSurMain(),getCartesTable());
         }
-
-        */
     }
 
     private void distribuerArgent(int q){
@@ -408,8 +408,198 @@ public class Jeu {
         return joueursCirc;
     }
 
+    public boolean ajouterKicker (LinkedList<Joueur> joueursEgaux){
+        for (Joueur j : joueursEgaux) {
+            /*
+            Creation d'une linked list kicker qui contient toutes les 7 cartes du joueur, sauf celles utilisees pour
+            former la hand actuelle (pair, flush, etc)
+            La liste kicker est triee en ordre decroissante
+             */
+            LinkedList<Carte> kickers = j.getHand().getToutesCartes();
+            LinkedList<Carte> kickersSurMain = j.getHand().getSurMain();
+            kickers.removeAll(j.getHand().getCartesHand());
+            kickersSurMain.removeAll(j.getHand().getCartesHand());
+            Collections.sort(kickers, Collections.reverseOrder());
+            Collections.sort(kickersSurMain, Collections.reverseOrder());
+
+            /*
+            S'il n'y a pas de kickers sur la main du joueur, on passe au prochain joueur
+             */
+            if (kickersSurMain.size() < 1) {
+                j.getHand().ajouterDescription(". Partage du pot");
+            }
+            /*
+            S'il y a kickers sur la main du joueur, on les cherche selon la hand
+             */
+            else {
+                /*
+                Cas carte haute
+                 */
+                if (j.getHand().getValeurHand() <= 14) {
+                /*
+                Si un des 4 kickers plus hauts est sur la main du joueur, sa valeur est ajoutee a la valeur de la hand
+                 */
+                    if (kickersSurMain.contains(kickers.getFirst()) || kickersSurMain.contains(kickers.get(1)) ||
+                            kickersSurMain.contains(kickers.get(2)) || kickersSurMain.contains(kickers.get(3))) {
+                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+                        j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
+                        j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
+                    }
+                    /*
+                    Si les 4 kicker sont sur la table, est impossible que le jouer gagne en cas de match nul
+                    */
+                    else {
+                        j.getHand().ajouterDescription(". Partage du pot");
+                    }
+                }
+
+                /*
+                Cas pair
+                */
+                else if (j.getHand().getValeurHand() >= 20 && j.getHand().getValeurHand() <= 140) {
+                    /*
+                    Si un des 3 kicker plus hauts est sur la main du jouer, sa valeur est ajoutee a la valeur de la hand
+                    */
+                    if (kickersSurMain.contains(kickers.getFirst()) || kickersSurMain.contains(kickers.get(1)) ||
+                            kickersSurMain.contains(kickers.get(2))) {
+                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+                        j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
+                        j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
+                    }
+                    /*
+                    Les kickers ne sont pas sur la main du joueur
+                    */
+                    else {
+                        j.getHand().ajouterDescription(". Partage du pot");
+                    }
+                }
+
+                /*
+                Cas deux pairs
+                */
+                else if (j.getHand().getValeurHand() >= 230 && j.getHand().getValeurHand() <= 1530) {
+                    /*
+                    Si le kicker est sur la main du joueur, sa valeur est ajoutee a la valeur de la hand
+                    */
+                    if (kickersSurMain.contains(kickers.getFirst())) {
+                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+                        j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
+                        j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
+                    }
+                    /*
+                    Le kicker n'est pas sur la main du jouer
+                    */
+                    else {
+                        j.getHand().ajouterDescription(". Partage du pot");
+                    }
+                }
+
+                /*
+                Cas brelan (three of a kind)
+                 */
+                else if (j.getHand().getValeurHand() >= 2000 && j.getHand().getValeurHand() <= 14000) {
+                    /*
+                    Au moins un des deux kicker est sur la main du joueur
+                     */
+                    if (kickersSurMain.contains(kickers.getFirst()) || kickersSurMain.contains(kickers.get(1))) {
+                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+                        j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
+                        j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
+                    }
+                    /*
+                    Les kicker ne sont pas sur la main du joueur
+                     */
+                    else {
+                        j.getHand().ajouterDescription(". Partage du pot");
+                    }
+                }
+
+                /*
+                Cas carré (four of a kind)
+                 */
+                else if (j.getHand().getValeurHand() >= 300002 && j.getHand().getValeurHand() <= 300014) {
+                    /*
+                    Le kicker est sur la main du joueur
+                     */
+                    if (kickersSurMain.contains(kickers.getFirst())) {
+                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+                        j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
+                        j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
+                    }
+                    /*
+                    Le kicker n'est pas sur la main du joueur
+                     */
+                    else {
+                        j.getHand().ajouterDescription(". Partage du pot");
+                    }
+                }
+                /*
+                Une des hands où il n'y a pas de kicker (straight, flush, full house, straight flush et royal straight flush)
+                 */
+                else {
+                    j.getHand().ajouterDescription(". Partage du pot");
+                }
+            }
+        }
+
+        Collections.sort(joueursEgaux, Collections.reverseOrder());
+        /*
+        On arrive a enlever l'egalite en ajoutant un kicker
+         */
+        if(joueursEgaux.getFirst().getHand().getValeurHand() > joueursEgaux.get(1).getHand().getValeurHand()){
+            return true;
+        }
+        /*
+        L'inegalite n'est pas suprimee
+         */
+        else {
+            return false;
+        }
+    }
+
+    public LinkedList<Joueur> joueursGagnants(){
+        LinkedList<Joueur> j1 = joueurs;
+        LinkedList<Joueur> g = new LinkedList<>();
+        Collections.sort(j1, Collections.reverseOrder());
+
+
+        if (j1.getFirst().getHand().getValeurHand() > j1.get(1).getHand().getValeurHand()){
+            g.add(j1.getFirst());
+        }
+
+        else {
+            for(int i=0;i< j1.size();i++){
+                Joueur test = j1.get(i);
+                if(test.getHand().getValeurHand() != j1.getFirst().getHand().getValeurHand()){
+                    j1.remove(test);
+                }
+            }
+
+            ajouterKicker(j1);
+            Collections.sort(j1,Collections.reverseOrder());
+
+            if (j1.getFirst().getHand().getValeurHand() > j1.get(1).getHand().getValeurHand()){
+                g.add(j1.getFirst());
+            }
+            else {
+                for (Joueur j: j1){
+                    if(j.getHand().getValeurHand() != j1.getFirst().getHand().getValeurHand()){
+                        j1.remove(j);
+                    }
+                }
+                g.addAll(j1);
+            }
+        }
+
+        return g;
+    }
+
 
     public static void main(String[] args) {
         Jeu j = new Jeu(6,0);
+        System.out.println("Valeurs des hands:\n");
+        for(int i=0; i<j.getJoueurs().size();i++){
+            System.out.println(i+1 +" : "+j.getJoueurs().get(i).getHand().getValeurHand()+"\n");
+        }
     }
 }
