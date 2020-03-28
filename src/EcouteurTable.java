@@ -29,7 +29,7 @@ public class EcouteurTable implements ActionListener {
             f.dealer();
         }
         else if(fun =='j'){
-            f.avancerJeu();
+           // f.jeu.jouer();
         }
         else if(fun =='g'){
             f.gagnant();

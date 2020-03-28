@@ -1,4 +1,4 @@
-import com.sun.jdi.connect.spi.TransportService;
+
 
 import java.awt.event.WindowEvent;
 import java.util.Collections;
@@ -59,7 +59,6 @@ public class Jeu {
             if(i==5){
                 j.playing=true;
             }
-
             joueursCirc.addNode(j);
 
         }
@@ -69,7 +68,7 @@ public class Jeu {
         distribuerCartesTable();
         setHands();
         distribuerArgent(1500);
-        fenetreJeu = new FenetreJeu(this, nJoueurs);
+        //fenetreJeu = new FenetreJeu(this, nJoueurs);
     }
 
     /*
@@ -586,13 +585,29 @@ public class Jeu {
 
         return g;
     }
+    /*
+    public  jouer(){
+        Node actif = joueursCirc.getJoueurBigBlind().prochainNode;
+        do{
+            if(actif.joueur instanceof IntelligenceAleatoire){
+                IntelligenceAleatoire i = (IntelligenceAleatoire)actif.joueur;
+                char c = i.jouer(table.getPot());
+                if(c=='f'){
+                    actif.joueur.fold();
+                    fenetreJeu.fold(actif.joueur);
+                }
+            }
+            actif.joueur.jouer();
+            actif = actif.prochainNode;
+        }
+    }
+    */
 
-
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         Jeu j = new Jeu(9,0);
         System.out.println("Valeurs des hands:\n");
         for(int i=0; i<j.getJoueurs().size();i++){
             System.out.println(i+1 +" : "+j.getJoueurs().get(i).getHand().getValeurHand()+"\n");
         }
-    }
+    }*/
 }

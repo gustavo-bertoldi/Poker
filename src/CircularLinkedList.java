@@ -78,6 +78,14 @@ public class CircularLinkedList {
         return current;
     }
 
+    public Node getJoueurBigBlind(){
+        Node current = head;
+        do{
+            current = current.prochainNode;
+        } while (!current.joueur.bigBlind);
+        return current;
+    }
+
 
 
     public static void main(String[] args) {

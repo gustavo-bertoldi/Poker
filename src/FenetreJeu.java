@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -51,6 +52,7 @@ public class FenetreJeu extends JFrame {
     private JLabel valeurActuelleSlider;
     private JSlider raiseSlider;
 
+    private LinkedList<JLabel> argentJoueurs;
     private LinkedList<JPanel> joueursOrdinateursCartes;
     private LinkedList<JPanel> joueursCartesPanels;
     private LinkedList<JPanel> joueursOrdinateurs;
@@ -66,6 +68,7 @@ public class FenetreJeu extends JFrame {
 
         joueursOrdinateursCartes = new LinkedList<>();
         joueursOrdinateurs = new LinkedList<>();
+        argentJoueurs = new LinkedList<>();
         jPrincipalCartes = new JPanel();
         tableCartes = new JPanel();
         principal = new JPanel(new BorderLayout());
@@ -179,7 +182,8 @@ public class FenetreJeu extends JFrame {
                      joueursOrdinateursCartes.get(posJoueur).add(new JLabel(c.icon));
                  }
                  j.add(joueursOrdinateursCartes.get(posJoueur), BorderLayout.CENTER);
-                 j.add(new JLabel("Argent: "+current.joueur.getArgent(), SwingConstants.CENTER), BorderLayout.SOUTH);
+                 argentJoueurs.add(posJoueur, new JLabel("Argent: "+current.joueur.getArgent(), SwingConstants.CENTER));
+                 j.add(argentJoueurs.get(posJoueur), BorderLayout.SOUTH);
                  current=current.prochainNode;
              }
 
@@ -388,6 +392,20 @@ public class FenetreJeu extends JFrame {
         revalidate();
         repaint();
     }
+
+    private void mettreAJourArgent(){
+        for (JLabel jl : argentJoueurs){
+            jl.setText("Argent : "+jeu.getJoueurs().get(argentJoueurs.indexOf(jl)).getArgent());
+        }
+        revalidate();
+        repaint();
+    }
+
+    protected void fold(Joueur j){
+
+    }
+
+
 
     public static void main(String[] args){
 
