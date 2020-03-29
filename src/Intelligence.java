@@ -109,4 +109,25 @@ public class Intelligence {
         // ajouter methode prenant en compte qualite main
     }
 
+    public char jouer(int pariActuel, int argentJoueur){
+        //Cas de l'intelligence aléatoire
+        if(niveau==0){
+            int r = (int) (Math.random() * 3);
+            if(r==0){
+                return 'f';
+            }
+
+            else if(r==1){
+                return 'c';
+            }
+
+            else{
+                int raise = pariActuel + (int)((argentJoueur+1)*Math.random());
+                return 'r';
+            }
+        }
+        else{
+            return 'a';
+        }
+    }
 }

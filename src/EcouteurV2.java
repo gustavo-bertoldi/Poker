@@ -13,8 +13,20 @@ public class EcouteurV2 implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e){
-        if(fun == 'r'){
+        if(fun == 'x'){
             fenetre.restart();
+        }
+        else if(fun == 'c'){
+            fenetre.call();
+        }
+        else if(fun == 'r'){
+            fenetre.fold();
+        }
+        else if(fun == 'f'){
+            fenetre.raise(0);
+        }
+        else if(fun == 's'){
+            fenetre.start();
         }
     }
 }

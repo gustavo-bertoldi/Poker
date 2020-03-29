@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
@@ -6,17 +7,13 @@ import java.util.LinkedList;
 
 public class FenetreJeuV2 extends JFrame {
 
-    private JPanel cartesTable, principal, joueurGagnant;
+    private JPanel cartesTable, principal, joueurGagnant, panelBoutons;
 
     private HashMap<Joueur, JPanel> cartesJoueurs;
 
     private HashMap<Joueur, JLabel> infosJoueur;
 
-    private LinkedList<JPanel> panelJoueur;
-
     private JButton call, raise, fold, commencerJeu, restart;
-
-    private GridBagLayout layoutPrincipal;
 
     private FlowLayout layoutCartes;
 
@@ -38,6 +35,8 @@ public class FenetreJeuV2 extends JFrame {
         principal = new JPanel(new GridBagLayout());
         this.add(principal);
         creerLayout();
+
+        valeursHandTerminal();
 
         this.setVisible(true);
     }
@@ -97,6 +96,8 @@ public class FenetreJeuV2 extends JFrame {
             cartesJoueurs.get(current.joueur).add(cartes, BorderLayout.CENTER);
             current = current.prochainNode;
         }
+        revalidate();
+        repaint();
     }
 
     private void mettreAJourCartesTable(){
@@ -111,6 +112,8 @@ public class FenetreJeuV2 extends JFrame {
             cartesTable.add(new JLabel(c.icon), gbcCartesTable);
             i++;
         }
+        revalidate();
+        repaint();
     }
 
     private void ajouterInfosJoueurs(){
@@ -161,7 +164,8 @@ public class FenetreJeuV2 extends JFrame {
             }
             current = current.prochainNode;
         }
-
+        revalidate();
+        repaint();
     }
 
     public void creerLayout(){
@@ -245,13 +249,27 @@ public class FenetreJeuV2 extends JFrame {
             principal.add(joueurGagnant, gbcPrincipal);
 
             //BOUTONS
+            panelBoutons=new JPanel(new GridLayout(3,2));
             restart = new JButton("Restart");
-            restart.addActionListener(new EcouteurV2(this, 'r'));
+            restart.addActionListener(new EcouteurV2(this, 'x'));
+            call = new JButton("Call");
+            call.addActionListener(new EcouteurV2(this,'c'));
+            raise = new JButton("Raise");
+            raise.addActionListener(new EcouteurV2(this,'r'));
+            fold = new JButton("Fold");
+            fold.addActionListener(new EcouteurV2(this,'f'));
+            commencerJeu = new JButton("Commencer");
+            commencerJeu.addActionListener(new EcouteurV2(this, 's'));
+            panelBoutons.add(commencerJeu);
+            panelBoutons.add(restart);
+            panelBoutons.add(call);
+            panelBoutons.add(raise);
+            panelBoutons.add(fold);
             gbcPrincipal.gridx=2;
             gbcPrincipal.gridy=2;
             gbcPrincipal.anchor = GridBagConstraints.EAST;
             gbcPrincipal.insets = new Insets(0,0,20,20);
-            principal.add(restart,gbcPrincipal);
+            principal.add(panelBoutons,gbcPrincipal);
 
 
         }
@@ -389,6 +407,33 @@ public class FenetreJeuV2 extends JFrame {
     public void restart(){
         //this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         new FenetreJeuV2(6);
+    }
+
+    protected void call(){
+        jeu.getHeadJoueur().parier(jeu.valeurCall);
+        mettreAJourInfosJoueurs();
+    }
+
+    protected void raise(int q){
+        jeu.getHeadJoueur().parier(q);
+        mettreAJourInfosJoueurs();
+    }
+
+    protected void fold(){
+        jeu.getHeadJoueur().fold();
+        mettreAJourCartesJoueur();
+    }
+
+    protected void start(){
+        jeu.jouerTournee();
+    }
+
+    private void valeursHandTerminal(){
+        Node current = jeu.getHead();
+        for(int i=0; i<nJoueurs; i++){
+            System.out.println(current.joueur.nom+" : "+current.joueur.getHand().getValeurHand());
+            current=current.prochainNode;
+        }
     }
 
 

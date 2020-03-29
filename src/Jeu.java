@@ -6,23 +6,20 @@ import java.util.LinkedList;
 
 public class Jeu {
 
-    private FenetreJeu fenetreJeu;
-    private LinkedList<Joueur> joueurs = new LinkedList<Joueur>(); //Les joueurs dans le jeu - remplie dans le constructeur
-    private CircularLinkedList joueursCirc = new CircularLinkedList(joueurs); //essai avec circular LL
+    private CircularLinkedList joueurs; //essai avec circular LL
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
     private int niveau;
-    private int valeurCall=200; //La valeur minimale de pari pour jouer, defini en fonction des paris des joueurs
-    private int tourDealer=0; //L'indice du joueur qui sera le dealer dans la ll joueurs
-    private int tourBig; //L'indice du jouer qui sera le big blind dans la ll joueurs
-    private int tourSmall; //L'indice du joueur qui sera le small blind dans la ll joueurs
-    private int nJoueurs; //Le numero actuel de joueurs dans le jeu
-    protected int joueurActif; //L'indice du joueur qui sera le prochain a jouer
-    private int smallBlind; //La valeur du small blind actuel
-    private int bigBlind; //La valeur du big blind actuel (2*smallBlind)
-    protected String nomJoueur;
+    private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
 
-    /*      DÉRROULEMENT JEU
+    protected int valeurSmallBlind; //La valeur du small blind actuel
+    protected int valeurBigBlind;
+    protected int valeurCall; //La valeur minimale de pari pour jouer, défini en fonction des paris des joueurs
+    protected int pariActuel;
+
+    protected String nomJoueurHumain;
+
+    /*      DÉROULEMENT JEU
     - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
     - Au début, pos Dealer = joueurs.size()-3, pos SB = joueurs.size()-2, posBB = joueurs.size()-1 étant le dernier a decider
     - S'il y a un pari, le joueur qui a parié prend la position joueurs.size() et tous les autres changent aussi.
@@ -30,23 +27,25 @@ public class Jeu {
      */
 
     /*
-    Jeu a deux constructeurs, un prend en parametre:
-    @param int nJoueurs - numero de joueurs
+    Jeu a deux constructeurs, un prend en paramètre:
+    @param int nJoueurs - numéro de joueurs
     @param int smallBlind - la valeur de la première small blind
-    @param int niveau - pour controler l'intelligence de l'ordinateur
+    @param int niveau - pour contrôler l'intelligence de l'ordinateur
 
     Le constructeur cree un joueur human, et nJoueurs-1 ordinateurs, un paquet de cartes
     une table et fait la distribution des cartes et de l'argent entre les joueurs et la table
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(int nJoeurs, int niveau){  // methode utilisee pour l'instant
+    public Jeu(int nJoeurs, int niveau){  // méthode utilisée pour l'instant
         this.nJoueurs=nJoeurs;
         this.niveau = niveau;
-        nomJoueur = "BALTAZAR"; // ça viendra du constructeur, mais mis par default pour simplicite
-        for(int i=0;i<nJoueurs;i++){
+        this.joueurs = new CircularLinkedList();
+        nomJoueurHumain = "BALTAZAR"; // ça viendra du constructeur, mais mis par default pour simplicite
+        joueurs.addNode(new Joueur(nomJoueurHumain));
+
+        for(int i=1;i<nJoueurs;i++){
             Joueur j = new Joueur(niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
-            joueurs.add(j);
             if(i==2){
                 j.dealer=true;
             }
@@ -59,8 +58,7 @@ public class Jeu {
             if(i==5){
                 j.playing=true;
             }
-            joueursCirc.addNode(j);
-
+            joueurs.addNode(j);
         }
         paquet= new Paquet();
         table = new Table();
@@ -70,25 +68,7 @@ public class Jeu {
         distribuerArgent(1500);
         //fenetreJeu = new FenetreJeu(this, nJoueurs);
     }
-
     /*
-    Le deuxieme constructeur fait essentiellement la meme chose que le premier, mais
-    on met le nombre joueurs en 6 par default.
-     */
-    public Jeu(int niveau){
-        this.nJoueurs=6;
-        joueurs.add(new Joueur(niveau));
-        for(int i=1;i<6;i++){
-            joueurs.add(new Ordinateur(niveau));
-        }
-        paquet= new Paquet();
-        table = new Table();
-        distribuerCartesJoueurs();
-        distribuerCartesTable();
-        distribuerArgent(1500);
-
-    }
-
     public Jeu(int niveau, char c){ //boolean juste pour differencier de l'autre methode
         this.nJoueurs=6;
         if(c=='d'){
@@ -109,8 +89,9 @@ public class Jeu {
                 joueursCirc.addNode(j);
             }
         }
-
     }
+
+     */
 
 
     /*
@@ -121,84 +102,18 @@ public class Jeu {
     }
 
     /*
-    Retourne la table
+    Retourne une linked list circulaire avec les joueurs dans le jeu
      */
-    public Table getTable(){
-        return table;
-    }
-
-    /*
-    Retourne une ll avec les joueurs dans le jeu
-     */
-    public LinkedList<Joueur> getJoueurs(){
+    public CircularLinkedList getJoueurs(){
         return joueurs;
     }
 
     /*
-    Retourne la valeur minimale de pari pour continuer le jeu, valeur de call
+    Méthode enlève le joueur donné en paramètre et met à jour nJoueurs.
+    @param Joueur j - Joueur à enlever.
      */
-    public int getValeurCall(){
-        return valeurCall;
-    }
-
-    /*
-    Permet de changer la valeur minimale pour jouer
-    @param int valeurCall - valeur a donner
-     */
-    public void setValeurCall(int valeurCall){
-        this.valeurCall=valeurCall;
-    }
-
-    /*
-    Permet de faire un joueur parier une certaine quantité
-    @param int q - quantité a parier par le joueur
-    @param int indiceJoueur - l'indice du joueur qui va parier dans la ll joueurs
-     */
-    public void parier(int q, int indiceJoueur){
-        if(joueurs.get(indiceJoueur).parier(q)) {
-            table.ajouterAuPot(q);
-        }
-    }
-
-    /*
-    Change l'icon des cartes de joueur humain pour les afficher dans
-    l'interface graphique
-     */
-    private void montrerCartesJoueurActif() {
-        for (Carte c : joueurs.get(0).getHand().getToutesCartes()) {
-            c.montrerCarte();
-        }
-    }
-
-    /*
-    Retourne la valeur de small blind Actuelle
-     */
-    public int getSmallBlind() {
-        return smallBlind;
-    }
-
-    /*
-    Retourne la valeur de big blind actuelle
-     */
-    public int getBigBlind(){
-        return bigBlind;
-    }
-
-    /*
-    Permet de changer les valeurs du small blind et du big blind actuelles
-    @param int smallBlind - valeur a prendre
-     */
-    public void setSmallBlind(int smallBlind){
-        this.smallBlind=smallBlind;
-        this.bigBlind=2*smallBlind;
-    }
-
-    /*
-    Quand un joueur perd, permet de le sortir du jeu bien comme de la ll de joueurs
-    @param int indice- indice du joueur a sortir
-     */
-    public void sortirJoueur(int indice) {
-        joueurs.remove(indice);
+    public void sortirJoueur(Joueur j) {
+        joueurs.remove(j);
         nJoueurs--;
     }
 
@@ -207,8 +122,10 @@ public class Jeu {
      */
     private LinkedList<Hand> getAllHands(){
         LinkedList<Hand> hands = new LinkedList<>();
-        for(Joueur j:joueurs){
-            hands.add(j.getHand());
+        Node current = joueurs.head;
+        for(int i=0; i<nJoueurs; i++){
+            hands.add(current.joueur.getHand());
+            current=current.prochainNode;
         }
         Collections.sort(hands,Collections.reverseOrder());
         return hands;
@@ -230,7 +147,7 @@ public class Jeu {
     }
 
     private void distribuerCartesJoueurs(){ // la seule chose a changer pour joueursCirc est le parcours de la liste
-        Node current = joueursCirc.head;
+        Node current = joueurs.head;
         do{
             LinkedList<Carte> cartesJoueur = new LinkedList<>();
             int i = (int) ((paquet.size()) * Math.random());
@@ -241,19 +158,7 @@ public class Jeu {
             paquet.remove(i);
             current.joueur.setCartesSurMain(cartesJoueur);
             current = current.prochainNode;
-        }while(!current.equals(joueursCirc.head));
-        /* for (Joueur j : joueurs){
-            LinkedList<Carte> cartesJoueur = new LinkedList<>();
-            int i = (int) ((paquet.size()) * Math.random());
-            cartesJoueur.add(paquet.get(i));
-            paquet.remove(i);
-            i = (int) ((paquet.size()) * Math.random());
-            cartesJoueur.add(paquet.get(i));
-            paquet.remove(i);
-            j.setCartesSurMain(cartesJoueur);
-        }
-
-         */
+        }while(!current.equals(joueurs.head));
     }
 
     private void distribuerCartesTable(){
@@ -267,27 +172,19 @@ public class Jeu {
     }
 
     private void setHands(){
-        /*Node current = joueursCirc.head;
-        do{
+        Node current = joueurs.head;
+        for(int i=0; i<nJoueurs; i++){
             current.joueur.setHand(current.joueur.getCartesSurMain(),getCartesTable());
-            current = current.prochainNode;
-        }while(!current.prochainNode.equals(joueursCirc.head));*/
-        for (Joueur j : joueurs){
-            j.setHand(j.getCartesSurMain(),getCartesTable());
+            current=current.prochainNode;
         }
     }
 
     private void distribuerArgent(int q){
-        Node current = joueursCirc.head;
+        Node current = joueurs.head;
         do{
             current.joueur.setArgent(q);
             current = current.prochainNode;
-        }while(!current.equals(joueursCirc.head));
-       /* for (Joueur j : joueurs){
-            j.setArgent(q);
-        }
-
-        */
+        }while(!current.equals(joueurs.head));
     }
      /*
                                         Méthodes pour dérroulement
@@ -297,12 +194,12 @@ public class Jeu {
                                     Méthode pour changer Dealer, SB et BB
      */
     public void changerDealer(){ //FONCTIONNELLE VOIR MAIN
-        Node current = joueursCirc.head; // toujours partir de la tete de la liste
+        Node current = joueurs.head; // toujours partir de la tete de la liste
         do{
             current = current.prochainNode;
         }while(!current.joueur.playing );
         current.joueur.playing=false; // parcourir la table jusqua trouver le dernier à jouer et lui affecter false pour playing
-        current = joueursCirc.head;
+        current = joueurs.head;
         do{
             current = current.prochainNode;
         }while(!current.joueur.dealer ); // parcourir CLL jusqu'a ce que l'on trouve le dealer
@@ -313,13 +210,16 @@ public class Jeu {
         (current.prochainNode.prochainNode).joueur.smallBlind = true; // BB deviant SB
         (current.prochainNode.prochainNode.prochainNode).joueur.bigBlind = true; // le prochain joueur deviant BB
         (current.prochainNode.prochainNode.prochainNode.prochainNode).joueur.playing = true;
+        /*
         fenetreJeu.ajouterNomsJoueurs();
         fenetreJeu.repaint();
         fenetreJeu.revalidate();
+
+         */
     }
 
     public void avancerJeu(){ // methode a appeller des qu'une decision est prise par le joueur actif (Peut etre inutile)
-        Node current = joueursCirc.head; // toujours partir de la tete de la liste
+        Node current = joueurs.head; // toujours partir de la tete de la liste
         do {
                 current = current.prochainNode;
         } while (!current.joueur.playing);
@@ -331,7 +231,7 @@ public class Jeu {
                         Methode pour definir l'ordre du premier tour de decisions à partir du BB
      */
     public void definirPositionsBB() {
-        Node current = joueursCirc.head; // partir de la tete de la liste jusqua trouver le BB
+        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le BB
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
             current = current.prochainNode;
@@ -346,11 +246,11 @@ public class Jeu {
         // à la fin le but est que celui a gauche du BB ait pos == 0 et BB ait pos la plus grande
     }
     /*
-                    Methode pour definir l'ordre des prises de decision suite a un pari
-                                (Donc, à être appellée si qqun parie)
+                    Méthode pour définir l'ordre des prises de decision suite a un pari
+                                (Donc, à être appelée si qqun parie)
      */
     public void definirPositionsPari(Joueur joueurQuiAParie) {
-        Node current = joueursCirc.head; // partir de la tete de la liste jusqua trouver le BB
+        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le BB
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
             current = current.prochainNode;
@@ -368,7 +268,7 @@ public class Jeu {
                                 (utilisée pour fin de tour de paris)
      */
     public void definirPositionsDealer() {
-        Node current = joueursCirc.head; // partir de la tete de la liste jusqua trouver le Dealer
+        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le Dealer
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
             current = current.prochainNode;
@@ -383,19 +283,19 @@ public class Jeu {
     }
 
     public Joueur getHeadJoueur(){
-        return joueursCirc.head.joueur;
+        return joueurs.head.joueur;
     }
 
     public Node getHead(){
-        return joueursCirc.head;
+        return joueurs.head;
     }
 
     public Joueur getTailJoueur(){ // PE inutile
-        return joueursCirc.tail.joueur;
+        return joueurs.tail.joueur;
     }
 
     public CircularLinkedList getJoueursCirc(){
-        return joueursCirc;
+        return joueurs;
     }
 
     public boolean ajouterKicker (LinkedList<Joueur> joueursEgaux){
@@ -548,66 +448,80 @@ public class Jeu {
     }
 
     public LinkedList<Joueur> joueursGagnants(){
-        LinkedList<Joueur> j1 = joueurs;
-        LinkedList<Joueur> g = new LinkedList<>();
-        Collections.sort(j1, Collections.reverseOrder());
+        LinkedList<Joueur> tousJoueurs = new LinkedList<>();
+        for(Node n : joueurs.joueurs){
+            tousJoueurs.add(n.joueur);
+        }
+        LinkedList<Joueur> gagnants = new LinkedList<>();
+
+        //Triée selon la valeur de la hand
+        Collections.sort(tousJoueurs, Collections.reverseOrder());
 
 
-        if (j1.getFirst().getHand().getValeurHand() > j1.get(1).getHand().getValeurHand()){
-            g.add(j1.getFirst());
+        if (tousJoueurs.getFirst().getHand().getValeurHand() > tousJoueurs.get(1).getHand().getValeurHand()){
+            gagnants.add(tousJoueurs.getFirst());
         }
 
         else {
-            for(int i=0;i< j1.size();i++){
-                Joueur test = j1.get(i);
-                if(test.getHand().getValeurHand() != j1.getFirst().getHand().getValeurHand()){
-                    j1.remove(test);
+            for(int i=1;i< tousJoueurs.size();i++){
+
+                int plusHauteHand = tousJoueurs.getFirst().getHand().getValeurHand();
+                Joueur candidat = tousJoueurs.get(i);
+
+                if(candidat.getHand().getValeurHand() != plusHauteHand){
+                    tousJoueurs.remove(candidat);
                 }
+
             }
 
-            ajouterKicker(j1);
-            Collections.sort(j1,Collections.reverseOrder());
+            /*
+            On ajoute la valeur du kicker sur la hand de chacun des joueurs égaux, et on trie la liste
+            une nouvelle fois par valeur de la hand pour vérifier si l'égalité a été enlevée
+             */
+            ajouterKicker(tousJoueurs);
+            Collections.sort(tousJoueurs,Collections.reverseOrder());
+            int plusHauteHand = tousJoueurs.getFirst().getHand().getValeurHand();
 
-            if (j1.getFirst().getHand().getValeurHand() > j1.get(1).getHand().getValeurHand()){
-                g.add(j1.getFirst());
+            if (plusHauteHand > tousJoueurs.get(1).getHand().getValeurHand()){
+                /*
+                Dans ce cas l'égalité a bien été enlevée.
+                 */
+                gagnants.add(tousJoueurs.getFirst());
             }
             else {
-
-                for (int i=0; i<j1.size(); i++){
-                    Joueur test = j1.get(i);
-                    if(test.getHand().getValeurHand() != j1.getFirst().getHand().getValeurHand()){
-                        j1.remove(test);
+                /*
+                Si l'égalité existe toujours, on enlève tous les joueurs qui ont une valeur de hand inférieure
+                à celle de la plus haute hand, et on ajoute tous les joueurs qui ont une valeur de hand égale à
+                celle de la plus haute hand à la ll gagnants.
+                 */
+                for (int i=1; i<tousJoueurs.size(); i++){
+                    Joueur candidat = tousJoueurs.get(i);
+                    if(candidat.getHand().getValeurHand() != plusHauteHand){
+                        tousJoueurs.remove(candidat);
                     }
                 }
-                g.addAll(j1);
+                gagnants.addAll(tousJoueurs);
             }
         }
 
-        return g;
+        return gagnants;
     }
+
+    public void jouerTournee() {
+        Node actif = joueurs.getJoueurBigBlind().prochainNode;
+        for(int i=0; i<nJoueurs; i++){}
+    }
+
     /*
-    public  jouer(){
-        Node actif = joueursCirc.getJoueurBigBlind().prochainNode;
-        do{
-            if(actif.joueur instanceof IntelligenceAleatoire){
-                IntelligenceAleatoire i = (IntelligenceAleatoire)actif.joueur;
-                char c = i.jouer(table.getPot());
-                if(c=='f'){
-                    actif.joueur.fold();
-                    fenetreJeu.fold(actif.joueur);
-                }
-            }
-            actif.joueur.jouer();
-            actif = actif.prochainNode;
-        }
-    }
-    */
-
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         Jeu j = new Jeu(9,0);
         System.out.println("Valeurs des hands:\n");
-        for(int i=0; i<j.getJoueurs().size();i++){
-            System.out.println(i+1 +" : "+j.getJoueurs().get(i).getHand().getValeurHand()+"\n");
+        Node current = j.getHead();
+        for(int i=0; i<j.nJoueurs;i++){
+            System.out.println(current.joueur.nom+" : "+current.joueur.getHand().getValeurHand()+"\n");
+            current=current.prochainNode;
         }
-    }*/
+    }
+
+     */
 }

@@ -1,14 +1,11 @@
-
-
-
 import java.util.LinkedList;
 
 public class Joueur implements Comparable{
 
-    private Hand hand= new Hand(); //LL AVEC TOUTES LES CARTES DISPONIBLES
-    private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //LL AVEC LES 2 CARTES INITIALES
-    protected String nom; //NOM DU JOUEUR
-    protected static int nJoueurs=0; //UTILISE POUR DIFERENCIER LES JOUEURS ORDINATEURS
+    private Hand hand= new Hand();
+    private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //Ll avec les deux cartes initiales sur la main du joueur
+    protected String nom; //Nom du joueur
+    protected static int compteurJoueurs = 1; //Utilisé pour le nom deus joueurs ordinateurs
     private int argent; //L'ARGENT
     protected Intelligence intelligence;
     //Attributs à utiliser pour déroulement du jeu
@@ -20,19 +17,19 @@ public class Joueur implements Comparable{
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean playing = false;
     protected int position; // position sur tour de paris
+    protected char action;
     /*
 
      */
 
     public Joueur(String nom){ // création joueur humain
-        nJoueurs++;
         this.nom=nom;
         this.argent=0;
         this.dealer=false;
         this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
-        intelligence = null;
+        this.intelligence = null;
     }
 
     /*
@@ -40,14 +37,14 @@ public class Joueur implements Comparable{
     @param - int niveau - niveau d'inteligence de l'ordi
      */
     public Joueur(int niveau){
-        nJoueurs++;
+        compteurJoueurs++;
         this.argent=0;
-        this.nom="Joueur "+nJoueurs;
+        this.nom="Joueur "+compteurJoueurs;
         this.dealer=false;
         this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
-        intelligence = new Intelligence(niveau);
+        this.intelligence = new Intelligence(niveau);
     }
     /*
     Retourne la hand actuelle du joueur en forme de ll de cartes
@@ -62,6 +59,10 @@ public class Joueur implements Comparable{
 
     public void setCartesSurMain(LinkedList<Carte> cartesSurMain) {
         this.cartesSurMain = cartesSurMain;
+    }
+
+    public void setAction(char action){
+        this.action=action;
     }
 
     /*

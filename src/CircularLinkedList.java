@@ -1,16 +1,14 @@
     import java.util.LinkedList;
+
 public class CircularLinkedList {
     //LinkedListCirculaire
-    private LinkedList<Node> joueurs = new LinkedList<>();
+    protected LinkedList<Node> joueurs = new LinkedList<>();
     protected Node head = null;
     protected Node tail = null;
 
-    public CircularLinkedList(int numJoueurs){
-        for(int i =0;i<numJoueurs;i++){
-            String nom = "joueur" + i;
-            Joueur j = new Joueur(nom);
-            addNode(j);
-        }
+    public CircularLinkedList(){
+
+
     }
     public CircularLinkedList(LinkedList<Joueur> linkedListJoueurs){
         for(Joueur j :linkedListJoueurs){
@@ -19,6 +17,7 @@ public class CircularLinkedList {
     }
     public void addNode(Joueur joueurAjoute) {
         Node nouveauJoueur = new Node(joueurAjoute);
+        joueurs.add(nouveauJoueur);
 
         if (head == null) { //si liste vide, la tete sera le joueurAjoute
             head = nouveauJoueur;
@@ -67,6 +66,25 @@ public class CircularLinkedList {
                 } while (!current.joueur.playing);// condition d'arret
             System.out.print(" " + current.joueur.toString());
         }
+    }
+
+    public boolean remove(Joueur j){
+        /*
+        Vérifie si la liste contient le joueur à enlever, et si ce joueur n'est pas le joueur humain(head).
+         */
+        Node aEnlever = get(j);
+        Node current = head;
+        do {
+            current = current.prochainNode;
+        } while (current.prochainNode != aEnlever);
+
+        current.prochainNode=aEnlever.prochainNode;
+        if(joueurs.remove(aEnlever)){
+            return true;
+        }
+        else{
+            return false;
+        }
 
     }
 
@@ -89,7 +107,7 @@ public class CircularLinkedList {
 
 
     public static void main(String[] args) {
-        CircularLinkedList cl = new CircularLinkedList(6);
+        CircularLinkedList cl = new CircularLinkedList();
         //Adds data to the list
 
         cl.display();
