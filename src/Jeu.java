@@ -65,8 +65,7 @@ public class Jeu {
         distribuerCartesJoueurs();
         distribuerCartesTable();
         setHands();
-        distribuerArgent(1500);
-        //fenetreJeu = new FenetreJeu(this, nJoueurs);
+        distribuerArgent(3000);
     }
     /*
     public Jeu(int niveau, char c){ //boolean juste pour differencier de l'autre methode
@@ -116,49 +115,40 @@ public class Jeu {
         joueurs.remove(j);
         nJoueurs--;
     }
-
     /*
-    Methode private, retourne une ll avec les hands des joueurs dea triee
+    Montre les trois premières cartes de la table (flop)
      */
-    private LinkedList<Hand> getAllHands(){
-        LinkedList<Hand> hands = new LinkedList<>();
+    public void flop(){
+        table.flop();
+    }
+    /*
+    Montre la quatrième carte de la table (turn)
+     */
+    public void turn(){
+        table.turn();
+    }
+    /*
+    Montre la dernière carte de la table (river)
+     */
+    public void river(){
+        table.river();
+    }
+
+    private void distribuerCartesJoueurs(){
         Node current = joueurs.head;
+
         for(int i=0; i<nJoueurs; i++){
-            hands.add(current.joueur.getHand());
-            current=current.prochainNode;
-        }
-        Collections.sort(hands,Collections.reverseOrder());
-        return hands;
-    }
-
-    /*
-    Retourne la hand gagnante, si split pot, retou
-     */
-    public LinkedList<Hand> handsGagnantes(){
-        LinkedList<Hand> handsGagnantes = new LinkedList<>();
-        LinkedList<Hand> allHands = getAllHands();
-        handsGagnantes.add(allHands.getFirst());
-        for(int i=1;i<allHands.size();i++){
-            if(allHands.get(i)==allHands.get(0)){
-                handsGagnantes.add(allHands.get(i));
-            }
-        }
-        return handsGagnantes;
-    }
-
-    private void distribuerCartesJoueurs(){ // la seule chose a changer pour joueursCirc est le parcours de la liste
-        Node current = joueurs.head;
-        do{
             LinkedList<Carte> cartesJoueur = new LinkedList<>();
-            int i = (int) ((paquet.size()) * Math.random());
-            cartesJoueur.add(paquet.get(i));
-            paquet.remove(i);
-            i = (int) ((paquet.size()) * Math.random());
-            cartesJoueur.add(paquet.get(i));
-            paquet.remove(i);
+            int r = (int)((paquet.size())*Math.random());
+            cartesJoueur.add(paquet.get(r));
+            paquet.remove(r);
+            r = (int)((paquet.size())*Math.random());
+            cartesJoueur.add(paquet.get(r));
+            paquet.remove(r);
             current.joueur.setCartesSurMain(cartesJoueur);
-            current = current.prochainNode;
-        }while(!current.equals(joueurs.head));
+            current=current.prochainNode;
+
+        }
     }
 
     private void distribuerCartesTable(){
@@ -181,10 +171,11 @@ public class Jeu {
 
     private void distribuerArgent(int q){
         Node current = joueurs.head;
-        do{
+
+        for(int i=0; i<nJoueurs; i++){
             current.joueur.setArgent(q);
-            current = current.prochainNode;
-        }while(!current.equals(joueurs.head));
+            current=current.prochainNode;
+        }
     }
      /*
                                         Méthodes pour dérroulement
@@ -309,8 +300,8 @@ public class Jeu {
             LinkedList<Carte> kickersSurMain = j.getHand().getSurMain();
             kickers.removeAll(j.getHand().getCartesHand());
             kickersSurMain.removeAll(j.getHand().getCartesHand());
-            Collections.sort(kickers, Collections.reverseOrder());
-            Collections.sort(kickersSurMain, Collections.reverseOrder());
+            kickers.sort(Collections.reverseOrder());
+            kickersSurMain.sort(Collections.reverseOrder());
 
             /*
             S'il n'y a pas de kickers sur la main du joueur, on passe au prochain joueur
@@ -432,19 +423,14 @@ public class Jeu {
             }
         }
 
-        Collections.sort(joueursEgaux, Collections.reverseOrder());
+        joueursEgaux.sort(Collections.reverseOrder());
         /*
         On arrive a enlever l'egalite en ajoutant un kicker
          */
-        if(joueursEgaux.getFirst().getHand().getValeurHand() > joueursEgaux.get(1).getHand().getValeurHand()){
-            return true;
-        }
         /*
         L'inegalite n'est pas suprimee
          */
-        else {
-            return false;
-        }
+        return joueursEgaux.getFirst().getHand().getValeurHand() > joueursEgaux.get(1).getHand().getValeurHand();
     }
 
     public LinkedList<Joueur> joueursGagnants(){
@@ -455,7 +441,7 @@ public class Jeu {
         LinkedList<Joueur> gagnants = new LinkedList<>();
 
         //Triée selon la valeur de la hand
-        Collections.sort(tousJoueurs, Collections.reverseOrder());
+        tousJoueurs.sort(Collections.reverseOrder());
 
 
         if (tousJoueurs.getFirst().getHand().getValeurHand() > tousJoueurs.get(1).getHand().getValeurHand()){
@@ -479,7 +465,7 @@ public class Jeu {
             une nouvelle fois par valeur de la hand pour vérifier si l'égalité a été enlevée
              */
             ajouterKicker(tousJoueurs);
-            Collections.sort(tousJoueurs,Collections.reverseOrder());
+            tousJoueurs.sort(Collections.reverseOrder());
             int plusHauteHand = tousJoueurs.getFirst().getHand().getValeurHand();
 
             if (plusHauteHand > tousJoueurs.get(1).getHand().getValeurHand()){
@@ -505,11 +491,6 @@ public class Jeu {
         }
 
         return gagnants;
-    }
-
-    public void jouerTournee() {
-        Node actif = joueurs.getJoueurBigBlind().prochainNode;
-        for(int i=0; i<nJoueurs; i++){}
     }
 
     /*

@@ -5,7 +5,7 @@ public class Paquet {
     protected LinkedList<Carte> paquet;
 
     public Paquet() {
-        paquet = new LinkedList<Carte>();
+        paquet = new LinkedList<>();
         for (int i = 2; i <= 14; i++) {
             paquet.add(new Carte(i, 't'));
             paquet.add(new Carte(i, 'c'));

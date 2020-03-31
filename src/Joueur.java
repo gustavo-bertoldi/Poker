@@ -61,9 +61,6 @@ public class Joueur implements Comparable{
         this.cartesSurMain = cartesSurMain;
     }
 
-    public void setAction(char action){
-        this.action=action;
-    }
 
     /*
         Retourne les deux cartes initiales du joueur e forme de ll de cartes
