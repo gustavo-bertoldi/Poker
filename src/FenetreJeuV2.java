@@ -72,7 +72,6 @@ public class FenetreJeuV2 extends JFrame {
         gbcTable.gridx=0;
         gbcTable.gridy=1;
         gbcTable.gridwidth=5;
-
         table.add(new JLabel("Coups"), gbcTable);
 
         int gbcGridY=2;
