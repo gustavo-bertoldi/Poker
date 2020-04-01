@@ -8,16 +8,16 @@ public class Joueur implements Comparable{
     protected static int compteurJoueurs = 1; //Utilisé pour le nom deus joueurs ordinateurs
     private int argent; //L'ARGENT
     protected Intelligence intelligence;
+    protected String coup;
+
     //Attributs à utiliser pour déroulement du jeu
     protected boolean dealer; //SI LE JOUEUR EST LE DEALER
     protected boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
     protected boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
     protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
-
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean playing = false;
     protected int position; // position sur tour de paris
-    protected char action;
     /*
 
      */
@@ -30,6 +30,7 @@ public class Joueur implements Comparable{
         this.bigBlind=false;
         this.smallBlind=false;
         this.intelligence = null;
+        this.coup = "";
     }
 
     /*
@@ -45,6 +46,7 @@ public class Joueur implements Comparable{
         this.bigBlind=false;
         this.smallBlind=false;
         this.intelligence = new Intelligence(niveau);
+        this.coup = "";
     }
     /*
     Retourne la hand actuelle du joueur en forme de ll de cartes
@@ -123,15 +125,6 @@ public class Joueur implements Comparable{
     }
 
 
-    /*
-    Action de fold dans le jeu, fait tourner les cartes du joueur dans l'interface graphique
-     */
-    public void fold(){
-        this.dansJeu=false;
-        for(Carte c: cartesSurMain){
-            c.tournerCarte();
-        }
-    }
 
     /*
     Retourne TRUE si le joueur est actif dans le jeu, sinon retourne FALSE

@@ -6,15 +6,8 @@ public class CircularLinkedList {
     protected Node head = null;
     protected Node tail = null;
 
-    public CircularLinkedList(){
+    public CircularLinkedList(){ }
 
-
-    }
-    public CircularLinkedList(LinkedList<Joueur> linkedListJoueurs){
-        for(Joueur j :linkedListJoueurs){
-            addNode(j);
-        }
-    }
     public void addNode(Joueur joueurAjoute) {
         Node nouveauJoueur = new Node(joueurAjoute);
         joueurs.add(nouveauJoueur);

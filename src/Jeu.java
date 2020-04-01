@@ -115,48 +115,41 @@ public class Jeu {
         joueurs.remove(j);
         nJoueurs--;
     }
-    /*
-    Montre les trois premières cartes de la table (flop)
-     */
-    public void flop(){
-        table.flop();
-    }
-    /*
-    Montre la quatrième carte de la table (turn)
-     */
-    public void turn(){
-        table.turn();
-    }
-    /*
-    Montre la dernière carte de la table (river)
-     */
-    public void river(){
-        table.river();
-    }
+
 
     private void distribuerCartesJoueurs(){
+        System.out.println("Cartes joueur: ");
+
         Node current = joueurs.head;
 
         for(int i=0; i<nJoueurs; i++){
+            System.out.println(current.joueur.nom);
             LinkedList<Carte> cartesJoueur = new LinkedList<>();
             int r = (int)((paquet.size())*Math.random());
-            cartesJoueur.add(paquet.get(r));
-            paquet.remove(r);
+            Carte c=paquet.get(r);
+            cartesJoueur.add(c);
+            System.out.println(paquet.get(r).toString());
+            paquet.remove(c);
             r = (int)((paquet.size())*Math.random());
-            cartesJoueur.add(paquet.get(r));
-            paquet.remove(r);
+            c=paquet.get(r);
+            cartesJoueur.add(c);
+            System.out.println(paquet.get(r).toString());
+            paquet.remove(c);
             current.joueur.setCartesSurMain(cartesJoueur);
             current=current.prochainNode;
-
+            System.out.println("");
         }
     }
 
     private void distribuerCartesTable(){
+        System.out.println("Cartes table");
         LinkedList<Carte> cartesTable = new LinkedList<>();
         for(int i = 0 ; i < 5 ; i++){
             int m = (int) ((paquet.size()) * Math.random());
-            cartesTable.add(paquet.get(m));
-            paquet.remove(m);
+            Carte c = paquet.get(m);
+            cartesTable.add(c);
+            System.out.println(c.toString());
+            paquet.remove(c);
         }
         table.setCartesTable(cartesTable);
     }
@@ -201,12 +194,6 @@ public class Jeu {
         (current.prochainNode.prochainNode).joueur.smallBlind = true; // BB deviant SB
         (current.prochainNode.prochainNode.prochainNode).joueur.bigBlind = true; // le prochain joueur deviant BB
         (current.prochainNode.prochainNode.prochainNode.prochainNode).joueur.playing = true;
-        /*
-        fenetreJeu.ajouterNomsJoueurs();
-        fenetreJeu.repaint();
-        fenetreJeu.revalidate();
-
-         */
     }
 
     public void avancerJeu(){ // methode a appeller des qu'une decision est prise par le joueur actif (Peut etre inutile)

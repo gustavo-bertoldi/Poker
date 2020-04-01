@@ -236,7 +236,8 @@ public class Hand  implements Comparable{
             LinkedList<Carte> pair = pairs();
             LinkedList<Carte> brelan = threeOfAKind();
             fullHouse.addAll(brelan);
-            fullHouse.addAll(pair);
+            fullHouse.add(pair.get(0));
+            fullHouse.add(pair.get(1));
             return fullHouse;
         }
         else{

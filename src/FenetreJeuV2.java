@@ -7,17 +7,19 @@ import java.util.LinkedList;
 
 public class FenetreJeuV2 extends JFrame {
 
-    private JPanel cartesTable, principal, joueurGagnant, panelBoutons;
+    private ImageIcon carteTournée;
+
+    private JPanel table, principal, joueurGagnant, panelBoutons, cartesTournees;
 
     private HashMap<Joueur, JPanel> cartesJoueurs;
 
-    private HashMap<Joueur, JLabel> infosJoueur;
+    private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
 
     private JButton call, raise, fold, commencerJeu, restart, flop, turn, river;
 
     private FlowLayout layoutCartes;
 
-    private GridBagConstraints gbcPrincipal, gbcCartesJoueurs;
+    private GridBagConstraints gbcPrincipal, gbcCartesJoueurs, gbcTable;
 
     private int nJoueurs;
 
@@ -30,6 +32,16 @@ public class FenetreJeuV2 extends JFrame {
         this.nJoueurs = nJoueurs;
         jeu = new Jeu(nJoueurs, 0);
 
+        layoutCartes = new FlowLayout();
+        layoutCartes.setHgap(10);
+
+        carteTournée = new ImageIcon("src/res/back.png");
+        carteTournée = Carte.redimensioner(84,112,carteTournée);
+        cartesTournees = new JPanel(layoutCartes);
+        cartesTournees.add(new JLabel(carteTournée));
+        cartesTournees.add(new JLabel(carteTournée));
+
+
         gbcPrincipal = new GridBagConstraints();
         gbcCartesJoueurs = new GridBagConstraints();
         principal = new JPanel(new GridBagLayout());
@@ -41,17 +53,37 @@ public class FenetreJeuV2 extends JFrame {
         this.setVisible(true);
     }
 
-    private void ajouterCartesTable(){
-        cartesTable = new JPanel(new GridBagLayout());
-        GridBagConstraints gbcCartesTable = new GridBagConstraints();
-        gbcCartesTable.gridy=0;
-        gbcCartesTable.insets = new Insets(0,5,0,5);
+    private void ajouterTable(){
+        table = new JPanel(new GridBagLayout());
+        gbcTable = new GridBagConstraints();
+        gbcTable.gridy=0;
+        gbcTable.insets = new Insets(0,5,0,5);
         int i=0;
-        for (Carte c : jeu.getCartesTable()){
-            gbcCartesTable.gridx=i;
-            cartesTable.add(new JLabel(c.icon), gbcCartesTable);
+        for (int j=0; j<5; j++){
+            gbcTable.gridx=i;
+            table.add(new JLabel(carteTournée), gbcTable);
             i++;
         }
+    }
+
+    private void getCoupsJoueurs(){
+        Node current = jeu.getHead();
+
+        gbcTable.gridx=0;
+        gbcTable.gridy=1;
+        gbcTable.gridwidth=5;
+
+        table.add(new JLabel("Coups"), gbcTable);
+
+        int gbcGridY=2;
+
+        for (int i=0;i<nJoueurs;i++){
+            gbcTable.gridy=gbcGridY;
+            table.add(new JLabel(current.joueur.nom+" || "+current.joueur.coup),gbcTable);
+            current=current.prochainNode;
+            gbcGridY++;
+        }
+
     }
 
     private void ajouterCartesJoueurs(){
@@ -64,14 +96,11 @@ public class FenetreJeuV2 extends JFrame {
         }
 
         current = jeu.getHead();
-        layoutCartes = new FlowLayout();
-        layoutCartes.setHgap(10);
 
         for(int i=0; i<nJoueurs; i++) {
             Joueur j = current.joueur;
             JPanel cartes = new JPanel(layoutCartes);
             for (Carte c : j.getCartesSurMain()) {
-                c.montrerCarte();
                 cartes.add(new JLabel(c.icon));
             }
             cartesJoueurs.get(j).add(cartes, BorderLayout.CENTER);
@@ -84,31 +113,35 @@ public class FenetreJeuV2 extends JFrame {
      */
     private void mettreAJourCartesJoueurs(){
         Node current = jeu.getHead();
-        gbcCartesJoueurs.gridy=0;
+
         for(int i=0; i<nJoueurs; i++){
             cartesJoueurs.get(current.joueur).removeAll();
             JPanel cartes = new JPanel(layoutCartes);
             for (Carte c : current.joueur.getCartesSurMain()) {
                 cartes.add(new JLabel(c.icon));
             }
+
             cartesJoueurs.get(current.joueur).add(cartes, BorderLayout.CENTER);
+            cartesJoueurs.get(current.joueur).add(infosJoueur.get(current.joueur), BorderLayout.SOUTH);
             current = current.prochainNode;
         }
         revalidate();
         repaint();
     }
 
-    private void mettreAJourCartesTable(){
-        cartesTable.removeAll();
-        GridBagConstraints gbcCartesTable = new GridBagConstraints();
-        gbcCartesTable.gridy=0;
-        gbcCartesTable.insets = new Insets(0,5,0,5);
+    private void mettreAJourTable(){
+        table.removeAll();
+        GridBagConstraints gbcTable = new GridBagConstraints();
+        gbcTable.gridy=0;
+        gbcTable.insets = new Insets(0,5,0,5);
         int i=0;
         for (Carte c : jeu.getCartesTable()){
-            gbcCartesTable.gridx=i;
-            cartesTable.add(new JLabel(c.icon), gbcCartesTable);
+            gbcTable.gridx=i;
+            table.add(new JLabel(c.icon), gbcTable);
             i++;
         }
+
+
         revalidate();
         repaint();
     }
@@ -168,7 +201,7 @@ public class FenetreJeuV2 extends JFrame {
     public void creerLayout(){
         Node current = jeu.getHead();
         ajouterCartesJoueurs();
-        ajouterCartesTable();
+        ajouterTable();
         ajouterInfosJoueurs();
         gbcPrincipal = new GridBagConstraints();
 
@@ -233,8 +266,8 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx=1;
             gbcPrincipal.gridy=1;
             gbcPrincipal.anchor=GridBagConstraints.CENTER;
-            gbcPrincipal.insets = new Insets(80, 100, 80, 100);
-            principal.add(cartesTable, gbcPrincipal);
+            gbcPrincipal.insets = new Insets(0, 0, 0, 0);
+            principal.add(table, gbcPrincipal);
             current = current.prochainNode;
 
             //JOUEUR GAGNANT
@@ -368,7 +401,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridheight=2;
             gbcPrincipal.anchor=GridBagConstraints.CENTER;
             gbcPrincipal.insets = new Insets(0,0,0,0);
-            principal.add(cartesTable, gbcPrincipal);
+            principal.add(table, gbcPrincipal);
 
             //JOUEUR GAGNANT
             afficherHandGagnante();
@@ -386,14 +419,13 @@ public class FenetreJeuV2 extends JFrame {
 
     protected void afficherHandGagnante(){
         joueurGagnant = new JPanel(new BorderLayout());
-
+        System.out.println("Cartes Hand Gagnante");
         if(jeu.joueursGagnants().size()==1){
-            JPanel handGagnante = new JPanel(new FlowLayout());
+            JPanel handGagnante = new JPanel(layoutCartes);
             Joueur gangant = jeu.joueursGagnants().getFirst();
             for(Carte c : gangant.getHand().getCartesHand()){
-                c.montrerCarte();
+                System.out.println(c.toString());
                 handGagnante.add(new JLabel(c.icon));
-                c.tournerCarte();
             }
 
             joueurGagnant.add(handGagnante, BorderLayout.CENTER);
@@ -414,19 +446,43 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     protected void flop(){
-        jeu.flop();
-        mettreAJourCartesTable();
+        table.removeAll();
+        for(int i=0;i<3;i++) {
+            gbcTable.gridx = i;
+            table.add(new JLabel(jeu.getCartesTable().get(i).icon), gbcTable);
+        }
+        gbcTable.gridx = 3;
+        table.add(new JLabel(carteTournée), gbcTable);
+        gbcTable.gridx = 4;
+        table.add(new JLabel(carteTournée), gbcTable);
+        revalidate();
+        repaint();
     }
 
     protected void turn(){
-        jeu.turn();
-        mettreAJourCartesTable();
+        table.removeAll();
+        for(int i=0;i<4;i++) {
+            gbcTable.gridx = i;
+            table.add(new JLabel(jeu.getCartesTable().get(i).icon), gbcTable);
+        }
+        gbcTable.gridx = 4;
+        table.add(new JLabel(carteTournée), gbcTable);
+        revalidate();
+        repaint();
     }
 
     protected void river(){
-        jeu.river();
+        table.removeAll();
+        for(int i=0;i<5;i++) {
+            gbcTable.gridx = i;
+            table.add(new JLabel(jeu.getCartesTable().get(i).icon), gbcTable);
+        }
         joueurGagnant.setVisible(true);
-        mettreAJourCartesTable();
+
+        getCoupsJoueurs();
+
+        revalidate();
+        repaint();
     }
 
     public void restart(){
@@ -445,10 +501,18 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     protected void fold(){
-       jeu.getHeadJoueur().fold();
-       mettreAJourCartesJoueurs();
+        Node current = jeu.getHead();
+        cartesJoueurs.get(current.joueur).removeAll();
+        cartesJoueurs.get(current.joueur).add(cartesTournees, BorderLayout.CENTER);
+        cartesJoueurs.get(current.joueur).add(infosJoueur.get(current.joueur), BorderLayout.SOUTH);
+        revalidate();
+        repaint();
     }
 
+    protected void changerDealer(){
+        jeu.changerDealer();
+        mettreAJourInfosJoueurs();
+    }
 
     private void valeursHandTerminal(){
         Node current = jeu.getHead();
