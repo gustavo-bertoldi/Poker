@@ -22,6 +22,18 @@ public class CircularLinkedList {
         tail.prochainNode = head; // étant le dernier, il doit pointer vers la tete de la liste
     }
 
+    /*
+    Méthode utilisé lors de la définition du joueurs gagnant, la LinkedList peut être triée selon la valeur
+    de la hand de chaque joueur.
+     */
+    public LinkedList<Joueur> getLinkedListJoueurs(){
+        LinkedList<Joueur> tousJoueurs = new LinkedList<>();
+        for (Node n : joueurs){
+            tousJoueurs.add(n.joueur);
+        }
+        return tousJoueurs;
+    }
+
     public void display(){
         Node current = head;
         if(head == null) {

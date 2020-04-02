@@ -1,6 +1,3 @@
-
-
-import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -11,6 +8,7 @@ public class Jeu {
     private Table table;
     private int niveau;
     private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
+    private LinkedList<Joueur> joueursGagnants;
 
     protected int valeurSmallBlind; //La valeur du small blind actuel
     protected int valeurBigBlind;
@@ -67,31 +65,6 @@ public class Jeu {
         setHands();
         distribuerArgent(3000);
     }
-    /*
-    public Jeu(int niveau, char c){ //boolean juste pour differencier de l'autre methode
-        this.nJoueurs=6;
-        if(c=='d'){
-            for(int i=0;i<nJoueurs;i++){
-                Joueur j = new Joueur ((char)i);
-                if(i==4){
-                    j.dealer = true;
-                }
-                joueursCirc.addNode(j);
-            }
-        }
-        if(c=='a'){
-            for(int i=0;i<nJoueurs;i++){
-                Joueur j = new Joueur ("joueur " +i);
-                if(i==4){
-                    j.playing = true;
-                }
-                joueursCirc.addNode(j);
-            }
-        }
-    }
-
-     */
-
 
     /*
     Retourne une ll avec les cartes dans la table
@@ -100,12 +73,6 @@ public class Jeu {
         return table.getTable();
     }
 
-    /*
-    Retourne une linked list circulaire avec les joueurs dans le jeu
-     */
-    public CircularLinkedList getJoueurs(){
-        return joueurs;
-    }
 
     /*
     Méthode enlève le joueur donné en paramètre et met à jour nJoueurs.
@@ -114,6 +81,16 @@ public class Jeu {
     public void sortirJoueur(Joueur j) {
         joueurs.remove(j);
         nJoueurs--;
+    }
+
+    public LinkedList<Joueur> getJoueursGagnants(){
+        if(joueursGagnants==null){
+            trouverJoueursGagnants();
+            return joueursGagnants;
+        }
+        else{
+            return joueursGagnants;
+        }
     }
 
 
@@ -280,8 +257,8 @@ public class Jeu {
         for (Joueur j : joueursEgaux) {
             /*
             Creation d'une linked list kicker qui contient toutes les 7 cartes du joueur, sauf celles utilisees pour
-            former la hand actuelle (pair, flush, etc)
-            La liste kicker est triee en ordre decroissante
+            former la hand actuelle (pair, brelan, etc)
+            La liste kicker est triée en ordre décroissante
              */
             LinkedList<Carte> kickers = j.getHand().getToutesCartes();
             LinkedList<Carte> kickersSurMain = j.getHand().getSurMain();
@@ -292,32 +269,21 @@ public class Jeu {
 
             /*
             S'il n'y a pas de kickers sur la main du joueur, on passe au prochain joueur
-             */
-            if (kickersSurMain.size() < 1) {
-                j.getHand().ajouterDescription(". Partage du pot");
-            }
-            /*
             S'il y a kickers sur la main du joueur, on les cherche selon la hand
              */
-            else {
+            if(kickersSurMain.size() != 0) {
                 /*
                 Cas carte haute
                  */
                 if (j.getHand().getValeurHand() <= 14) {
                 /*
-                Si un des 4 kickers plus hauts est sur la main du joueur, sa valeur est ajoutee a la valeur de la hand
+                Si un des 4 kickers plus hauts est sur la main du joueur, sa valeur est ajoutée a la valeur de la hand
                  */
                     if (kickersSurMain.contains(kickers.getFirst()) || kickersSurMain.contains(kickers.get(1)) ||
                             kickersSurMain.contains(kickers.get(2)) || kickersSurMain.contains(kickers.get(3))) {
-                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+
                         j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
                         j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
-                    }
-                    /*
-                    Si les 4 kicker sont sur la table, est impossible que le jouer gagne en cas de match nul
-                    */
-                    else {
-                        j.getHand().ajouterDescription(". Partage du pot");
                     }
                 }
 
@@ -330,15 +296,9 @@ public class Jeu {
                     */
                     if (kickersSurMain.contains(kickers.getFirst()) || kickersSurMain.contains(kickers.get(1)) ||
                             kickersSurMain.contains(kickers.get(2))) {
-                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
+
                         j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
                         j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
-                    }
-                    /*
-                    Les kickers ne sont pas sur la main du joueur
-                    */
-                    else {
-                        j.getHand().ajouterDescription(". Partage du pot");
                     }
                 }
 
@@ -347,18 +307,11 @@ public class Jeu {
                 */
                 else if (j.getHand().getValeurHand() >= 230 && j.getHand().getValeurHand() <= 1530) {
                     /*
-                    Si le kicker est sur la main du joueur, sa valeur est ajoutee a la valeur de la hand
+                    Si le kicker est sur la main du joueur, sa valeur est ajoutée a la valeur de la hand
                     */
                     if (kickersSurMain.contains(kickers.getFirst())) {
-                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
                         j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
                         j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
-                    }
-                    /*
-                    Le kicker n'est pas sur la main du jouer
-                    */
-                    else {
-                        j.getHand().ajouterDescription(". Partage du pot");
                     }
                 }
 
@@ -370,15 +323,8 @@ public class Jeu {
                     Au moins un des deux kicker est sur la main du joueur
                      */
                     if (kickersSurMain.contains(kickers.getFirst()) || kickersSurMain.contains(kickers.get(1))) {
-                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
                         j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
                         j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
-                    }
-                    /*
-                    Les kicker ne sont pas sur la main du joueur
-                     */
-                    else {
-                        j.getHand().ajouterDescription(". Partage du pot");
                     }
                 }
 
@@ -390,106 +336,65 @@ public class Jeu {
                     Le kicker est sur la main du joueur
                      */
                     if (kickersSurMain.contains(kickers.getFirst())) {
-                        j.getHand().ajouterValeurKicker(kickersSurMain.getFirst().valeur);
                         j.getHand().ajouterDescription(". Kicker " + kickersSurMain.getFirst().description(false));
                         j.getHand().ajouterCarteKicker(kickersSurMain.getFirst());
                     }
-                    /*
-                    Le kicker n'est pas sur la main du joueur
-                     */
-                    else {
-                        j.getHand().ajouterDescription(". Partage du pot");
-                    }
                 }
                 /*
-                Une des hands où il n'y a pas de kicker (straight, flush, full house, straight flush et royal straight flush)
+                Si aucune action n'est faite, il n'y a pas de kicker pour cette hand (straight, flush, full house, straight flush et royal straight flush)
                  */
-                else {
-                    j.getHand().ajouterDescription(". Partage du pot");
-                }
+
             }
         }
 
         joueursEgaux.sort(Collections.reverseOrder());
-        /*
-        On arrive a enlever l'egalite en ajoutant un kicker
-         */
-        /*
-        L'inegalite n'est pas suprimee
-         */
+
         return joueursEgaux.getFirst().getHand().getValeurHand() > joueursEgaux.get(1).getHand().getValeurHand();
     }
 
-    public LinkedList<Joueur> joueursGagnants(){
-        LinkedList<Joueur> tousJoueurs = new LinkedList<>();
-        for(Node n : joueurs.joueurs){
-            tousJoueurs.add(n.joueur);
-        }
-        LinkedList<Joueur> gagnants = new LinkedList<>();
-
-        //Triée selon la valeur de la hand
+    public void trouverJoueursGagnants(){
+        LinkedList<Joueur> tousJoueurs = joueurs.getLinkedListJoueurs();
+        LinkedList<Joueur> joueursGagnants = new LinkedList<>();
         tousJoueurs.sort(Collections.reverseOrder());
 
-
+        /*
+        Cas où il y a un seul joueur gagnant
+         */
         if (tousJoueurs.getFirst().getHand().getValeurHand() > tousJoueurs.get(1).getHand().getValeurHand()){
-            gagnants.add(tousJoueurs.getFirst());
+            joueursGagnants.add(tousJoueurs.getFirst());
         }
 
         else {
-            for(int i=1;i< tousJoueurs.size();i++){
-
-                int plusHauteHand = tousJoueurs.getFirst().getHand().getValeurHand();
-                Joueur candidat = tousJoueurs.get(i);
-
-                if(candidat.getHand().getValeurHand() != plusHauteHand){
-                    tousJoueurs.remove(candidat);
-                }
-
-            }
-
+            int v1 = tousJoueurs.getFirst().getHand().getValeurHand();
+            tousJoueurs.removeIf(joueur -> joueur.getHand().getValeurHand() < v1);
             /*
-            On ajoute la valeur du kicker sur la hand de chacun des joueurs égaux, et on trie la liste
-            une nouvelle fois par valeur de la hand pour vérifier si l'égalité a été enlevée
+            Après cette boucle for, tous les joueurs qui ont une valeur de hand inférieure à celle de la hand plus haute
+            ont été enlevés de la liste tousJoueurs. On ajoute la valeur du kicker (si applicable) dans la nouvelle liste
+            et on vérifie si l'égalité a pu être enlevée.
              */
-            ajouterKicker(tousJoueurs);
-            tousJoueurs.sort(Collections.reverseOrder());
-            int plusHauteHand = tousJoueurs.getFirst().getHand().getValeurHand();
 
-            if (plusHauteHand > tousJoueurs.get(1).getHand().getValeurHand()){
+            if (ajouterKicker(tousJoueurs)) {
                 /*
-                Dans ce cas l'égalité a bien été enlevée.
+                Dans ce cas l'égalitée a pu être enlevée et on ajoute le seul joueur gagnant dans la liste joueursGagnants
                  */
-                gagnants.add(tousJoueurs.getFirst());
-            }
-            else {
+                tousJoueurs.sort(Collections.reverseOrder());
+                joueursGagnants.add(tousJoueurs.getFirst());
+            } else {
                 /*
-                Si l'égalité existe toujours, on enlève tous les joueurs qui ont une valeur de hand inférieure
-                à celle de la plus haute hand, et on ajoute tous les joueurs qui ont une valeur de hand égale à
-                celle de la plus haute hand à la ll gagnants.
+                Ici, l'égalité reste même après l'ajout de la valeur du kicker. On enlève de la liste tous les joueurs qui
+                ont une hand inférieure à la plus haute et on ajoute tous ceux qui ont une valeur de hand égale a la plus haute
+                é joueursGagnants. La boucle commence dans l'indice 2 parce qu'on sait déjà que les joueurs d'indice 0 et 1
+                ont une hand de même valeur.
                  */
-                for (int i=1; i<tousJoueurs.size(); i++){
-                    Joueur candidat = tousJoueurs.get(i);
-                    if(candidat.getHand().getValeurHand() != plusHauteHand){
-                        tousJoueurs.remove(candidat);
-                    }
-                }
-                gagnants.addAll(tousJoueurs);
+                tousJoueurs.sort(Collections.reverseOrder());
+                int v2 = tousJoueurs.getFirst().getHand().getValeurHand();
+                tousJoueurs.removeIf(joueur -> joueur.getHand().getValeurHand() < v2);
+                joueursGagnants.addAll(tousJoueurs);
+                joueursGagnants.getFirst().getHand().ajouterDescription(". Partage du pot");
             }
+
         }
 
-        return gagnants;
+        this.joueursGagnants=joueursGagnants;
     }
-
-    /*
-    public static void main(String[] args) {
-        Jeu j = new Jeu(9,0);
-        System.out.println("Valeurs des hands:\n");
-        Node current = j.getHead();
-        for(int i=0; i<j.nJoueurs;i++){
-            System.out.println(current.joueur.nom+" : "+current.joueur.getHand().getValeurHand()+"\n");
-            current=current.prochainNode;
-        }
-    }
-
-     */
 }
