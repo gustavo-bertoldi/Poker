@@ -9,11 +9,13 @@ public class FenetreJeuV2 extends JFrame {
 
     private ImageIcon carteTournée;
 
-    private JPanel table, principal, joueurGagnant, panelBoutons, cartesTournees;
+    private JPanel table, principal, joueurGagnant, panelBoutons, cartesTourneesJoueur;
 
-    private HashMap<Joueur, JPanel> cartesJoueurs;
+    private HashMap<Joueur, JPanel> cartesEtInfosJoueurs, cartesJoueurs;
 
     private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
+
+    private LinkedList<ImageIcon> cartesTable; //LinkedList avec l'icon de chacune des cartes dans la table
 
     private JButton call, raise, fold, commencerJeu, restart, flop, turn, river;
 
@@ -35,11 +37,12 @@ public class FenetreJeuV2 extends JFrame {
         layoutCartes = new FlowLayout();
         layoutCartes.setHgap(10);
 
+        //Création du panel avec les cartes d'un joueur tournées
         carteTournée = new ImageIcon("src/res/back.png");
         carteTournée = Carte.redimensioner(84,112,carteTournée);
-        cartesTournees = new JPanel(layoutCartes);
-        cartesTournees.add(new JLabel(carteTournée));
-        cartesTournees.add(new JLabel(carteTournée));
+        cartesTourneesJoueur = new JPanel(layoutCartes);
+        cartesTourneesJoueur.add(new JLabel(carteTournée));
+        cartesTourneesJoueur.add(new JLabel(carteTournée));
 
 
         gbcPrincipal = new GridBagConstraints();
@@ -55,6 +58,7 @@ public class FenetreJeuV2 extends JFrame {
 
     private void ajouterTable(){
         table = new JPanel(new GridBagLayout());
+        cartesTable = new LinkedList<>();
         gbcTable = new GridBagConstraints();
         gbcTable.gridy=0;
         gbcTable.insets = new Insets(0,5,0,5);
@@ -62,94 +66,46 @@ public class FenetreJeuV2 extends JFrame {
         for (int j=0; j<5; j++){
             gbcTable.gridx=i;
             table.add(new JLabel(carteTournée), gbcTable);
+            cartesTable.add(jeu.getCartesTable().get(i).icon);
             i++;
         }
     }
 
-    private void getCoupsJoueurs(){
+    private void ajouterCoupsJoueurs(){
         Node current = jeu.getHead();
+        coupsJoueur=new HashMap<>();
 
         gbcTable.gridx=0;
         gbcTable.gridy=1;
         gbcTable.gridwidth=5;
-        table.add(new JLabel("Coups"), gbcTable);
+        table.add(new JLabel("Coups : "), gbcTable);
 
         int gbcGridY=2;
 
         for (int i=0;i<nJoueurs;i++){
             gbcTable.gridy=gbcGridY;
-            table.add(new JLabel(current.joueur.nom+" || "+current.joueur.coup),gbcTable);
+            coupsJoueur.put(current.joueur,new JLabel(current.joueur.nom+" || "+current.joueur.coup));
+            table.add(coupsJoueur.get(current.joueur));
             current=current.prochainNode;
             gbcGridY++;
         }
 
     }
 
-    private void ajouterCartesJoueurs(){
+    private void ajouterCartesEtInfosJoueurs(){
         Node current = jeu.getHead();
         cartesJoueurs = new HashMap<>();
-
-        for(int i=0; i<nJoueurs; i++){
-            cartesJoueurs.put(current.joueur,new JPanel(new BorderLayout()));
-            current = current.prochainNode;
-        }
-
-        current = jeu.getHead();
-
-        for(int i=0; i<nJoueurs; i++) {
-            Joueur j = current.joueur;
-            JPanel cartes = new JPanel(layoutCartes);
-            for (Carte c : j.getCartesSurMain()) {
-                cartes.add(new JLabel(c.icon));
-            }
-            cartesJoueurs.get(j).add(cartes, BorderLayout.CENTER);
-            current = current.prochainNode;
-        }
-    }
-
-    /*
-    Met à jour les cartes des joueurs et de la table, utilisé pour commencer une nouvelle tournée
-     */
-    private void mettreAJourCartesJoueurs(){
-        Node current = jeu.getHead();
-
-        for(int i=0; i<nJoueurs; i++){
-            cartesJoueurs.get(current.joueur).removeAll();
-            JPanel cartes = new JPanel(layoutCartes);
-            for (Carte c : current.joueur.getCartesSurMain()) {
-                cartes.add(new JLabel(c.icon));
-            }
-
-            cartesJoueurs.get(current.joueur).add(cartes, BorderLayout.CENTER);
-            cartesJoueurs.get(current.joueur).add(infosJoueur.get(current.joueur), BorderLayout.SOUTH);
-            current = current.prochainNode;
-        }
-        revalidate();
-        repaint();
-    }
-
-    private void mettreAJourTable(){
-        table.removeAll();
-        GridBagConstraints gbcTable = new GridBagConstraints();
-        gbcTable.gridy=0;
-        gbcTable.insets = new Insets(0,5,0,5);
-        int i=0;
-        for (Carte c : jeu.getCartesTable()){
-            gbcTable.gridx=i;
-            table.add(new JLabel(c.icon), gbcTable);
-            i++;
-        }
-
-
-        revalidate();
-        repaint();
-    }
-
-    private void ajouterInfosJoueurs(){
         infosJoueur = new HashMap<>();
-        Node current = jeu.getHead();
+        cartesEtInfosJoueurs = new HashMap<>();
 
         for(int i=0; i<nJoueurs; i++){
+            cartesEtInfosJoueurs.put(current.joueur,new JPanel(new BorderLayout()));
+            cartesJoueurs.put(current.joueur, new JPanel(layoutCartes));
+
+            for(Carte c : current.joueur.getCartesSurMain()){
+                cartesJoueurs.get(current.joueur).add(new JLabel(c.icon));
+            }
+
             if(current.joueur.isDealer()){
                 infosJoueur.put(current.joueur, new JLabel(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || Dealer", SwingConstants.CENTER));
             }
@@ -163,45 +119,39 @@ public class FenetreJeuV2 extends JFrame {
                 infosJoueur.put(current.joueur, new JLabel(current.joueur.nom + " || Argent: " + current.joueur.getArgent(), SwingConstants.CENTER));
             }
 
-            cartesJoueurs.get(current.joueur).add(infosJoueur.get(current.joueur), BorderLayout.SOUTH);
+            cartesEtInfosJoueurs.get(current.joueur).add(cartesJoueurs.get(current.joueur),BorderLayout.CENTER);
+            cartesEtInfosJoueurs.get(current.joueur).add(infosJoueur.get(current.joueur), BorderLayout.SOUTH);
 
             current = current.prochainNode;
-
         }
-
-
     }
 
-    /*
-    Met à jour les informations du joueurs (Nom, argent, Dealer, BigBlind, SmallBlind)
-     */
     private void mettreAJourInfosJoueurs(){
         Node current = jeu.getHead();
-
-        for(int i=0; i<nJoueurs; i++){
+        for(int i=0;i<nJoueurs;i++){
             if(current.joueur.isDealer()){
                 infosJoueur.get(current.joueur).setText(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || Dealer");
             }
-            else if (current.joueur.isBigBlind()){
+            else if(current.joueur.isBigBlind()){
                 infosJoueur.get(current.joueur).setText(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || BigBlind");
             }
-            else if (current.joueur.isSmallBlind()){
+            else if(current.joueur.isSmallBlind()){
                 infosJoueur.get(current.joueur).setText(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || SmallBlind");
             }
             else {
                 infosJoueur.get(current.joueur).setText(current.joueur.nom + " || Argent: " + current.joueur.getArgent());
             }
-            current = current.prochainNode;
+            current=current.prochainNode;
         }
+
         revalidate();
         repaint();
     }
 
     public void creerLayout(){
         Node current = jeu.getHead();
-        ajouterCartesJoueurs();
+        ajouterCartesEtInfosJoueurs();
         ajouterTable();
-        ajouterInfosJoueurs();
         gbcPrincipal = new GridBagConstraints();
 
         if(nJoueurs==6) {
@@ -213,7 +163,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 1;
             gbcPrincipal.anchor=GridBagConstraints.SOUTH;
             gbcPrincipal.insets = new Insets(0, 0, 5, 0);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
@@ -222,7 +172,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 0;
             gbcPrincipal.anchor=GridBagConstraints.WEST;
             gbcPrincipal.insets = new Insets(0, 5, 0, 0);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
             //JOUEUR 2 - NORD
@@ -230,7 +180,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 0;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
             gbcPrincipal.insets = new Insets(0, 30, 5, 0);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
@@ -239,7 +189,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 1;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
             gbcPrincipal.insets = new Insets(0, 0, 5, 0);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
@@ -248,7 +198,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 2;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
             gbcPrincipal.insets = new Insets(0, 0, 5, 50);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
@@ -257,7 +207,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 2;
             gbcPrincipal.anchor=GridBagConstraints.EAST;
             gbcPrincipal.insets = new Insets(0, 0, 0, 5);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
@@ -323,7 +273,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridwidth=2;
             gbcPrincipal.anchor=GridBagConstraints.SOUTH;
             gbcPrincipal.insets = new Insets(0, 0, 5, 0);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
@@ -334,7 +284,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridwidth=1;
             gbcPrincipal.anchor=GridBagConstraints.WEST;
             gbcPrincipal.insets = new Insets(20, 5, 20, 0);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
@@ -342,7 +292,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridy = 1;
             gbcPrincipal.gridx = 0;
             gbcPrincipal.anchor=GridBagConstraints.WEST;
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
@@ -351,28 +301,28 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 0;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
             gbcPrincipal.insets = new Insets(5, 20, 0, 20);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
             //JOUEUR 4 - NORD
             gbcPrincipal.gridy = 0;
             gbcPrincipal.gridx = 1;
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
             //JOUEUR 5 - NORD
             gbcPrincipal.gridy = 0;
             gbcPrincipal.gridx = 2;
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
             //JOUEUR 6 - NORD
             gbcPrincipal.gridy = 0;
             gbcPrincipal.gridx = 3;
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
@@ -381,14 +331,14 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridx = 3;
             gbcPrincipal.anchor=GridBagConstraints.EAST;
             gbcPrincipal.insets = new Insets(20, 0, 20, 5);
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
             //JOUEUR 8 - EST
             gbcPrincipal.gridy = 2;
             gbcPrincipal.gridx = 3;
-            principal.add(cartesJoueurs.get(current.joueur), gbcPrincipal);
+            principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
 
             current = current.prochainNode;
 
@@ -478,7 +428,7 @@ public class FenetreJeuV2 extends JFrame {
         }
         joueurGagnant.setVisible(true);
 
-        getCoupsJoueurs();
+        ajouterCoupsJoueurs();
 
         revalidate();
         repaint();
@@ -491,26 +441,22 @@ public class FenetreJeuV2 extends JFrame {
 
     protected void call(){
         jeu.getHeadJoueur().parier(jeu.valeurCall);
-        mettreAJourInfosJoueurs();
     }
 
     protected void raise(int q){
         jeu.getHeadJoueur().parier(q);
-        mettreAJourInfosJoueurs();
     }
 
     protected void fold(){
-        Node current = jeu.getHead();
-        cartesJoueurs.get(current.joueur).removeAll();
-        cartesJoueurs.get(current.joueur).add(cartesTournees, BorderLayout.CENTER);
-        cartesJoueurs.get(current.joueur).add(infosJoueur.get(current.joueur), BorderLayout.SOUTH);
+        cartesJoueurs.get(jeu.getHeadJoueur()).removeAll();
+        cartesJoueurs.get(jeu.getHeadJoueur()).add(new JLabel(carteTournée));
+        cartesJoueurs.get(jeu.getHeadJoueur()).add(new JLabel(carteTournée));
         revalidate();
         repaint();
     }
 
     protected void changerDealer(){
         jeu.changerDealer();
-        mettreAJourInfosJoueurs();
     }
 
     private void valeursHandTerminal(){
