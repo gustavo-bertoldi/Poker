@@ -9,12 +9,11 @@ public class Jeu {
     private int niveau;
     private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
     private LinkedList<Joueur> joueursGagnants;
-
+    private  LinkedList<String> nomsJoueursOrdinateurs;
     protected int valeurSmallBlind; //La valeur du small blind actuel
     protected int valeurBigBlind;
     protected int valeurCall; //La valeur minimale de pari pour jouer, défini en fonction des paris des joueurs
     protected int pariActuel;
-
     protected String nomJoueurHumain;
 
     /*      DÉROULEMENT JEU
@@ -39,11 +38,13 @@ public class Jeu {
         this.nJoueurs=nJoeurs;
         this.niveau = niveau;
         this.joueurs = new CircularLinkedList();
+        creerListeNomsJoueursOrdinateurs();
         nomJoueurHumain = "BALTAZAR"; // ça viendra du constructeur, mais mis par default pour simplicite
         joueurs.addNode(new Joueur(nomJoueurHumain));
-
         for(int i=1;i<nJoueurs;i++){
-            Joueur j = new Joueur(niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
+            int r = (int)((nomsJoueursOrdinateurs.size())*Math.random());
+            Joueur j = new Joueur(nomsJoueursOrdinateurs.get(r), niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
+            nomsJoueursOrdinateurs.remove(r);
             if(i==2){
                 j.dealer=true;
             }
@@ -396,5 +397,34 @@ public class Jeu {
         }
 
         this.joueursGagnants=joueursGagnants;
+    }
+
+    private void creerListeNomsJoueursOrdinateurs(){
+        nomsJoueursOrdinateurs = new LinkedList<>();
+        nomsJoueursOrdinateurs.add("Nicolas Stous");
+        nomsJoueursOrdinateurs.add("Guy Atahanaze");
+        nomsJoueursOrdinateurs.add("Adrien Petrov");
+        nomsJoueursOrdinateurs.add("Valerie Kaftandjian");
+        nomsJoueursOrdinateurs.add("Boran Kim");
+        nomsJoueursOrdinateurs.add("Laurence Dupont");
+        nomsJoueursOrdinateurs.add("Vladimir Lysenko");
+        nomsJoueursOrdinateurs.add("Marie Aumeunier");
+        nomsJoueursOrdinateurs.add("Elisabeth Aumeunier");
+        nomsJoueursOrdinateurs.add("JP Devau");
+        nomsJoueursOrdinateurs.add("Marie-Pierre Noutary");
+        nomsJoueursOrdinateurs.add("Thomas Monnier");
+        nomsJoueursOrdinateurs.add("Phillipe Guy");
+        nomsJoueursOrdinateurs.add("Thomas Boulanger");
+        nomsJoueursOrdinateurs.add("Aurelian Saulot");
+        nomsJoueursOrdinateurs.add("Ali Belarouci");
+        nomsJoueursOrdinateurs.add("Frederic Theoule");
+        nomsJoueursOrdinateurs.add("Edicto Garay");
+        nomsJoueursOrdinateurs.add("Nicolas Rosenstiehl");
+        nomsJoueursOrdinateurs.add("Tarkan Gezer");
+        nomsJoueursOrdinateurs.add("Tetyana Nychyporuk");
+        nomsJoueursOrdinateurs.add("Laurence Barret");
+        nomsJoueursOrdinateurs.add("Vincent Condat");
+        nomsJoueursOrdinateurs.add("Eveline Manna");
+
     }
 }

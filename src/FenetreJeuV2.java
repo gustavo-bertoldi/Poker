@@ -28,7 +28,7 @@ public class FenetreJeuV2 extends JFrame {
 
     private FenetreJeuV2 (int nJoueurs){
         super("Poker V2");
-        setSize(1600, 650);
+        setSize(1300, 650);
 
         this.nJoueurs = nJoueurs;
         jeu = new Jeu(nJoueurs, 0);
@@ -190,12 +190,13 @@ public class FenetreJeuV2 extends JFrame {
         gbcPrincipal = new GridBagConstraints();
 
         if(nJoueurs==6) {
-            gbcPrincipal.weighty=3;
-            gbcPrincipal.weightx=3;
+            gbcPrincipal.weightx=1;
+            gbcPrincipal.weighty=1;
 
             //JOUEUR 0 - PRINCIPAL (HUMAIN) SUD
             gbcPrincipal.gridy = 2;
-            gbcPrincipal.gridx = 1;
+            gbcPrincipal.gridx = 2;
+            gbcPrincipal.gridwidth=1;
             gbcPrincipal.anchor=GridBagConstraints.SOUTH;
             gbcPrincipal.insets = new Insets(0, 0, 5, 0);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
@@ -205,6 +206,7 @@ public class FenetreJeuV2 extends JFrame {
             //JOUEUR 1 - OUEST
             gbcPrincipal.gridy = 1;
             gbcPrincipal.gridx = 0;
+            gbcPrincipal.weightx=0;
             gbcPrincipal.anchor=GridBagConstraints.WEST;
             gbcPrincipal.insets = new Insets(0, 5, 0, 0);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
@@ -214,7 +216,7 @@ public class FenetreJeuV2 extends JFrame {
             gbcPrincipal.gridy = 0;
             gbcPrincipal.gridx = 0;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
-            gbcPrincipal.insets = new Insets(0, 30, 5, 0);
+            gbcPrincipal.insets = new Insets(0, 10, 5, 0);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
@@ -222,24 +224,26 @@ public class FenetreJeuV2 extends JFrame {
             //JOUEUR 3 - NORD
             gbcPrincipal.gridy = 0;
             gbcPrincipal.gridx = 1;
+            gbcPrincipal.gridwidth=3;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
-            gbcPrincipal.insets = new Insets(0, 0, 5, 0);
+            gbcPrincipal.insets = new Insets(0, 30, 5, 30);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
             //JOUEUR 4 - NORD
             gbcPrincipal.gridy = 0;
-            gbcPrincipal.gridx = 2;
+            gbcPrincipal.gridx = 4;
+            gbcPrincipal.gridwidth=1;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
-            gbcPrincipal.insets = new Insets(0, 0, 5, 50);
+            gbcPrincipal.insets = new Insets(0, 0, 5, 10);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
             //JOUEUR 5 - EST
             gbcPrincipal.gridy = 1;
-            gbcPrincipal.gridx = 2;
+            gbcPrincipal.gridx = 4;
             gbcPrincipal.anchor=GridBagConstraints.EAST;
             gbcPrincipal.insets = new Insets(0, 0, 0, 5);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
@@ -248,6 +252,7 @@ public class FenetreJeuV2 extends JFrame {
             //TABLE - CENTRE
             gbcPrincipal.gridx=1;
             gbcPrincipal.gridy=1;
+            gbcPrincipal.gridwidth=3;
             gbcPrincipal.anchor=GridBagConstraints.CENTER;
             gbcPrincipal.insets = new Insets(0, 0, 0, 0);
             principal.add(table, gbcPrincipal);
@@ -256,8 +261,9 @@ public class FenetreJeuV2 extends JFrame {
             creerHandGagnante();
             gbcPrincipal.gridx=0;
             gbcPrincipal.gridy=2;
+            gbcPrincipal.gridwidth=2;
             gbcPrincipal.anchor=GridBagConstraints.SOUTHWEST;
-            gbcPrincipal.insets = new Insets(0,10,10,0);
+            gbcPrincipal.insets = new Insets(0,10,10,-70);
             principal.add(joueurGagnant, gbcPrincipal);
             joueurGagnant.setVisible(false);
 
@@ -287,8 +293,9 @@ public class FenetreJeuV2 extends JFrame {
             panelBoutons.add(flop);
             panelBoutons.add(turn);
             panelBoutons.add(river);
-            gbcPrincipal.gridx=2;
+            gbcPrincipal.gridx=3;
             gbcPrincipal.gridy=2;
+            gbcPrincipal.gridwidth=2;
             gbcPrincipal.anchor=GridBagConstraints.SOUTHEAST;
             gbcPrincipal.insets = new Insets(0,0,10,10);
             principal.add(panelBoutons,gbcPrincipal);
@@ -297,8 +304,8 @@ public class FenetreJeuV2 extends JFrame {
         }
 
         else if (nJoueurs==9){
-            gbcPrincipal.weighty=4;
-            gbcPrincipal.weightx=4;
+            gbcPrincipal.weighty=1;
+            gbcPrincipal.weightx=1;
 
             //JOUEUR 0 - PRINCIPAL (HUMAIN) SUD
             gbcPrincipal.gridy = 3;
@@ -433,6 +440,11 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     protected void changerDealer(){
+        long tLimite = System.currentTimeMillis() + 5000;
+        long t = System.currentTimeMillis();
+        while(t<tLimite){
+            t=System.currentTimeMillis();
+        }
         jeu.changerDealer();
     }
 

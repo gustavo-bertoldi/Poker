@@ -5,11 +5,10 @@ public class Joueur implements Comparable{
     private Hand hand= new Hand();
     private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //Ll avec les deux cartes initiales sur la main du joueur
     protected String nom; //Nom du joueur
-    protected static int compteurJoueurs = 1; //Utilisé pour le nom deus joueurs ordinateurs
+    private static LinkedList<String> nomsJoueursOrdinateurs;
     private int argent; //L'ARGENT
     protected Intelligence intelligence;
     protected String coup;
-
     //Attributs à utiliser pour déroulement du jeu
     protected boolean dealer; //SI LE JOUEUR EST LE DEALER
     protected boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
@@ -37,10 +36,9 @@ public class Joueur implements Comparable{
     Constructeur pour creer un joueur ordinateur, prend en parametre le niveau d'inteligence
     @param - int niveau - niveau d'inteligence de l'ordi
      */
-    public Joueur(int niveau){
-        compteurJoueurs++;
+    public Joueur(String nom, int niveau){
         this.argent=0;
-        this.nom="Joueur "+compteurJoueurs;
+        this.nom=nom;
         this.dealer=false;
         this.dansJeu=true;
         this.bigBlind=false;
@@ -188,6 +186,8 @@ public class Joueur implements Comparable{
         Joueur j = (Joueur)o;
         return j.nom.equals(this.nom);
     }
+
+
     public String toString(){
         return nom;
     }
