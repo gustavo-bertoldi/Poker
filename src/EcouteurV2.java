@@ -16,15 +16,6 @@ public class EcouteurV2 implements ActionListener {
         if(fun == "restart"){
             fenetre.restart();
         }
-        else if(fun == "call"){
-            fenetre.call();
-        }
-        else if(fun == "fold"){
-            fenetre.fold();
-        }
-        else if(fun == "raise"){
-            fenetre.raise(0);
-        }
         else if(fun == "commencer"){
             fenetre.changerDealer();
         }

@@ -38,8 +38,6 @@ public class Hand  implements Comparable{
         return surMain;
     }
 
-    public LinkedList<Carte> getSurTable() {return surTable;}
-
     public LinkedList<Carte> getCartesHand() {return hand;}
 
     public String getDescription(){
@@ -50,12 +48,10 @@ public class Hand  implements Comparable{
         description+=aAjouter;
     }
 
-    public void ajouterValeurKicker(int valeurKicker){
-        valeurHand=valeurHand+valeurKicker;
-    }
 
     public void ajouterCarteKicker(Carte kicker){
         hand.add(kicker);
+        valeurHand=valeurHand+kicker.valeur;
     }
 
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){

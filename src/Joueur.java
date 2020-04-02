@@ -171,7 +171,9 @@ public class Joueur implements Comparable{
         this.bigBlind=false;
         this.dejaJoue=false;
     }
-
+    /*
+    Prend en compte la valeur de la hand du joueur pour les trier selon la puissance de la hand
+     */
     public int compareTo(Object j2) {
         int comparaison = 0;
         if (this.getHand().getValeurHand() > ((Joueur)j2).getHand().getValeurHand()) {

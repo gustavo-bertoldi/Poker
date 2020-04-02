@@ -86,7 +86,7 @@ public class Carte extends Object implements Comparable{
         return new ImageIcon(resizedImg);
     }
     public String toString(){
-        return "Carte:"+valeur+" "+couleur+"\n"+chemin;
+        return "Carte:"+valeur+" "+couleur;
     }
 
     public int compareTo(Object o) {
