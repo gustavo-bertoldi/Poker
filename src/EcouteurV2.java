@@ -25,6 +25,9 @@ public class EcouteurV2 implements ActionListener {
         else if(fun == "raise"){
             fenetre.raise(0);
         }
+        else if(fun == "commencer"){
+            fenetre.changerDealer();
+        }
         else if(fun == "flop"){
             fenetre.flop();
         }

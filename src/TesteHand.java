@@ -4,17 +4,10 @@ public class TesteHand {
 
     public static void main(String[] args){
 
-        Jeu j = new Jeu(9,0);
+        Paquet p = new Paquet();
 
-        j.getJoueurs().display();
-
-        Joueur test = j.getTailJoueur();
-
-        System.out.println("Enlevé: "+test.nom);
-
-        j.sortirJoueur(test);
-
-        j.getJoueurs().display();
+        System.out.println(p.get(2).icon.toString());
+        
 
 
 

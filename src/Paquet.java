@@ -36,7 +36,11 @@ public class Paquet {
         return paquet.get(i);
     }
 
-    public Carte remove(int i){
-        return paquet.remove(i);
+    public void remove(int i){
+        paquet.remove(i);
+    }
+
+    public void remove(Carte c){
+        paquet.remove(c);
     }
 }

@@ -8,6 +8,7 @@ public class Carte extends Object implements Comparable{
     protected char couleur; //trefles=t, coeurs=c; piques=p; carreaux,diamant=d
     protected ImageIcon icon; /* Archive contenant l'image de la Carte dans la forme valeur_couleur.jpg Ex: 4_c.jpg (4 coeurs) */
     protected boolean tournée;
+    private final String chemin;
     /*
     Attributs en protected pour faciliter l'access sans le besoin de getters
      */
@@ -15,28 +16,18 @@ public class Carte extends Object implements Comparable{
     public Carte(int valeur, char couleur){
         this.valeur=valeur;
         this.couleur=couleur;
-        this.icon=new ImageIcon("src/res/back.png");
-        redimensionar(84,112);
+        this.chemin = "src/res/"+valeur+"_"+couleur+".png";
+        this.icon = new ImageIcon(chemin);
+        icon = redimensioner(84,112, icon);
         tournée=true;
     }
 
-    public void tournerCarte(){
-        icon=new ImageIcon("src/res/back.png");
-        redimensionar(84,112);
-        tournée=true;
-    }
-
-    public void montrerCarte(){
-        icon=new ImageIcon("src/res/"+valeur+"_"+couleur+".png");
-        redimensionar(84,112);
-        tournée=false;
-    }
 
     public boolean equals(Carte c){
         return this.valeur==c.valeur && this.couleur==c.couleur;
     }
 
-    public boolean equalsvaleur(Carte c){
+    public boolean equalsValeur(Carte c){
         if(valeur==c.valeur && !equals(c)){
             return true;
         }
@@ -83,7 +74,7 @@ public class Carte extends Object implements Comparable{
         return descp;
     }
 
-    private void redimensionar(int w, int h){
+    public static ImageIcon redimensioner(int w, int h, ImageIcon icon){
         Image img = icon.getImage();
         BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = resizedImg.createGraphics();
@@ -92,10 +83,10 @@ public class Carte extends Object implements Comparable{
         g2.drawImage(img, 0, 0, w, h, null);
         g2.dispose();
 
-        icon = new ImageIcon(resizedImg);
+        return new ImageIcon(resizedImg);
     }
     public String toString(){
-        return "Carte:"+valeur+" "+couleur;
+        return "Carte:"+valeur+" "+couleur+"\n"+chemin;
     }
 
     public int compareTo(Object o) {
