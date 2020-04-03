@@ -24,7 +24,7 @@ public class FenetreJeuV2 extends JFrame {
 
     private int nJoueurs;
 
-    private Jeu jeu;
+    protected Jeu jeu;
 
     private FenetreJeuV2 (int nJoueurs){
         super("Poker V2");
@@ -109,7 +109,7 @@ public class FenetreJeuV2 extends JFrame {
         }
     }
 
-    private void mettreAJourInfosJoueurs(){
+    private void nouvelleTournee(){
         Node current = jeu.getHead();
         for(int i=0;i<nJoueurs;i++){
             if(current.joueur.isDealer()){
@@ -124,8 +124,10 @@ public class FenetreJeuV2 extends JFrame {
             else {
                 infosJoueur.get(current.joueur).setText(current.joueur.nom + " || Argent: " + current.joueur.getArgent());
             }
+            coupsJoueur.get(current.joueur).setText("");
             current=current.prochainNode;
         }
+
         revalidate();
         repaint();
     }
@@ -456,9 +458,14 @@ public class FenetreJeuV2 extends JFrame {
         }
     }
 
+    protected void sortirJoueur(Joueur j){
+        cartesEtInfosJoueurs.get(j).setVisible(false);
+    }
+
 
     public static void main(String[] args){
-        new FenetreJeuV2(6);
+        FenetreJeuV2 f = new FenetreJeuV2(6);
+
     }
 }
 
