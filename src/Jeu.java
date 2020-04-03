@@ -1,6 +1,3 @@
-
-
-import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 
@@ -96,11 +93,11 @@ public class Jeu {
     }
 
     public LinkedList<Joueur> getJoueursGagnants(){
-      if(joueursGagnants== null){
-          return joueursGagnants;
-      }else {
-          return joueursGagnants;
-      }
+        if(joueursGagnants== null){
+            return joueursGagnants;
+        }else {
+            return joueursGagnants;
+        }
     }
     public void setFenetreJeu(FenetreJeuV2 f){
         fenetreJeu = f;
@@ -258,15 +255,15 @@ public class Jeu {
     }
 
     public int getNumDansJeu(){ //Parcourir la table et trouver numero de joueurs qui n'ont pas foldé
-       Node current = joueurs.head.prochainNode;
-       int joueursActifs = 0;
-       do{
-           if(current.joueur.dansJeu){
-               joueursActifs++;
-           }
-           current = current.prochainNode;
-       }while(!current.equals(joueurs.head));
-       return joueursActifs;
+        Node current = joueurs.head.prochainNode;
+        int joueursActifs = 0;
+        do{
+            if(current.joueur.dansJeu){
+                joueursActifs++;
+            }
+            current = current.prochainNode;
+        }while(!current.equals(joueurs.head));
+        return joueursActifs;
     }
     /*
                         Methode pour definir l'ordre du premier tour de decisions à partir du BB
@@ -524,6 +521,6 @@ public class Jeu {
 
     }
     public static void main(String[] args){
-         new Jeu(6, 0);
+        new Jeu(6, 0);
     }
 }

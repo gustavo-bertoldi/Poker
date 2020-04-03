@@ -222,7 +222,7 @@ public class Hand  implements Comparable{
      */
     private Carte highCard(){
         Collections.sort(cartes, Collections.reverseOrder());
-       return cartes.getFirst();
+        return cartes.getFirst();
     }
 
     /*
@@ -262,7 +262,7 @@ public class Hand  implements Comparable{
                 if (cartes.get(i - 1).valeur == (cartes.get(i).valeur + 1)) {
                     straight.add(cartes.get(i));
                 } else if(cartes.get(i - 1).valeur == (cartes.get(i).valeur )) {
-                // regarder si les couleurs sont égales à celles déjà ajoutées
+                    // regarder si les couleurs sont égales à celles déjà ajoutées
                     if(straight.get(0).couleur == cartes.get(i).couleur){
                         straight.add(cartes.get(i));
                     }
@@ -362,7 +362,7 @@ public class Hand  implements Comparable{
     RETORNA TRUE SE HOUVER UM ROYAL STRAIGHT FLUSH NA HAND E FALSE SE NAO HOUVER
      */
     private boolean royalStraightFlush(){
-            return straightFlush()!=null && straightFlush().get(0).valeur == 14;
+        return straightFlush()!=null && straightFlush().get(0).valeur == 14;
     }
 
     public int compareTo(Object h2) {
@@ -377,58 +377,58 @@ public class Hand  implements Comparable{
 
     public void calculerValeurHand(){
         LinkedList<Carte> result = new LinkedList<>();
-            if(royalStraightFlush()){
-                result.addAll(flush());
-                description = "Royal straight flush";
-                valeurHand = 500000;
+        if(royalStraightFlush()){
+            result.addAll(flush());
+            description = "Royal straight flush";
+            valeurHand = 500000;
+        }
+        else if(straightFlush()!=null){
+            result.addAll(straightFlush());
+            description = "Straight flush, carte haute "+result.getFirst().description(false);
+            valeurHand = 400000 + result.getFirst().valeur;
+        }
+        else if(fourOfAKind()!=null){
+            result.addAll(fourOfAKind());
+            valeurHand = 300000 + result.getFirst().valeur;
+            description = "Carre de "+result.getFirst().description(true);
+        }
+        else if(fullHouse()!=null){
+            result.addAll(fullHouse());
+            valeurHand = 200000 + 10*result.getFirst().valeur + result.getLast().valeur;
+            description = "Full House, trois "+result.getFirst().description(true)+" et deux "+result.getLast().description(true);
+        }
+        else if(flush()!=null){
+            result.addAll(flush());
+            valeurHand = 10000*result.getFirst().valeur + 1000*result.get(1).valeur + 100*result.get(2).valeur + 10*result.get(3).valeur + result.get(4).valeur;
+            description = "Flush, carte haute "+result.getFirst().description(false);
+        }
+        else if(straight()!=null){
+            result.addAll(straight());
+            valeurHand = 15000 + result.getFirst().valeur;
+            description = "Suite, carte haute "+result.getFirst().description(false);
+        }
+        else if(threeOfAKind()!=null){
+            result.addAll(threeOfAKind());
+            valeurHand = 1000*result.getFirst().valeur;
+            description = "Brelan de "+result.getFirst().description(true);
+        }
+        else if(pairs()!=null){
+            result.addAll(pairs());
+            if (result.size()==2){
+                valeurHand = 10*result.getFirst().valeur;
+                description = "Pair de "+result.getFirst().description(true);
             }
-            else if(straightFlush()!=null){
-                result.addAll(straightFlush());
-                description = "Straight flush, carte haute "+result.getFirst().description(false);
-                valeurHand = 400000 + result.getFirst().valeur;
+            else if (result.size()==4){
+                valeurHand = 100*result.getFirst().valeur + result.getLast().valeur;
+                description = "Deux pairs, "+result.getFirst().description(true)+" et "+result.getLast().description(true);
             }
-            else if(fourOfAKind()!=null){
-                result.addAll(fourOfAKind());
-                valeurHand = 300000 + result.getFirst().valeur;
-                description = "Carre de "+result.getFirst().description(true);
-            }
-            else if(fullHouse()!=null){
-                result.addAll(fullHouse());
-                valeurHand = 200000 + 10*result.getFirst().valeur + result.getLast().valeur;
-                description = "Full House, trois "+result.getFirst().description(true)+" et deux "+result.getLast().description(true);
-            }
-            else if(flush()!=null){
-                result.addAll(flush());
-                valeurHand = 10000*result.getFirst().valeur + 1000*result.get(1).valeur + 100*result.get(2).valeur + 10*result.get(3).valeur + result.get(4).valeur;
-                description = "Flush, carte haute "+result.getFirst().description(false);
-            }
-            else if(straight()!=null){
-                result.addAll(straight());
-                valeurHand = 15000 + result.getFirst().valeur;
-                description = "Suite, carte haute "+result.getFirst().description(false);
-            }
-            else if(threeOfAKind()!=null){
-                result.addAll(threeOfAKind());
-                valeurHand = 1000*result.getFirst().valeur;
-                description = "Brelan de "+result.getFirst().description(true);
-            }
-            else if(pairs()!=null){
-                result.addAll(pairs());
-                if (result.size()==2){
-                    valeurHand = 10*result.getFirst().valeur;
-                    description = "Pair de "+result.getFirst().description(true);
-                }
-                else if (result.size()==4){
-                    valeurHand = 100*result.getFirst().valeur + result.getLast().valeur;
-                    description = "Deux pairs, "+result.getFirst().description(true)+" et "+result.getLast().description(true);
-                }
-            }
-            else {
-                result.add(highCard());
-                valeurHand = result.getFirst().valeur;
-                description = "Carte haute, "+result.getFirst().description(false);
-            }
-            hand=result;
+        }
+        else {
+            result.add(highCard());
+            valeurHand = result.getFirst().valeur;
+            description = "Carte haute, "+result.getFirst().description(false);
+        }
+        hand=result;
     }
 }
 
