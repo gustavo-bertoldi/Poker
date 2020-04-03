@@ -101,11 +101,11 @@ public class CircularLinkedList {
         return current;
     }
 
-    public Node getJoueurBigBlind(){
+    public Node getJoueurPlaying(){
         Node current = head;
         do{
             current = current.prochainNode;
-        } while (!current.joueur.bigBlind);
+        } while (!current.joueur.playing);
         return current;
     }
 

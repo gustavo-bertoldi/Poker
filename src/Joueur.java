@@ -17,7 +17,7 @@ public class Joueur implements Comparable{
     protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean playing = false;
-    protected int position; // position sur tour de paris
+    protected int position; // position sur tour de paris //peut ne pas etre optimale (VERIFI DANS JEU)
     /*
 
      */
@@ -86,9 +86,31 @@ public class Joueur implements Comparable{
     /*
     METHODE A CREER
      */
-    public void jouer(){
-        dejaJoue=false;
-
+    public boolean jouer(int pariActuel, boolean b){
+        int decision = intelligence.decision();
+        boolean parie = false;
+        if(decision == -1) {
+            fold();
+        }else if(decision == 0){
+            check();
+        } else if(decision == 1){
+            call();
+        } else if(decision>1){
+            raise(decision);
+        }
+        return parie;
+    }
+    public void fold(){
+        //IMPLEMENTER
+    }
+    public void check(){
+        //implementer
+    }
+    public void call(){
+        //implementer
+    }
+    public void raise(int pari){
+        //implementer
     }
     /*
     Retroune la somme d'argent actuelle

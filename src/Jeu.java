@@ -1,7 +1,11 @@
+
+
+import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 
 public class Jeu {
+    private FenetreJeuV2 fenetreJeu;
 
     private CircularLinkedList joueurs; //essai avec circular LL
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
@@ -53,17 +57,17 @@ public class Jeu {
             if(i==4){
                 j.bigBlind=true;
             }
-            if(i==5){
-                j.playing=true;
-            }
             joueurs.addNode(j);
         }
+       // fenetreJeu = new FenetreJeuV2(this); commenté pour ne pas gener GUSTAVO
+
         paquet= new Paquet();
         table = new Table();
         distribuerCartesJoueurs();
         distribuerCartesTable();
         setHands();
         distribuerArgent(3000);
+        definirPositionsBB();
     }
 
     /*
@@ -73,6 +77,12 @@ public class Jeu {
         return table.getTable();
     }
 
+    /*
+    Retourne une linked list circulaire avec les joueurs dans le jeu
+     */
+    public int getNJoueurs(){
+        return nJoueurs;
+    }
 
     /*
     Méthode enlève le joueur donné en paramètre et met à jour nJoueurs.
@@ -170,7 +180,8 @@ public class Jeu {
         (current.prochainNode.prochainNode).joueur.bigBlind = false; // BB ne l'est plus
         (current.prochainNode.prochainNode).joueur.smallBlind = true; // BB deviant SB
         (current.prochainNode.prochainNode.prochainNode).joueur.bigBlind = true; // le prochain joueur deviant BB
-        (current.prochainNode.prochainNode.prochainNode.prochainNode).joueur.playing = true;
+        // (current.prochainNode.prochainNode.prochainNode.prochainNode).joueur.playing = true; fait sur definir positions
+        definirPositionsBB(); //SB et BB payent automatiquement
     }
 
     public void avancerJeu(){ // methode a appeller des qu'une decision est prise par le joueur actif (Peut etre inutile)
@@ -182,6 +193,39 @@ public class Jeu {
         current.prochainNode.joueur.playing = true;
 
     }
+    /*                              Idée derrière l'avancement du jeu
+    0) SB et BB placent leur bets -> definirPositionsBB() le fait
+    1) On définit l'ordre des prises de décision avec definirPositionsBB() -> appellée sur changer dealer
+    -> après l'appel à la méthode, on aura les positions comme le suivant:
+    D (nJoueurs-3) SB (nJoueurs-2) BB (nJoueurs-1) J1 (0) J2 (1) J3(2)...
+    Le joueur J1 a comme position 0, et a playing == true; tous les autres playing == false.
+    2) Puis, on commence avec le joueur de position 0: il pourra (call, fold, raise) (dans un premier temps call)
+        3) Si fold, j.dansJeu =false, puis, passer au joueur de position == position +1;
+        4) Si call, passer au joueur de position == position+1;
+        5) Si raise, redefinir positions de tous les joueurs, étant lui celui de position == 0, puis passer a celui de position==position+1;
+    6) Pour savoir si joueur va jouer on regarde j.dansJeu
+    7) On tourne la table jusqua ce qu'on arrive à position == nJoueurs, donc juste après le joueur de position nJ-1 avoir joue
+    8) On redéfinit les positions de façon à ce que le SB soit celui de position 0 et le Dealer celui de position nJ-1 definirPositionsDealer();
+                                 Dès que le tour est fini:
+    9) ajouter l'argent parié au pot -> changer label
+    10) recommencer le parcours de la table par les positions en vérifiant dansJeu;
+                                 Dès que la main est finie:
+    11) redefinir Dealer;
+    12) redefinir Positions;
+    13) tous dansJeu = true;
+    14) Recommencer de 0;
+     */
+
+    public void next(){
+        Node current = joueurs.getJoueurPlaying(); //ce joueur est playing et pos 0
+       if(current.equals(joueurs.head)){
+           //fenetreJeu.montrerBoutons();
+       } else{
+           current.joueur.jouer(pariActuel, true);
+       }
+
+    }
+
     /*
                         Methode pour definir l'ordre du premier tour de decisions à partir du BB
      */
@@ -190,6 +234,12 @@ public class Jeu {
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
             current = current.prochainNode;
+            if(current.joueur.smallBlind){
+                current.joueur.parier(valeurSmallBlind);
+            }
+            if(current.joueur.bigBlind){
+                current.joueur.parier(valeurBigBlind);
+            }
         } while (!current.joueur.bigBlind);// en sortant de la boucle current == BB
         Node bigBlind = current;
         do {
@@ -204,7 +254,7 @@ public class Jeu {
                     Méthode pour définir l'ordre des prises de decision suite a un pari
                                 (Donc, à être appelée si qqun parie)
      */
-    public void definirPositionsPari(Joueur joueurQuiAParie) {
+    public void definirPositionsPari(Joueur joueurQuiAParie) { //a appeller des que qqun parie
         Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le BB
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {

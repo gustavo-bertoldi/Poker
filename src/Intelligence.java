@@ -52,7 +52,9 @@ public class Intelligence {
         surTable.addAll(tourneesSurTable); // ajoute toutes les cartes prises comme parametre à surTable
         hand.setHand(tourneesSurTable);
     }*/
-
+    public int decision(){
+        return 1;
+    }
     public double qualiteHighCard(){ // appellee s'il y a high card
         double qualite = 0.0;
         //qualite = hand.highCard().valeur/10.0; // indice multiplicatif de qualiteMain

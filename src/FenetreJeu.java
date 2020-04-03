@@ -1,4 +1,4 @@
-import javax.swing.*;
+/*import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -169,10 +169,11 @@ public class FenetreJeu extends JFrame {
 
         this.setVisible(true);
     }
-
+*/
     /*
     Recupere l'icon des cartes des joueurs et celles de la table pour leur afficher dans la fenetre
      */
+    /* DECOMMENTER
     private void ajouterCartesJoueurs(){  // A CHANGE POUR JOUEURPANELS
        // 4 // for (Carte c : jeu.getJoueurs().get(0).getCartesSurMain()){ // possiblement pas besoin de for (sont tjrs deux cartes)
         Node current = jeu.getHead();
@@ -206,8 +207,10 @@ public class FenetreJeu extends JFrame {
 
         }while(!current.joueur.equals(jeu.getHeadJoueur())); //tant que le prochain joueur n'est pas le joueur reel
 
-        */
+        *a/
     }
+    */
+    /* DECOMMENTER
     public void ajouterNomsJoueurs(){ //création du jeu // A CHANGE POUR JOUEURPANEL
         Node current = jeu.getHead();
         do{
@@ -226,8 +229,10 @@ public class FenetreJeu extends JFrame {
             joueursOrdinateurs.get(posLinkedList).add(new JLabel(current.joueur.nom, SwingConstants.CENTER), BorderLayout.NORTH);
             posLinkedList++;
         }while(!current.prochainNode.equals(jeu.getHead())); //tant que le prochain joueur n'est pas le joueur reel
-         */
-    }
+         // asterisco/
+    }*/
+
+    /* DECOMMENTER
      public void ajouterPositionsJoueurs(){ // creation du jeu, changerDealer() et avancerJeu() // A CHANGE POUR JOUEPANELS
         Node current = jeu.getHead();
         int posLinkedList = 0;
@@ -248,6 +253,7 @@ public class FenetreJeu extends JFrame {
             posLinkedList++;
         }while(!current.joueur.equals(jeu.getHeadJoueur())); //tant que le prochain joueur n'est pas le joueur reel
     }
+    */
     /*
     Node current = jeu.getHead();
         int posLinkedList = 0;
@@ -270,17 +276,17 @@ public class FenetreJeu extends JFrame {
         }while(!current.prochainNode.equals(jeu.getHead())); //tant que le prochain joueur n'est pas le joueur reel
     }
      */
-
+/* DECOMMENTER
     private void ajouterCartesTable(){
         for (Carte c : jeu.getCartesTable()){
             tableCartes.add(new JLabel(c.icon));
         }
     }
 
-
     /*
     Cree le layout du jeu en disposant les jouerus de maniere optimale selon le nombre de joueurs
      */
+/* DECOMMENTER
     private void creerLayout(){  // A CHANGE POUR IF(6)
         //Organisation des panels en fonction du nombre de joueurs
         if(nJoueurs==6) {
@@ -359,24 +365,26 @@ public class FenetreJeu extends JFrame {
 
         }*/
 
-    }
+   // }
 
-    protected void flop(){
-        jeu.getCartesTable().get(0).montrerCarte();
-        jeu.getCartesTable().get(1).montrerCarte();
-        jeu.getCartesTable().get(2).montrerCarte();
-        mettreAJourTable();
-    }
+    /* DECOMMENTER
+        protected void flop(){
+            jeu.getCartesTable().get(0).montrerCarte();
+            jeu.getCartesTable().get(1).montrerCarte();
+            jeu.getCartesTable().get(2).montrerCarte();
+            mettreAJourTable();
+        }
 
-    protected void turn(){
-        jeu.getCartesTable().get(3).montrerCarte();
-        mettreAJourTable();
-    }
+        protected void turn(){
+            jeu.getCartesTable().get(3).montrerCarte();
+            mettreAJourTable();
+        }
 
-    protected void river(){
-        jeu.getCartesTable().get(4).montrerCarte();
-        mettreAJourTable();
-    }
+        protected void river(){
+            jeu.getCartesTable().get(4).montrerCarte();
+            mettreAJourTable();
+        }
+    */
 /*
     protected void results(){
         // 6 //  jPrincipalCartes.add(new JLabel("Hand: "+jeu.getJoueurs().getFirst().getHand().getDescription()));
@@ -389,7 +397,7 @@ public class FenetreJeu extends JFrame {
     }
 
  */
-
+/* DECOMMENTER
     protected void restart(){
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         jeu.reinitialiser();
@@ -412,8 +420,8 @@ public class FenetreJeu extends JFrame {
         revalidate();
         repaint();
     }
-
-    public static void main(String[] args){
+*/
+  /*  public static void main(String[] args){
 
     }
-}
+}*/
