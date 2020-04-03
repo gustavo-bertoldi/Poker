@@ -54,6 +54,34 @@ public class FenetreJeuV2 extends JFrame {
         this.setVisible(true);
     }
 
+    public FenetreJeuV2 (Jeu jeu){
+        super("Poker V2");
+        setSize(1300, 650);
+
+        this.jeu = jeu;
+        this.nJoueurs = jeu.getNJoueurs();
+
+
+        layoutCartes = new FlowLayout();
+        layoutCartes.setHgap(10);
+
+        //Création du panel avec les cartes d'un joueur tournées
+        carteTournee = new ImageIcon("src/res/back.png");
+        carteTournee = Carte.redimensioner(84,112,carteTournee);
+        cartesTourneesJoueur = new JPanel(layoutCartes);
+        cartesTourneesJoueur.add(new JLabel(carteTournee));
+        cartesTourneesJoueur.add(new JLabel(carteTournee));
+
+
+        gbcPrincipal = new GridBagConstraints();
+        principal = new JPanel(new GridBagLayout());
+        this.add(principal);
+        creerLayout();
+
+        valeursHandTerminal();
+
+        this.setVisible(true);
+    }
     private void ajouterTable(){
         table = new JPanel(new GridBagLayout());
         cartesTable = new LinkedList<>();
@@ -109,7 +137,7 @@ public class FenetreJeuV2 extends JFrame {
         }
     }
 
-    private void mettreAJourInfosJoueurs(){
+    public void mettreAJourInfosJoueurs(){
         Node current = jeu.getHead();
         for(int i=0;i<nJoueurs;i++){
             if(current.joueur.isDealer()){
@@ -133,7 +161,7 @@ public class FenetreJeuV2 extends JFrame {
     /*
     Méthode appelée lors quand un joueur a joué son tour et ses informations on changé (Argent, coup)
      */
-    private void mettreAJourInfosJoueur(Joueur j){
+    public void mettreAJourInfosJoueur(Joueur j){
         if(j.isDealer()){
             infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+" || Dealer");
         }
@@ -274,8 +302,8 @@ public class FenetreJeuV2 extends JFrame {
             raise.addActionListener(new EcouteurV2(this,"raise"));
             fold = new JButton("Fold");
             fold.addActionListener(new EcouteurV2(this,"fold"));
-            commencerJeu = new JButton("Commencer");
-            commencerJeu.addActionListener(new EcouteurV2(this, "commencer"));
+            commencerJeu = new JButton("Avancer");
+            commencerJeu.addActionListener(new EcouteurV2(this, "avancer"));
             flop = new JButton("Flop");
             flop.addActionListener(new EcouteurV2(this, "flop"));
             turn = new JButton("Turn");
@@ -425,7 +453,14 @@ public class FenetreJeuV2 extends JFrame {
 
     public void restart(){
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        new FenetreJeuV2(nJoueurs);
+        jeu.recommencer();
+        FenetreJeuV2 nouvelleFenetre = new FenetreJeuV2(jeu);
+        jeu.setFenetreJeu(nouvelleFenetre);
+    }
+    public void avancerJeu(){
+        jeu.avancerJeu();
+        revalidate();
+        repaint();
     }
 
     protected void foldJoueurHumain(){
@@ -446,6 +481,28 @@ public class FenetreJeuV2 extends JFrame {
             System.out.println(current.joueur.nom+" : "+current.joueur.getHand().getValeurHand());
             current=current.prochainNode;
         }
+    }
+    public void call(){
+        cacherBoutons();
+        jeu.next();
+    }
+    public void fold(){
+        cacherBoutons();
+        jeu.next();
+    }
+    public void raise(int bet){
+        cacherBoutons();
+        jeu.next();
+    }
+    public void check(){
+        cacherBoutons();
+        jeu.next();
+    }
+    public void montrerBoutons(){
+        panelBoutons.setVisible(true);
+    }
+    public void cacherBoutons(){
+        panelBoutons.setVisible(false);
     }
 
 

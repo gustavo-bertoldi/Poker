@@ -53,7 +53,7 @@ public class Intelligence {
         hand.setHand(tourneesSurTable);
     }*/
     public int decision(){
-        return 1;
+        return 0;
     }
     public double qualiteHighCard(){ // appellee s'il y a high card
         double qualite = 0.0;

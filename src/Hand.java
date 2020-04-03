@@ -4,10 +4,10 @@ import java.util.*;
 
 public class Hand  implements Comparable{
 
-    private LinkedList<Carte> cartes = new LinkedList<>();
-    private LinkedList<Carte> surMain= new LinkedList<>();
-    private LinkedList<Carte> surTable= new LinkedList<>();
-    private LinkedList<Carte> hand = new LinkedList<>();
+    private LinkedList<Carte> cartes;
+    private LinkedList<Carte> surMain;
+    private LinkedList<Carte> surTable;
+    private LinkedList<Carte> hand;
     private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
     private int valeurHand = -1;
     /*
@@ -55,6 +55,9 @@ public class Hand  implements Comparable{
     }
 
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
+        surMain= new LinkedList<>();
+        surTable = new LinkedList<>();
+        cartes = new LinkedList<>();
         Collections.sort(cartesSurMain,Collections.reverseOrder());
         this.surMain = cartesSurMain;
         this.surTable = cartesTable;

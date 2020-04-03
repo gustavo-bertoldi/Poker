@@ -96,6 +96,7 @@ public class Joueur implements Comparable{
         } else if(decision>1){
             raise(decision);
         }
+        dejaJoue = true;
         return parie;
     }
     public void fold(){

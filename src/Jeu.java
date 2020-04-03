@@ -10,6 +10,7 @@ public class Jeu {
     private CircularLinkedList joueurs; //essai avec circular LL
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
+    private int moment; // 0 = preFlop; 1 = flop; 2 = turn; 3 = river; 4 = tout le monde fold;
     private int niveau;
     private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
     private LinkedList<Joueur> joueursGagnants;
@@ -60,7 +61,7 @@ public class Jeu {
             }
             joueurs.addNode(j);
         }
-       // fenetreJeu = new FenetreJeuV2(this); commenté pour ne pas gener GUSTAVO
+
 
         paquet= new Paquet();
         table = new Table();
@@ -68,7 +69,9 @@ public class Jeu {
         distribuerCartesTable();
         setHands();
         distribuerArgent(3000);
+        fenetreJeu = new FenetreJeuV2(this);
         definirPositionsBB();
+
     }
 
     /*
@@ -78,9 +81,7 @@ public class Jeu {
         return table.getTable();
     }
 
-    /*
-    Retourne une linked list circulaire avec les joueurs dans le jeu
-     */
+
     public int getNJoueurs(){
         return nJoueurs;
     }
@@ -95,13 +96,14 @@ public class Jeu {
     }
 
     public LinkedList<Joueur> getJoueursGagnants(){
-        if(joueursGagnants==null){
-            trouverJoueursGagnants();
-            return joueursGagnants;
-        }
-        else{
-            return joueursGagnants;
-        }
+      if(joueursGagnants== null){
+          return joueursGagnants;
+      }else {
+          return joueursGagnants;
+      }
+    }
+    public void setFenetreJeu(FenetreJeuV2 f){
+        fenetreJeu = f;
     }
 
 
@@ -185,15 +187,7 @@ public class Jeu {
         definirPositionsBB(); //SB et BB payent automatiquement
     }
 
-    public void avancerJeu(){ // methode a appeller des qu'une decision est prise par le joueur actif (Peut etre inutile)
-        Node current = joueurs.head; // toujours partir de la tete de la liste
-        do {
-                current = current.prochainNode;
-        } while (!current.joueur.playing);
-        current.joueur.playing = false;
-        current.prochainNode.joueur.playing = true;
 
-    }
     /*                              Idée derrière l'avancement du jeu
     0) SB et BB placent leur bets -> definirPositionsBB() le fait
     1) On définit l'ordre des prises de décision avec definirPositionsBB() -> appellée sur changer dealer
@@ -219,14 +213,61 @@ public class Jeu {
 
     public void next(){
         Node current = joueurs.getJoueurPlaying(); //ce joueur est playing et pos 0
-       if(current.equals(joueurs.head)){
-           //fenetreJeu.montrerBoutons();
-       } else{
-           current.joueur.jouer(pariActuel, true);
-       }
-
+        if(current.joueur.position!=0){
+            if(current.equals(joueurs.head)){
+                fenetreJeu.montrerBoutons();
+            } else {
+                current.joueur.jouer(pariActuel, true);
+            }if(current.joueur.dejaJoue){
+                fenetreJeu.mettreAJourInfosJoueur(current.joueur);
+            }
+        } else{
+            if(moment == 0 && current.joueur.bigBlind){
+                if(current.equals(joueurs.head)){
+                    fenetreJeu.montrerBoutons();
+                } else{
+                    current.joueur.jouer(pariActuel, true); // à la fin de jouer, appel à next()
+                }
+            }else{
+                avancerJeu();
+            }
+        }
+    }
+    public void avancerJeu(){
+        if(getNumDansJeu()==1){
+            //changerDealer();
+            fenetreJeu.restart();
+            moment =0;
+        }else {
+            if (moment == 0) {
+                fenetreJeu.flop();
+                definirPositionsDealer();
+            } else if (moment == 1) {
+                fenetreJeu.turn();
+                definirPositionsDealer();
+            } else if (moment == 2) {
+                fenetreJeu.river();
+                definirPositionsDealer();
+            } else if (moment == 3) {
+                joueursGagnants= null;
+                fenetreJeu.restart();
+                moment = -1;
+            }
+            moment++;
+        }
     }
 
+    public int getNumDansJeu(){ //Parcourir la table et trouver numero de joueurs qui n'ont pas foldé
+       Node current = joueurs.head.prochainNode;
+       int joueursActifs = 0;
+       do{
+           if(current.joueur.dansJeu){
+               joueursActifs++;
+           }
+           current = current.prochainNode;
+       }while(!current.equals(joueurs.head));
+       return joueursActifs;
+    }
     /*
                         Methode pour definir l'ordre du premier tour de decisions à partir du BB
      */
@@ -244,30 +285,30 @@ public class Jeu {
         } while (!current.joueur.bigBlind);// en sortant de la boucle current == BB
         Node bigBlind = current;
         do {
-            current = current.prochainNode;
-            current.joueur.position = pos; //celui juste apres le BB commence à decider
+            current.joueur.position = pos; // BB pos ==0
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
-        } while (current!=bigBlind);
-
-        // à la fin le but est que celui a gauche du BB ait pos == 0 et BB ait pos la plus grande
+            current = current.prochainNode;
+        } while (current.prochainNode!=bigBlind);
+        //next();
+        // à la fin le but est que celui a gauche du BB ait pos == 1 et BB ait pos 0
     }
     /*
                     Méthode pour définir l'ordre des prises de decision suite a un pari
                                 (Donc, à être appelée si qqun parie)
      */
     public void definirPositionsPari(Joueur joueurQuiAParie) { //a appeller des que qqun parie
-        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le BB
+        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le joueur qui a parie
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
             current = current.prochainNode;
-        } while (current.joueur!=joueurQuiAParie);// en sortant de la boucle current == BB
+        } while (current.joueur!=joueurQuiAParie);// en sortant de la boucle current == joueurQuiAParie
         Node aParie = current; // Node correspondant au joueur qui a parie
         do {
-            current = current.prochainNode;
-            current.joueur.position = pos; //celui juste apres le BB commence à decider
+            current.joueur.position = pos; //fin du parcours de la table se fait si position == 0, donc pos jQAP = 0;
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+            current = current.prochainNode;
         } while (current!=aParie);
-        // à la fin le but est que celui a gauche du aParie ait pos == 0 et BB ait pos la plus grande
+        //next();
     }
     /*
                     Methode pour definir les positions en fonction de la position du dealer
@@ -281,11 +322,20 @@ public class Jeu {
         } while (!current.joueur.dealer);// en sortant de la boucle current == BB
         Node dealerNode = current; // Node correspondant au joueur qui a parie
         do {
-            current = current.prochainNode;
             current.joueur.position = pos; //celui juste apres le dealer commence à decider
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+            current = current.prochainNode;
         } while (current != dealerNode);
+        //next();
         // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
+    }
+    public void recommencer(){
+        paquet= new Paquet();
+        table = new Table();
+        distribuerCartesJoueurs();
+        distribuerCartesTable();
+        setHands();
+
     }
 
     public Joueur getHeadJoueur(){
@@ -298,10 +348,6 @@ public class Jeu {
 
     public Joueur getTailJoueur(){ // PE inutile
         return joueurs.tail.joueur;
-    }
-
-    public CircularLinkedList getJoueursCirc(){
-        return joueurs;
     }
 
     public boolean ajouterKicker (LinkedList<Joueur> joueursEgaux){
@@ -476,5 +522,8 @@ public class Jeu {
         nomsJoueursOrdinateurs.add("Vincent Condat");
         nomsJoueursOrdinateurs.add("Eveline Manna");
 
+    }
+    public static void main(String[] args){
+         new Jeu(6, 0);
     }
 }
