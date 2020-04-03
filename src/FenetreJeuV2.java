@@ -54,34 +54,6 @@ public class FenetreJeuV2 extends JFrame {
         this.setVisible(true);
     }
 
-    public FenetreJeuV2 (Jeu jeu){
-        super("Poker V2");
-        setSize(1300, 650);
-
-        this.jeu = jeu;
-        this.nJoueurs = jeu.getNJoueurs();
-
-
-        layoutCartes = new FlowLayout();
-        layoutCartes.setHgap(10);
-
-        //Création du panel avec les cartes d'un joueur tournées
-        carteTournee = new ImageIcon("src/res/back.png");
-        carteTournee = Carte.redimensioner(84,112,carteTournee);
-        cartesTourneesJoueur = new JPanel(layoutCartes);
-        cartesTourneesJoueur.add(new JLabel(carteTournee));
-        cartesTourneesJoueur.add(new JLabel(carteTournee));
-
-
-        gbcPrincipal = new GridBagConstraints();
-        principal = new JPanel(new GridBagLayout());
-        this.add(principal);
-        creerLayout();
-
-        valeursHandTerminal();
-
-        this.setVisible(true);
-    }
     private void ajouterTable(){
         table = new JPanel(new GridBagLayout());
         cartesTable = new LinkedList<>();
@@ -137,7 +109,7 @@ public class FenetreJeuV2 extends JFrame {
         }
     }
 
-    public void mettreAJourInfosJoueurs(){
+    private void nouvelleTournee(){
         Node current = jeu.getHead();
         for(int i=0;i<nJoueurs;i++){
             if(current.joueur.isDealer()){
@@ -161,7 +133,7 @@ public class FenetreJeuV2 extends JFrame {
     /*
     Méthode appelée lors quand un joueur a joué son tour et ses informations on changé (Argent, coup)
      */
-    public void mettreAJourInfosJoueur(Joueur j){
+    private void mettreAJourInfosJoueur(Joueur j){
         if(j.isDealer()){
             infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+" || Dealer");
         }
@@ -252,24 +224,26 @@ public class FenetreJeuV2 extends JFrame {
             //JOUEUR 3 - NORD
             gbcPrincipal.gridy = 0;
             gbcPrincipal.gridx = 1;
+            gbcPrincipal.gridwidth=3;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
-            gbcPrincipal.insets = new Insets(0, 0, 5, 0);
+            gbcPrincipal.insets = new Insets(0, 30, 5, 30);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
             //JOUEUR 4 - NORD
             gbcPrincipal.gridy = 0;
-            gbcPrincipal.gridx = 2;
+            gbcPrincipal.gridx = 4;
+            gbcPrincipal.gridwidth=1;
             gbcPrincipal.anchor=GridBagConstraints.NORTH;
-            gbcPrincipal.insets = new Insets(0, 0, 5, 50);
+            gbcPrincipal.insets = new Insets(0, 0, 5, 10);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
 
             //JOUEUR 5 - EST
             gbcPrincipal.gridy = 1;
-            gbcPrincipal.gridx = 2;
+            gbcPrincipal.gridx = 4;
             gbcPrincipal.anchor=GridBagConstraints.EAST;
             gbcPrincipal.insets = new Insets(0, 0, 0, 5);
             principal.add(cartesEtInfosJoueurs.get(current.joueur), gbcPrincipal);
@@ -278,6 +252,7 @@ public class FenetreJeuV2 extends JFrame {
             //TABLE - CENTRE
             gbcPrincipal.gridx=1;
             gbcPrincipal.gridy=1;
+            gbcPrincipal.gridwidth=3;
             gbcPrincipal.anchor=GridBagConstraints.CENTER;
             gbcPrincipal.insets = new Insets(0, 0, 0, 0);
             principal.add(table, gbcPrincipal);
@@ -302,8 +277,8 @@ public class FenetreJeuV2 extends JFrame {
             raise.addActionListener(new EcouteurV2(this,"raise"));
             fold = new JButton("Fold");
             fold.addActionListener(new EcouteurV2(this,"fold"));
-            commencerJeu = new JButton("Avancer");
-            commencerJeu.addActionListener(new EcouteurV2(this, "avancer"));
+            commencerJeu = new JButton("Commencer");
+            commencerJeu.addActionListener(new EcouteurV2(this, "commencer"));
             flop = new JButton("Flop");
             flop.addActionListener(new EcouteurV2(this, "flop"));
             turn = new JButton("Turn");
@@ -318,7 +293,7 @@ public class FenetreJeuV2 extends JFrame {
             panelBoutons.add(flop);
             panelBoutons.add(turn);
             panelBoutons.add(river);
-            gbcPrincipal.gridx=2;
+            gbcPrincipal.gridx=3;
             gbcPrincipal.gridy=2;
             gbcPrincipal.gridwidth=2;
             gbcPrincipal.anchor=GridBagConstraints.SOUTHEAST;
@@ -329,8 +304,8 @@ public class FenetreJeuV2 extends JFrame {
         }
 
         else if (nJoueurs==9){
-            gbcPrincipal.weighty=4;
-            gbcPrincipal.weightx=4;
+            gbcPrincipal.weighty=1;
+            gbcPrincipal.weightx=1;
 
             //JOUEUR 0 - PRINCIPAL (HUMAIN) SUD
             gbcPrincipal.gridy = 3;
@@ -453,14 +428,7 @@ public class FenetreJeuV2 extends JFrame {
 
     public void restart(){
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        jeu.recommencer();
-        FenetreJeuV2 nouvelleFenetre = new FenetreJeuV2(jeu);
-        jeu.setFenetreJeu(nouvelleFenetre);
-    }
-    public void avancerJeu(){
-        jeu.avancerJeu();
-        revalidate();
-        repaint();
+        new FenetreJeuV2(nJoueurs);
     }
 
     protected void foldJoueurHumain(){
@@ -472,6 +440,11 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     protected void changerDealer(){
+        long tLimite = System.currentTimeMillis() + 5000;
+        long t = System.currentTimeMillis();
+        while(t<tLimite){
+            t=System.currentTimeMillis();
+        }
         jeu.changerDealer();
     }
 
@@ -481,28 +454,6 @@ public class FenetreJeuV2 extends JFrame {
             System.out.println(current.joueur.nom+" : "+current.joueur.getHand().getValeurHand());
             current=current.prochainNode;
         }
-    }
-    public void call(){
-        cacherBoutons();
-        jeu.next();
-    }
-    public void fold(){
-        cacherBoutons();
-        jeu.next();
-    }
-    public void raise(int bet){
-        cacherBoutons();
-        jeu.next();
-    }
-    public void check(){
-        cacherBoutons();
-        jeu.next();
-    }
-    public void montrerBoutons(){
-        panelBoutons.setVisible(true);
-    }
-    public void cacherBoutons(){
-        panelBoutons.setVisible(false);
     }
 
 
