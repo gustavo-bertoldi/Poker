@@ -12,8 +12,8 @@ public class Jeu {
     private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
     private LinkedList<Joueur> joueursGagnants;
     private  LinkedList<String> nomsJoueursOrdinateurs;
-    protected int valeurSmallBlind; //La valeur du small blind actuel
-    protected int valeurBigBlind;
+    protected int valeurSmallBlind =100; //La valeur du small blind actuel
+    protected int valeurBigBlind = 200;
     protected int valeurCall; //La valeur minimale de pari pour jouer, défini en fonction des paris des joueurs
     protected int pariActuel;
     protected String nomJoueurHumain;
@@ -45,7 +45,7 @@ public class Jeu {
         joueurs.addNode(new Joueur(nomJoueurHumain));
         for(int i=1;i<nJoueurs;i++){
             int r = (int)((nomsJoueursOrdinateurs.size())*Math.random());
-            Joueur j = new Joueur(nomsJoueursOrdinateurs.get(r), niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
+            Joueur j = new Joueur(nomsJoueursOrdinateurs.get(r), niveau, this); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
             nomsJoueursOrdinateurs.remove(r);
             if(i==2){
                 j.dealer=true;
@@ -67,6 +67,7 @@ public class Jeu {
         setHands();
         distribuerArgent(3000);
         fenetreJeu = new FenetreJeuV2(this);
+        //fenetreJeu.cacherBoutons();
         definirPositionsBB();
 
     }
@@ -94,8 +95,10 @@ public class Jeu {
 
     public LinkedList<Joueur> getJoueursGagnants(){
         if(joueursGagnants== null){
+            trouverJoueursGagnants();
             return joueursGagnants;
         }else {
+            trouverJoueursGagnants();
             return joueursGagnants;
         }
     }
@@ -214,11 +217,13 @@ public class Jeu {
             if(current.equals(joueurs.head)){
                 fenetreJeu.montrerBoutons();
             } else {
-                current.joueur.jouer(pariActuel, true);
-            }if(current.joueur.dejaJoue){
-                fenetreJeu.mettreAJourInfosJoueur(current.joueur);
+                current.joueur.call(valeurBigBlind);
+                if(current.joueur.dejaJoue){
+                    fenetreJeu.mettreAJourInfosJoueur(current.joueur);
+                    next();
+                }
             }
-        } else{
+        }/* else{
             if(moment == 0 && current.joueur.bigBlind){
                 if(current.equals(joueurs.head)){
                     fenetreJeu.montrerBoutons();
@@ -228,7 +233,7 @@ public class Jeu {
             }else{
                 avancerJeu();
             }
-        }
+        }*/
     }
     public void avancerJeu(){
         if(getNumDansJeu()==1){
@@ -286,7 +291,8 @@ public class Jeu {
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
             current = current.prochainNode;
         } while (current.prochainNode!=bigBlind);
-        //next();
+        fenetreJeu.mettreAJourInfosJoueurs();
+        next();
         // à la fin le but est que celui a gauche du BB ait pos == 1 et BB ait pos 0
     }
     /*
@@ -305,7 +311,7 @@ public class Jeu {
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
             current = current.prochainNode;
         } while (current!=aParie);
-        //next();
+        next();
     }
     /*
                     Methode pour definir les positions en fonction de la position du dealer
@@ -319,11 +325,11 @@ public class Jeu {
         } while (!current.joueur.dealer);// en sortant de la boucle current == BB
         Node dealerNode = current; // Node correspondant au joueur qui a parie
         do {
-            current.joueur.position = pos; //celui juste apres le dealer commence à decider
+            current.joueur.position = pos; // Dealer ==0, prochain ==1
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
             current = current.prochainNode;
         } while (current != dealerNode);
-        //next();
+        next();
         // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
     }
     public void recommencer(){

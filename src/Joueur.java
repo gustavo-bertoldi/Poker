@@ -3,6 +3,7 @@ import java.util.LinkedList;
 public class Joueur implements Comparable{
 
     private Hand hand= new Hand();
+    protected Jeu jeu;
     private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //Ll avec les deux cartes initiales sur la main du joueur
     protected String nom; //Nom du joueur
     private static LinkedList<String> nomsJoueursOrdinateurs;
@@ -36,7 +37,7 @@ public class Joueur implements Comparable{
     Constructeur pour creer un joueur ordinateur, prend en parametre le niveau d'inteligence
     @param - int niveau - niveau d'inteligence de l'ordi
      */
-    public Joueur(String nom, int niveau){
+    public Joueur(String nom, int niveau, Jeu jeu){
         this.argent=0;
         this.nom=nom;
         this.dealer=false;
@@ -45,6 +46,7 @@ public class Joueur implements Comparable{
         this.smallBlind=false;
         this.intelligence = new Intelligence(niveau);
         this.coup = "";
+        this.jeu = jeu;
     }
     /*
     Retourne la hand actuelle du joueur en forme de ll de cartes
@@ -92,7 +94,7 @@ public class Joueur implements Comparable{
         }else if(decision == 0){
             check();
         } else if(decision == 1){
-            call();
+            call(pariActuel);
         } else if(decision>1){
             raise(decision);
         }
@@ -105,8 +107,13 @@ public class Joueur implements Comparable{
     public void check(){
         //implementer
     }
-    public void call(){
-        //implementer
+    public void call(int i ){
+        if(argent>i){
+            argent = argent -i;
+        }else{
+            argent =0;
+        }
+        jeu.next();
     }
     public void raise(int pari){
         //implementer
