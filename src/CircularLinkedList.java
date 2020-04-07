@@ -1,17 +1,20 @@
+    import java.util.Collections;
     import java.util.LinkedList;
 
-public class CircularLinkedList {
+public class CircularLinkedList <T extends Joueur>  {
     //LinkedListCirculaire
     protected LinkedList<Node> joueurs = new LinkedList<>();
     protected Node head = null;
     protected Node tail = null;
+    private int size=0;
 
-    public CircularLinkedList(){ }
+    public CircularLinkedList(){
+    }
 
-    public void addNode(Joueur joueurAjoute) {
+    public void addNode(T joueurAjoute) {
         Node nouveauJoueur = new Node(joueurAjoute);
         joueurs.add(nouveauJoueur);
-
+        size++;
         if (head == null) { //si liste vide, la tete sera le joueurAjoute
             head = nouveauJoueur;
         } else { // si elle n'est pas vide, on fait en sorte que le dernier de la liste pointe vers le joueurAjoutee
@@ -26,10 +29,10 @@ public class CircularLinkedList {
     Méthode utilisé lors de la définition du joueurs gagnant, la LinkedList peut être triée selon la valeur
     de la hand de chaque joueur.
      */
-    public LinkedList<Joueur> getLinkedListJoueurs(){
-        LinkedList<Joueur> tousJoueurs = new LinkedList<>();
+    public LinkedList<T> getLinkedListJoueurs(){
+        LinkedList<T> tousJoueurs = new LinkedList<>();
         for (Node n : joueurs){
-            tousJoueurs.add(n.joueur);
+            tousJoueurs.add((T) n.joueur);
         }
         return tousJoueurs;
     }
@@ -46,9 +49,14 @@ public class CircularLinkedList {
                 System.out.print(" "+ current.joueur.toString());
                 current = current.prochainNode;
             }while(current != head);
-            System.out.println();
+            System.out.println("\nSize: "+size);
         }
     }
+
+    public int size(){
+        return size;
+    }
+
     public void parcourir(char cherche){
         Node current = head;
         if(cherche == 'd') {
@@ -71,29 +79,42 @@ public class CircularLinkedList {
                 } while (!current.joueur.playing);// condition d'arret
             System.out.print(" " + current.joueur.toString());
         }
+        System.out.println("Size: "+size);
     }
 
-    public boolean remove(Joueur j){
+    public void remove(T j){
         /*
         Vérifie si la liste contient le joueur à enlever, et si ce joueur n'est pas le joueur humain(head).
          */
-        Node aEnlever = get(j);
-        Node current = head;
-        do {
-            current = current.prochainNode;
-        } while (current.prochainNode != aEnlever);
-
-        current.prochainNode=aEnlever.prochainNode;
-        if(joueurs.remove(aEnlever)){
-            return true;
+        if(size==1){
+            head=null;
+            joueurs.remove(head);
+            size--;
+        }
+        else if(j==head.joueur){
+            Node current=head;
+            Node aEnlever = get(j);
+            do{
+                current = current.prochainNode;
+            }while(current.prochainNode != aEnlever);
+            current.prochainNode=aEnlever.prochainNode;
+            joueurs.remove(aEnlever);
+            head=head.prochainNode;
+            size--;
         }
         else{
-            return false;
+            Node current=head;
+            Node aEnlever = get(j);
+            do{
+                current = current.prochainNode;
+            }while(current.prochainNode != aEnlever);
+            current.prochainNode=aEnlever.prochainNode;
+            size--;
         }
 
     }
 
-    public Node get(Joueur joueur){
+    public Node get(T joueur){
         Node current = head;
         do{
             current = current.prochainNode;
@@ -109,10 +130,34 @@ public class CircularLinkedList {
         return current;
     }
 
+    public Node getJoueurSmallBlind(){
+        Node current = head;
+        do{
+            current = current.prochainNode;
+        } while (!current.joueur.smallBlind);
+        return current;
+    }
+
+    public Node getJoueurPlaying(){
+        Node current = head;
+        do{
+            current = current.prochainNode;
+        } while (!current.joueur.playing);
+        return current;
+    }
+
+    public Node getJoueurDealer(){
+        Node current = head;
+        do{
+            current = current.prochainNode;
+        } while (!current.joueur.dealer);
+        return current;
+    }
+
 
 
     public static void main(String[] args) {
-        CircularLinkedList cl = new CircularLinkedList();
+        CircularLinkedList<Joueur> cl = new CircularLinkedList<>();
         //Adds data to the list
 
         cl.display();

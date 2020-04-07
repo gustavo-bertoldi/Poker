@@ -17,6 +17,7 @@ public class Joueur implements Comparable{
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean playing = false;
     protected int position; // position sur tour de paris
+    protected int action;
     /*
 
      */
@@ -53,12 +54,31 @@ public class Joueur implements Comparable{
         return hand;
     }
 
+    public void fold(){
+        action=0;
+        coup="Fold";
+        dansJeu=false;
+    }
+
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
         hand.setHand(cartesSurMain,cartesSurTable);
     }
 
     public void setCartesSurMain(LinkedList<Carte> cartesSurMain) {
         this.cartesSurMain = cartesSurMain;
+    }
+
+    public void setAction(int action){
+        if(action==0){
+            coup="Fold";
+        }
+        else if(action==1){
+            coup="Call";
+        }
+        else{
+            coup="Raise";
+        }
+        this.action=action;
     }
 
 
@@ -84,7 +104,8 @@ public class Joueur implements Comparable{
     /*
     METHODE A CREER
      */
-    public void jouer(){
+    public void jouer(int pariActuel){
+        parier(pariActuel);
         dejaJoue=false;
 
     }

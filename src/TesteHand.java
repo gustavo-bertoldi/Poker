@@ -3,22 +3,28 @@ import java.util.LinkedList;
 public class TesteHand {
 
     public static void main(String[] args){
+        CircularLinkedList<Joueur> joueurs = new CircularLinkedList<>();
+        Joueur baltazar = new Joueur("Baltazar",0);
+        Joueur jorge = new Joueur("jorge",0);
+        Joueur carlos = new Joueur("carlos",0);
+        Joueur damiao = new Joueur("damiao",0);
 
-        Hand h1= new Hand();
+        joueurs.addNode(baltazar);
+        joueurs.addNode(jorge);
+        joueurs.addNode(carlos);
+        joueurs.addNode(damiao);
 
-        LinkedList<Carte> surTable=new LinkedList<>();
-        surTable.add(new Carte(12,'c'));
-        surTable.add(new Carte(13,'c'));
-        surTable.add(new Carte(14,'c'));
-        surTable.add(new Carte(11,'c'));
-        surTable.add(new Carte(6,'c'));
+        joueurs.display();
 
-        LinkedList<Carte> surMain = new LinkedList<>();
-        surMain.add(new Carte(10,'c'));
-        surMain.add(new Carte(6,'c'));
+        joueurs.remove(carlos);
+        joueurs.display();
 
-        h1.setHand(surMain,surTable);
-        System.out.println(h1.getDescription());
+        joueurs.remove(baltazar);
+        joueurs.remove(damiao);
+        joueurs.display();
+
+        joueurs.remove(jorge);
+        joueurs.display();
 
         
 

@@ -17,7 +17,7 @@ public class EcouteurV2 implements ActionListener {
             fenetre.restart();
         }
         else if(fun == "commencer"){
-            fenetre.changerDealer();
+            fenetre.avancerJeu();
         }
         else if(fun == "flop"){
             fenetre.flop();
@@ -27,6 +27,9 @@ public class EcouteurV2 implements ActionListener {
         }
         else if(fun == "river"){
             fenetre.river();
+        }
+        else if(fun == "call"){
+            fenetre.sortirJoueur(fenetre.jeu.getTailJoueur());
         }
     }
 }

@@ -1,4 +1,4 @@
-public class Node {
+public class Node  {
 
     protected Joueur joueur;
     protected Node prochainNode;
