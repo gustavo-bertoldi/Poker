@@ -32,6 +32,17 @@ public class Intelligence {
     StraightFlush[0,95;1] 1 si royalStraight
     RoyalStraightFlush[1]
      */
+    /*por que no hacemos esto:
+    Highcard[0;0,114]  0,1 car HighCard+ 0.001* valeur carte la plus haut
+    OnePair[0,2;0,214] 0.2car Paire+ 0.001*valeur de la paire
+    TwoPairs[0,3;0,327] 0.3 car 2 paires + 0.001*valeur 1er paire + 0,001*valeur 2eme paire 
+    ThreeOfAKind[0,4;0,413] 0.4 car brelan + 0,001*valeur brelan 
+    Straight[0,5;0,514] 0,5car suite + 0,001*valeur carte la plus haute 
+    Flush[0,6;0,614] 0,6 car couleur+ 0,001*valeur carte la plus haute 
+    FullHouse[0,7;0,727] 0,7 car fullhouse + 0,001*valeur brelan+0,001 valeur paire
+    FourOfAKind[0,8;0,814] 0,8 car carre+ 0.001*valeur carre
+    StraightFlush[0,9;0,914] 0,9 car StraightFlush + 0.001*valeur carte la plus haute 
+    */
 
     /*
     La prise de decisions prend en compte les pourcentages de qualite de main.
@@ -103,7 +114,7 @@ public class Intelligence {
 
     public double qualiteStraightFlush(){
         double qualite = 0;
-        //completer methode
+       qualite= 0.95
         return qualite;
     }
 
