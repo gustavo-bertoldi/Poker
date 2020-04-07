@@ -3,7 +3,6 @@ import java.util.LinkedList;
 public class Joueur implements Comparable{
 
     private Hand hand= new Hand();
-    protected Jeu jeu;
     private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //Ll avec les deux cartes initiales sur la main du joueur
     protected String nom; //Nom du joueur
     private static LinkedList<String> nomsJoueursOrdinateurs;
@@ -17,7 +16,8 @@ public class Joueur implements Comparable{
     protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean playing = false;
-    protected int position; // position sur tour de paris //peut ne pas etre optimale (VERIFI DANS JEU)
+    protected int position; // position sur tour de paris
+    protected int action;
     /*
 
      */
@@ -37,7 +37,7 @@ public class Joueur implements Comparable{
     Constructeur pour creer un joueur ordinateur, prend en parametre le niveau d'inteligence
     @param - int niveau - niveau d'inteligence de l'ordi
      */
-    public Joueur(String nom, int niveau, Jeu jeu){
+    public Joueur(String nom, int niveau){
         this.argent=0;
         this.nom=nom;
         this.dealer=false;
@@ -46,7 +46,6 @@ public class Joueur implements Comparable{
         this.smallBlind=false;
         this.intelligence = new Intelligence(niveau);
         this.coup = "";
-        this.jeu = jeu;
     }
     /*
     Retourne la hand actuelle du joueur en forme de ll de cartes
@@ -55,12 +54,31 @@ public class Joueur implements Comparable{
         return hand;
     }
 
+    public void fold(){
+        action=0;
+        coup="Fold";
+        dansJeu=false;
+    }
+
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
         hand.setHand(cartesSurMain,cartesSurTable);
     }
 
     public void setCartesSurMain(LinkedList<Carte> cartesSurMain) {
         this.cartesSurMain = cartesSurMain;
+    }
+
+    public void setAction(int action){
+        if(action==0){
+            coup="Fold";
+        }
+        else if(action==1){
+            coup="Call";
+        }
+        else{
+            coup="Raise";
+        }
+        this.action=action;
     }
 
 
@@ -86,37 +104,10 @@ public class Joueur implements Comparable{
     /*
     METHODE A CREER
      */
-    public boolean jouer(int pariActuel, boolean b){
-        int decision = intelligence.decision();
-        boolean parie = false;
-        if(decision == -1) {
-            fold();
-        }else if(decision == 0){
-            check();
-        } else if(decision == 1){
-            call(pariActuel);
-        } else if(decision>1){
-            raise(decision);
-        }
-        dejaJoue = true;
-        return parie;
-    }
-    public void fold(){
-        //IMPLEMENTER
-    }
-    public void check(){
-        //implementer
-    }
-    public void call(int i ){
-        if(argent>i){
-            argent = argent -i;
-        }else{
-            argent =0;
-        }
-        jeu.next();
-    }
-    public void raise(int pari){
-        //implementer
+    public void jouer(int pariActuel){
+        parier(pariActuel);
+        dejaJoue=false;
+
     }
     /*
     Retroune la somme d'argent actuelle
