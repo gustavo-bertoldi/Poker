@@ -1,32 +1,23 @@
-import javax.swing.*;
-import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 
-public class Jeu extends Thread {
+public class Jeu {
 
-    protected LinkedListCirculaire joueurs; //essai avec circular LL
-    protected LinkedListCirculaire joueursDansLaTournee;
+    private CircularLinkedList<Joueur> joueurs; //essai avec circular LL
+    private CircularLinkedList<Joueur> joueursDansLaTournee;
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
-    private LinkedList<ImageIcon> iconCartesTable;
-
-    protected int nJoueurs; //Le numéro actuel de joueurs dans le jeu
-
-    private LinkedList<String> nomsJoueursOrdinateurs;
-    protected String nomJoueurHumain;
-    protected FenetreJeuV3 fenetre;
-
-    private boolean flop;
-    private boolean turn;
-    private boolean river;
+    private int niveau;
+    private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
     private LinkedList<Joueur> joueursGagnants;
-    protected int valeurSmallBlind = 10; //La valeur du small blind actuel
-    protected int valeurBigBlind = 20;
+    private  LinkedList<String> nomsJoueursOrdinateurs;
+    protected int valeurSmallBlind=10; //La valeur du small blind actuel
+    protected int valeurBigBlind=20;
     protected int pariActuel;
-    protected int potActuel;
-    protected Joueur dernierAParier;
-    protected Node joueurActuel;
+    protected String nomJoueurHumain;
+    private FenetreJeuV2 fenetre;
+    private boolean tourneeFinie = false;
+    private Node dernierQuiAPari;
 
     /*      DÉROULEMENT JEU
     - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
@@ -46,60 +37,45 @@ public class Jeu extends Thread {
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(int nJoueurs) throws Exception {
-        this.nJoueurs = nJoueurs;
+    public Jeu(int nJoeurs, int niveau, FenetreJeuV2 fenetre){  // méthode utilisée pour l'instant
+        this.nJoueurs=nJoeurs;
+        this.niveau = niveau;
+        this.joueurs = new CircularLinkedList<>();
+        this.fenetre=fenetre;
         creerListeNomsJoueursOrdinateurs();
-        nomJoueurHumain = "Baltazar";
-
-        //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
-        joueurs = new LinkedListCirculaire();
-        joueurs.add(new Joueur(nomJoueurHumain, true));
-        for (int i = 0; i < nJoueurs - 1; i++) {
-            //Création des joueurs ordinateurs qui prennent un nom aléatoire de la liste nomsJoueursOrdinateurs
-            int a = (int) (Math.random() * nomsJoueursOrdinateurs.size());
-            joueurs.add(new Ordinateur(nomsJoueursOrdinateurs.get(a), 0));
-            nomsJoueursOrdinateurs.remove(a);
+        nomJoueurHumain = "Baltazar Jhones"; // ça viendra du constructeur, mais mis par default pour simplicite
+        joueurs.addNode(new Joueur(nomJoueurHumain));
+        //Ajout des joueurs ordinateurs dans la liste de joueurs
+        for(int i=1;i<nJoueurs;i++){
+            int r = (int)((nomsJoueursOrdinateurs.size())*Math.random());
+            Ordinateur ord = new Ordinateur(nomsJoueursOrdinateurs.get(r), niveau); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
+            nomsJoueursOrdinateurs.remove(r);
+            if(i==2){
+                ord.dealer=true;
+            }
+            if(i==3){
+                ord.smallBlind=true;
+            }
+            if(i==4){
+                ord.bigBlind=true;
+            }
+            if(i==5){
+                ord.playing=true;
+            }
+            joueurs.addNode(ord);
         }
-        joueurs.getFirst().joueur.dealer = true;
-        joueurs.getFirst().prochainNode.joueur.smallBlind = true;
-        joueurs.getFirst().prochainNode.prochainNode.joueur.bigBlind = true;
-        joueurs.getFirst().prochainNode.prochainNode.prochainNode.joueur.playing = true;
-
-        joueurs.getJoueurs().forEach(j -> j.setArgent(3000)); //On distribue une quantité d'argent initiale à chaque joueur
-
-        joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
-
-        //Initialization des attributs pour la première tournée
-        valeurSmallBlind = 10;
-        valeurBigBlind = 20;
-        potActuel = 0;
-        pariActuel = 20;
-        flop = false;
-        turn = false;
-        river = false;
-        dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
-        joueurActuel = joueursDansLaTournee.getNodePlaying();
-
-        paquet = new Paquet();
+        paquet= new Paquet();
         table = new Table();
         distribuerCartesJoueurs();
         distribuerCartesTable();
-
-        //Initialisation de l'interface graphique
-        fenetre = new FenetreJeuV3(this);
-
-        if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
-        }
+        setHands();
+        distribuerArgent(3000);
     }
 
     /*
     Retourne une ll avec les cartes dans la table
      */
-    public LinkedList<Carte> getCartesTable() {
+    public LinkedList<Carte> getCartesTable(){
         return table.getTable();
     }
 
@@ -113,207 +89,207 @@ public class Jeu extends Thread {
         nJoueurs--;
     }
 
-    public LinkedList<? extends Joueur> getJoueursGagnants() {
-        if (joueursGagnants == null) {
+    public LinkedList<? extends Joueur> getJoueursGagnants(){
+        if(joueursGagnants==null){
             return null;
-        } else {
+        }
+        else{
             return joueursGagnants;
         }
     }
 
-    public Joueur getDernierDansLaTournee() {
-        return joueursDansLaTournee.getFirst().joueur;
-    }
 
-    public LinkedList<ImageIcon> getIconCartesTable() {
-        return iconCartesTable;
-    }
+    private void distribuerCartesJoueurs(){
+        System.out.println("Cartes joueur: ");
 
+        Node current = joueurs.head;
 
-    /*
-  Distribution des 2 cartes sur la main de chaque joueur, de manière aléatoire
-   */
-    private void distribuerCartesJoueurs() {
-        //On prend deux cartes aléatoires du paquet et les distribue à chaque joueur
-        joueurs.getJoueurs().forEach(Joueur -> {
+        for(int i=0; i<nJoueurs; i++){
+            System.out.println(current.joueur.nom);
             LinkedList<Carte> cartesJoueur = new LinkedList<>();
-            int r = (int) ((paquet.size()) * Math.random());
-            Carte c = paquet.get(r);
+            int r = (int)((paquet.size())*Math.random());
+            Carte c=paquet.get(r);
             cartesJoueur.add(c);
+            System.out.println(paquet.get(r).toString());
             paquet.remove(c);
-            r = (int) ((paquet.size()) * Math.random());
-            c = paquet.get(r);
+            r = (int)((paquet.size())*Math.random());
+            c=paquet.get(r);
             cartesJoueur.add(c);
+            System.out.println(paquet.get(r).toString());
             paquet.remove(c);
-            Joueur.setCartesSurMain(cartesJoueur);
-        });
+            current.joueur.setCartesSurMain(cartesJoueur);
+            current=current.prochainNode;
+            System.out.println("");
+        }
     }
 
-    /*
-    Distribution des 5 cartes de la table et définition de la hand de 7 cartes de chaque joueur
-     */
-    private void distribuerCartesTable() {
-        //On distribue 5 cartes de manière aléatoire à la table
+    private void distribuerCartesTable(){
+        System.out.println("Cartes table");
         LinkedList<Carte> cartesTable = new LinkedList<>();
-        iconCartesTable = new LinkedList<>();
-        for (int i = 0; i < 5; i++) {
+        for(int i = 0 ; i < 5 ; i++){
             int m = (int) ((paquet.size()) * Math.random());
             Carte c = paquet.get(m);
             cartesTable.add(c);
-            iconCartesTable.add(c.icon);
+            System.out.println(c.toString());
             paquet.remove(c);
         }
         table.setCartesTable(cartesTable);
-        //On ajoute les cartes de la table dans la hand de chaque joueur pour le calcul du valeur de la hand
-        joueurs.getJoueurs().forEach(Joueur -> Joueur.setHand(cartesTable));
     }
 
-    public void sortirDeLaTournee(Joueur j) throws Exception {
-        if (j.playing) {
-            joueursDansLaTournee.getNode(j).prochainNode.joueur.playing = true;
-        }
-        joueursDansLaTournee.remove(j);
-    }
-
-    public void prochaineTournee() throws Exception {
-        long waitTime = System.currentTimeMillis() + 5000;
-        while (System.currentTimeMillis() != waitTime) {
-        }
-        joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
-        Node ancienDealer = joueursDansLaTournee.getNodeDealer();
-        joueursDansLaTournee.getJoueurs().forEach(Joueur::resetRolesJeu);
-        if (joueursDansLaTournee.size() >= 4) {
-            ancienDealer.prochainNode.joueur.setRoleJeu(true, false, false, false);
-            ancienDealer.prochainNode.prochainNode.joueur.setRoleJeu(false, true, false, false);
-            ancienDealer.prochainNode.prochainNode.prochainNode.joueur.setRoleJeu(false, false, true, false);
-            ancienDealer.prochainNode.prochainNode.prochainNode.prochainNode.joueur.setRoleJeu(false, false, false, true);
-        } else if (joueursDansLaTournee.size() == 3) {
-            ancienDealer.prochainNode.joueur.setRoleJeu(true, false, false, true);
-            ancienDealer.prochainNode.prochainNode.joueur.setRoleJeu(false, true, false, false);
-            ancienDealer.prochainNode.prochainNode.prochainNode.joueur.setRoleJeu(false, false, true, false);
-        } else if (joueursDansLaTournee.size() == 2) {
-            ancienDealer.prochainNode.joueur.setRoleJeu(true, false, false, true);
-            ancienDealer.joueur.setRoleJeu(false, false, true, false);
-        }
-        flop = false;
-        turn = false;
-        river = false;
-        potActuel = 0;
-        dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
-        joueurActuel = joueursDansLaTournee.getNodePlaying();
-        paquet = new Paquet();
-        table = new Table();
-        distribuerCartesJoueurs();
-        distribuerCartesTable();
-        fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
-        fenetre = new FenetreJeuV3(this);
-        fenetre.effacerCoupsJoueur();
-
-
-        if (!joueurActuel.joueur.humain) {
-            waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+    private void setHands(){
+        Node current = joueurs.head;
+        for(int i=0; i<nJoueurs; i++){
+            current.joueur.setHand(current.joueur.getCartesSurMain(),getCartesTable());
+            current=current.prochainNode;
         }
     }
 
-    public void prochainJoueur() throws Exception {
-        joueurActuel = joueurActuel.prochainNode;
-        if(joueurActuel.joueur.humain){
-            fenetre.afficherBoutons(true);
-        }
-        System.out.println("Joueur actuel:" + joueurActuel.joueur.nom);
-        System.out.println("Dernier a parier:" + dernierAParier.nom + "\n\n");
-        if (joueursDansLaTournee.size() == 1) {
-            tourneeFinie();
-        } else if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 1500;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+    private void distribuerArgent(int q){
+        Node current = joueurs.head;
+
+        for(int i=0; i<nJoueurs; i++){
+            current.joueur.setArgent(q);
+            current=current.prochainNode;
         }
     }
 
+    public void commencerTourDeParis(){
+        Node current = joueursDansLaTournee.getJoueurPlaying();
+        boolean tourFini = false;
 
+        while (!tourFini){
+            if(joueursDansLaTournee.size()==1){
+                tourFini=true;
+                tourneeFinie = true;
+                joueursGagnants.add(joueursDansLaTournee.head.joueur);
+                System.out.print("tous fold");
+            }
+            else if(current.joueur == dernierQuiAPari.joueur){
+                tourFini=true;
+                System.out.println("Tour complet");
+            }
+            else {
+                System.out.print("tour :"+current.joueur.nom);
+                current.joueur.jouer(pariActuel);
+                // Le joueur a augmenté le pot
+                if (current.joueur.action >= 2) {
+                    //Mise à jour du pari actuel si un joueur augmente le pot
+                    pariActuel=current.joueur.action;
+                    dernierQuiAPari = current;
+                    System.out.println(" Raise");
+                }
+                // Le joueur a couché ses cartes
+                else if(current.joueur.action == 0){
+                    if(current.joueur.playing){
+                        current.prochainNode.joueur.playing=true;
+                    }
+                    joueursDansLaTournee.remove(current.joueur);
+                    System.out.println(" Fold");
+                }
+                else if(current.joueur.action==1){
+                    System.out.println(" Call");
+                }
+                fenetre.mettreAJourInfosJoueur(current.joueur);
+                current=current.prochainNode;
+            }
+        }
 
-    public void tourDeParisFini() throws Exception {
-        if (!flop){
-            System.out.println("***\nFLOP\n***");
-            flop = true;
-            pariActuel=0;
-            fenetre.flop();
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueursDansLaTournee.getNodeAnterieur(joueurActuel.joueur).joueur;
-            prochainJoueur();
+    }
+
+    public void commencerTournee(){
+        joueurs.getJoueurBigBlind().joueur.parier(valeurSmallBlind);
+        joueurs.getJoueurBigBlind().joueur.parier(valeurBigBlind);
+        joueursDansLaTournee = joueurs;
+        joueursGagnants=new LinkedList<>();
+        dernierQuiAPari = joueurs.getJoueurBigBlind();
+        pariActuel=valeurBigBlind; //La valeur à payer pour joueur la tournée
+        commencerTourDeParis();
+        /*
+        Il n'est resté qu'un seul joueur après le tour de paris et lui est le gagnant
+         */
+        if(tourneeFinie){
+            joueursGagnants.add(joueursDansLaTournee.head.joueur);
+            fenetre.afficherHandGagnante(joueursGagnants,true);
         }
-        else if (!turn) {
-            System.out.println("TURN");
-            turn = true;
-            pariActuel=0;
-            fenetre.turn();
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueursDansLaTournee.getNodeAnterieur(joueurActuel.joueur).joueur;
-            prochainJoueur();
-        }
-        else if (!river){
-            System.out.println("RIVER");
-            river = true;
-            pariActuel=0;
-            fenetre.river();
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueursDansLaTournee.getNodeAnterieur(joueurActuel.joueur).joueur;
-            prochainJoueur();
-        }
+        /*Plus d'un joueur continue dans le jeu, on montre les trois premières cartes et un
+        nouveau tour de paris commence
+        */
         else {
-            tourneeFinie();
+            System.out.println("\nJoueurs dans Flop");
+            joueursDansLaTournee.display();
+            flop();
+            commencerTourDeParis();
+
+            if (tourneeFinie) {
+                System.out.println("Finie apres flop");
+                joueursGagnants.add(joueursDansLaTournee.head.joueur);
+                fenetre.afficherHandGagnante(joueursGagnants,true);
+            }
+
+            /*Plus d'un joueur continue dans le jeu après le flop, on montre la quatrième carte et un
+            nouveau tour de paris commence
+             */
+            else {
+                System.out.println("\nTurn");
+                turn();
+                commencerTourDeParis();
+
+                if (tourneeFinie) {
+                    System.out.println("Finie apres river");
+                    joueursGagnants.add(joueursDansLaTournee.head.joueur);
+                    fenetre.afficherHandGagnante(joueursGagnants,true);
+                }
+
+                /*Plus d'un joueur continue dans le jeu après le flop, on montre la dernière carte et un
+                nouveau tour de paris commence
+                */
+                else {
+                    System.out.println("\nRiver");
+                    river();
+                    commencerTourDeParis();
+
+                    if (tourneeFinie) {
+                        System.out.println("Finie apres river");
+                        joueursGagnants.add(joueursDansLaTournee.head.joueur);
+                        fenetre.afficherHandGagnante(joueursGagnants,true);
+                    } else {
+                        System.out.println("Hand plus haute");
+                        trouverJoueursGagnants(joueursDansLaTournee.getLinkedListJoueurs());
+                        fenetre.afficherHandGagnante(trouverJoueursGagnants(joueursDansLaTournee.getLinkedListJoueurs()),false);
+                    }
+                }
+            }
         }
     }
 
-    public void tourneeFinie() throws Exception {
-        if (joueursDansLaTournee.size()==1){
-            System.out.println("Tous fold");
-            fenetre.afficherHandGagnante(true);
-            joueursDansLaTournee.getFirst().joueur.ajouterArgent(potActuel);
-        }
 
-        else {
-            System.out.println("Hand plus haute");
-            joueursGagnants = new LinkedList<>(trouverJoueursGagnants(joueursDansLaTournee.getJoueurs()));
-            potActuel = potActuel/joueursGagnants.size();
-            fenetre.afficherHandGagnante(false);
-            joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
-            joueursGagnants.forEach(joueur -> {
-                joueur.ajouterArgent(potActuel);
-                fenetre.mettreAJourInfosJoueur(joueur);
-            });
-        }
-        fenetre.afficherBoutonProchaineTournee();
+    private void flop(){
+        fenetre.flop();
     }
 
-    public Joueur getJoueurHumain() {
-        return joueurs.getJoueurHumain();
+    private void turn(){
+        fenetre.turn();
     }
 
-   public LinkedListCirculaire getJoueurs(){
+    private void river(){
+        fenetre.river();
+    }
+
+    public Joueur getHeadJoueur(){
+        return joueurs.head.joueur;
+    }
+
+    public Node getHead(){
+        return joueurs.head;
+    }
+
+    public Joueur getTailJoueur(){ // PE inutile
+        return joueurs.tail.joueur;
+    }
+
+    public CircularLinkedList<Joueur> getJoueursCirc(){
         return joueurs;
-   }
-
-   public LinkedList<Joueur> getLinkedListJoueurs(){
-        return joueurs.getJoueurs();
-   }
+    }
 
     public boolean ajouterKicker (LinkedList<? extends Joueur> joueursEgaux){
         for (Joueur j : joueursEgaux) {
@@ -485,10 +461,6 @@ public class Jeu extends Thread {
         nomsJoueursOrdinateurs.add("Laurence Barret");
         nomsJoueursOrdinateurs.add("Vincent Condat");
         nomsJoueursOrdinateurs.add("Eveline Manna");
-
-    }
-    public static void main(String[] args) throws Exception {
-        Jeu j = new Jeu(6);
 
     }
 }
