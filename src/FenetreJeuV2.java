@@ -1,14 +1,17 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 public class FenetreJeuV2 extends JFrame {
 
     private ImageIcon carteTournee;
 
-    private JPanel table, principal, joueurGagnant, panelBoutons, cartesTourneesJoueur;
+    private JPanel table, principal, joueurGagnant, panelBoutons, cartesTourneesJoueur, panelSlider;
 
     private HashMap<Joueur, JPanel> cartesEtInfosJoueurs, cartesJoueurs;
 
@@ -18,6 +21,8 @@ public class FenetreJeuV2 extends JFrame {
 
     private JButton call, raise, fold, avancerJeu, restart, flop, turn, river;
 
+    private JSlider raiseSlider;
+
     private FlowLayout layoutCartes;
 
     private GridBagConstraints gbcPrincipal, gbcTable;
@@ -26,25 +31,50 @@ public class FenetreJeuV2 extends JFrame {
 
     protected Jeu jeu;
 
-    public FenetreJeuV2 (int nJoueurs){
+    public FenetreJeuV2 (int nJoueurs) {
         super("Poker V2");
+
         setSize(1300, 650);
 
         this.nJoueurs = nJoueurs;
         jeu = new Jeu(nJoueurs, 0, this);
 
-        joueurGagnant=new JPanel(new BorderLayout());
+        joueurGagnant = new JPanel(new BorderLayout());
 
         layoutCartes = new FlowLayout();
         layoutCartes.setHgap(10);
 
         //Création du panel avec les cartes d'un joueur tournées
         carteTournee = new ImageIcon("src/res/back.png");
-        carteTournee = Carte.redimensioner(84,112,carteTournee);
+        carteTournee = Carte.redimensioner(84, 112, carteTournee);
         cartesTourneesJoueur = new JPanel(layoutCartes);
         cartesTourneesJoueur.add(new JLabel(carteTournee));
         cartesTourneesJoueur.add(new JLabel(carteTournee));
 
+        //Configuration du raiseSlider
+        raiseSlider = new JSlider(2*jeu.pariActuel, jeu.getJoueursCirc().head.joueur.getArgent(), 2*jeu.pariActuel);
+        JLabel valeurActuelleSlider = new JLabel("",SwingConstants.CENTER);
+        raiseSlider.setMinorTickSpacing(10);
+        raiseSlider.setSnapToTicks(true);
+        Hashtable<Integer, JLabel> valeursSlider = new Hashtable();
+        valeursSlider.put(jeu.valeurBigBlind, new JLabel(""+jeu.valeurBigBlind));
+        valeursSlider.put(jeu.getHeadJoueur().getArgent(), new JLabel(""+jeu.getHeadJoueur().getArgent()));
+        raiseSlider.setLabelTable(valeursSlider);
+        raiseSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if (raiseSlider.getValue()==jeu.getHeadJoueur().getArgent()){
+                    valeurActuelleSlider.setText("All in: "+raiseSlider.getValue());
+                }
+                else {
+                    valeurActuelleSlider.setText("Raise: " + raiseSlider.getValue());
+                }
+            }
+        });
+        raiseSlider.setPaintLabels(true);
+        panelSlider = new JPanel(new BorderLayout());
+        panelSlider.add(raiseSlider, BorderLayout.CENTER);
+        panelSlider.add(valeurActuelleSlider, BorderLayout.SOUTH);
 
         gbcPrincipal = new GridBagConstraints();
         principal = new JPanel(new GridBagLayout());
@@ -297,12 +327,16 @@ public class FenetreJeuV2 extends JFrame {
             panelBoutons.add(flop);
             panelBoutons.add(turn);
             panelBoutons.add(river);
-            gbcPrincipal.gridx=3;
+            gbcPrincipal.gridx=4;
             gbcPrincipal.gridy=2;
-            gbcPrincipal.gridwidth=2;
+            gbcPrincipal.gridwidth=1;
             gbcPrincipal.anchor=GridBagConstraints.SOUTHEAST;
             gbcPrincipal.insets = new Insets(0,0,10,10);
             principal.add(panelBoutons,gbcPrincipal);
+
+            gbcPrincipal.gridx=3;
+            gbcPrincipal.gridy=2;
+            principal.add(panelSlider,gbcPrincipal);
 
 
         }
@@ -463,15 +497,25 @@ public class FenetreJeuV2 extends JFrame {
         }
     }
 
+    protected void setActionJoueurHumain(int action){
+        jeu.getJoueursCirc().head.joueur.setAction(action, jeu.pariActuel);
+        jeu.getJoueursCirc().head.joueur.dejaJoue=true;
+    }
+
     protected void sortirJoueur(Joueur j){
         jeu.sortirJoueur(j);
         nJoueurs--;
         cartesEtInfosJoueurs.get(j).setVisible(false);
     }
 
+    protected int getValeurRaiseSlider(){
+        return  raiseSlider.getValue();
+    }
+
 
     public static void main(String[] args){
         FenetreJeuV2 f = new FenetreJeuV2(6);
+        f.avancerJeu();
 
     }
 }

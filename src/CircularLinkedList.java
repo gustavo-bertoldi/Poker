@@ -1,5 +1,4 @@
-    import java.util.Collections;
-    import java.util.LinkedList;
+import java.util.LinkedList;
 
 public class CircularLinkedList <T extends Joueur>  {
     //LinkedListCirculaire
@@ -46,7 +45,10 @@ public class CircularLinkedList <T extends Joueur>  {
             System.out.println("Noeuds de la liste ");
             do{
                 //Prints each node by incrementing pointer.
-                System.out.print(" "+ current.joueur.toString());
+                if(current.joueur.playing){
+                    System.out.print("playing ||");
+                }
+                System.out.println(" "+ current.joueur.toString());
                 current = current.prochainNode;
             }while(current != head);
             System.out.println("\nSize: "+size);
@@ -143,6 +145,14 @@ public class CircularLinkedList <T extends Joueur>  {
         do{
             current = current.prochainNode;
         } while (!current.joueur.playing);
+        return current;
+    }
+
+    public Node getDernierAParier(){
+        Node current = head;
+        do{
+            current = current.prochainNode;
+        } while (!current.prochainNode.joueur.playing);
         return current;
     }
 
