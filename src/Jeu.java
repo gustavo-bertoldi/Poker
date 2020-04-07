@@ -1,10 +1,9 @@
 import java.util.Collections;
 import java.util.LinkedList;
 
-public class Jeu {
+public class Jeu extends Thread{
 
     private CircularLinkedList<Joueur> joueurs; //essai avec circular LL
-    private CircularLinkedList<Joueur> joueursDansLaTournee;
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
     private int niveau;
@@ -17,7 +16,6 @@ public class Jeu {
     protected String nomJoueurHumain;
     private FenetreJeuV2 fenetre;
     private boolean tourneeFinie = false;
-    private Node dernierQuiAPari;
 
     /*      DÉROULEMENT JEU
     - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
@@ -153,57 +151,61 @@ public class Jeu {
         }
     }
 
-    public void commencerTourDeParis(){
-        Node current = joueursDansLaTournee.getJoueurPlaying();
-        boolean tourFini = false;
+    public void commencerTourDeParis(CircularLinkedList<Joueur> joueursDansLaTournee) {
+            Node current = joueursDansLaTournee.getJoueurPlaying();
+            boolean tourFini = false;
+            Node dernierAParier = joueurs.getJoueurPlaying(); //Le joueur avant le joueur qui commence jouant, si personne ne parie.
+            boolean controle = false;
 
-        while (!tourFini){
-            if(joueursDansLaTournee.size()==1){
-                tourFini=true;
-                tourneeFinie = true;
-                joueursGagnants.add(joueursDansLaTournee.head.joueur);
-                System.out.print("tous fold");
-            }
-            else if(current.joueur == dernierQuiAPari.joueur){
-                tourFini=true;
-                System.out.println("Tour complet");
-            }
-            else {
-                System.out.print("tour :"+current.joueur.nom);
-                current.joueur.jouer(pariActuel);
-                // Le joueur a augmenté le pot
-                if (current.joueur.action >= 2) {
-                    //Mise à jour du pari actuel si un joueur augmente le pot
-                    pariActuel=current.joueur.action;
-                    dernierQuiAPari = current;
-                    System.out.println(" Raise");
-                }
-                // Le joueur a couché ses cartes
-                else if(current.joueur.action == 0){
-                    if(current.joueur.playing){
-                        current.prochainNode.joueur.playing=true;
+            while (!tourFini) {
+                if (joueursDansLaTournee.size() == 1) {
+                    tourFini = true;
+                    tourneeFinie = true;
+                    joueursGagnants.add(joueursDansLaTournee.head.joueur);
+                    System.out.print("tous fold");
+                } else if (current == dernierAParier && controle) {
+                    tourFini = true;
+                    System.out.println("Tour complet");
+                } else {
+                    System.out.print("tour :" + current.joueur.nom);
+                    current.joueur.jouer(pariActuel); //Le joueur joue
+                    // Le joueur a augmenté le pot
+                    if (current.joueur.action >= 2) {
+                        //Mise à jour du pari actuel si un joueur augmente le pot
+                        pariActuel = current.joueur.action;
+                        dernierAParier = current;
+                        fenetre.mettreAJourInfosJoueur(current.joueur);
+                        System.out.println(" Raise");
+                        current = current.prochainNode;
                     }
-                    joueursDansLaTournee.remove(current.joueur);
-                    System.out.println(" Fold");
+                    // Le joueur a couché ses cartes
+                    else if (current.joueur.action == 0) {
+                        Node prochain = current.prochainNode;
+                        fenetre.mettreAJourInfosJoueur(current.joueur);
+                        if (current.joueur.playing) {
+                            current.joueur.playing = false;
+                            current.prochainNode.joueur.playing = true;
+                        }
+                        joueursDansLaTournee.remove(current.joueur);
+                        current = prochain;
+                        System.out.println(" Fold");
+                    } else if (current.joueur.action == 1) {
+                        System.out.println(" Call");
+                        current = current.prochainNode;
+                        fenetre.mettreAJourInfosJoueur(current.joueur);
+                    }
+                    controle = true;
                 }
-                else if(current.joueur.action==1){
-                    System.out.println(" Call");
-                }
-                fenetre.mettreAJourInfosJoueur(current.joueur);
-                current=current.prochainNode;
             }
-        }
-
     }
 
     public void commencerTournee(){
         joueurs.getJoueurBigBlind().joueur.parier(valeurSmallBlind);
         joueurs.getJoueurBigBlind().joueur.parier(valeurBigBlind);
-        joueursDansLaTournee = joueurs;
-        joueursGagnants=new LinkedList<>();
-        dernierQuiAPari = joueurs.getJoueurBigBlind();
-        pariActuel=valeurBigBlind; //La valeur à payer pour joueur la tournée
-        commencerTourDeParis();
+        CircularLinkedList<Joueur> joueursDansLaTournee = joueurs;
+        joueursGagnants = new LinkedList<>();
+        pariActuel = valeurBigBlind; //La valeur à payer pour joueur la tournée
+        commencerTourDeParis(joueursDansLaTournee);
         /*
         Il n'est resté qu'un seul joueur après le tour de paris et lui est le gagnant
          */
@@ -218,7 +220,7 @@ public class Jeu {
             System.out.println("\nJoueurs dans Flop");
             joueursDansLaTournee.display();
             flop();
-            commencerTourDeParis();
+            commencerTourDeParis(joueursDansLaTournee);
 
             if (tourneeFinie) {
                 System.out.println("Finie apres flop");
@@ -231,8 +233,9 @@ public class Jeu {
              */
             else {
                 System.out.println("\nTurn");
+                joueursDansLaTournee.display();
                 turn();
-                commencerTourDeParis();
+                commencerTourDeParis(joueursDansLaTournee);
 
                 if (tourneeFinie) {
                     System.out.println("Finie apres river");
@@ -245,8 +248,9 @@ public class Jeu {
                 */
                 else {
                     System.out.println("\nRiver");
+                    joueursDansLaTournee.display();
                     river();
-                    commencerTourDeParis();
+                    commencerTourDeParis(joueursDansLaTournee);
 
                     if (tourneeFinie) {
                         System.out.println("Finie apres river");
