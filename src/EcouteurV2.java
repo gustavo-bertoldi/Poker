@@ -29,7 +29,14 @@ public class EcouteurV2 implements ActionListener {
             fenetre.river();
         }
         else if(fun == "call"){
-            fenetre.sortirJoueur(fenetre.jeu.getTailJoueur());
+            fenetre.setActionJoueurHumain(1);
+        }
+        else if(fun == "raise"){
+            fenetre.setActionJoueurHumain(fenetre.getValeurRaiseSlider());
+        }
+        else if(fun == "fold"){
+            fenetre.foldJoueurHumain();
+            fenetre.setActionJoueurHumain(0);
         }
     }
 }

@@ -9,20 +9,18 @@ public class Ordinateur extends Joueur {
     public void jouer(int pariActuel){
         //Cas de l'intelligence aléatoire
         if(niveau==0){
-            int r = (int) (Math.random() * 3);
-            if(r==0){
-                super.setAction(r);
+            int r = (int) (Math.random() * 30);
+            if(r<=5){
+                super.setAction(0,pariActuel);
             }
 
-            else if(r==1){
-                super.parier(pariActuel);
-                super.setAction(r);
+            else if(r>5 && r<=22){
+                super.setAction(1,pariActuel);
             }
 
             else{
                 int raise = pariActuel + (int)((super.getArgent()+1)*Math.random());
-                super.setAction(raise);
-                super.parier(50);
+                super.setAction(raise, pariActuel);
             }
         }
     }

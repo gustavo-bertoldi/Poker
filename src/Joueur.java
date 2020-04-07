@@ -14,10 +14,10 @@ public class Joueur implements Comparable{
     protected boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
     protected boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
     protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
-    protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean playing = false;
-    protected int position; // position sur tour de paris
+
     protected int action;
+    protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     /*
 
      */
@@ -68,15 +68,17 @@ public class Joueur implements Comparable{
         this.cartesSurMain = cartesSurMain;
     }
 
-    public void setAction(int action){
+    public void setAction(int action, int valeurPari){
         if(action==0){
             coup="Fold";
         }
         else if(action==1){
-            coup="Call";
+            coup="Call "+valeurPari;
+            parier(valeurPari);
         }
         else{
-            coup="Raise";
+            coup="Raise "+action;
+            parier(action);
         }
         this.action=action;
     }
@@ -105,9 +107,13 @@ public class Joueur implements Comparable{
     METHODE A CREER
      */
     public void jouer(int pariActuel){
-        parier(pariActuel);
+        while (!dejaJoue){
+            if(dejaJoue){
+                break;
+            }
+            System.out.print("");
+        }
         dejaJoue=false;
-
     }
     /*
     Retroune la somme d'argent actuelle
