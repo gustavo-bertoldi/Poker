@@ -10,6 +10,7 @@ public class Joueur implements Comparable{
     private int argent; //L'ARGENT
     protected Intelligence intelligence;
     protected String coup;
+    protected int pari;
     //Attributs à utiliser pour déroulement du jeu
     protected boolean dealer; //SI LE JOUEUR EST LE DEALER
     protected boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
@@ -74,6 +75,7 @@ public class Joueur implements Comparable{
     @param int q - quantite a parier
      */
     public boolean parier(int q){
+        pari = q;
         if(q<=argent) {
             argent = argent - q;
             return true;
@@ -86,37 +88,58 @@ public class Joueur implements Comparable{
     /*
     METHODE A CREER
      */
-    public boolean jouer(int pariActuel, boolean b){
-        int decision = intelligence.decision();
-        boolean parie = false;
-        if(decision == -1) {
-            fold();
-        }else if(decision == 0){
-            check();
-        } else if(decision == 1){
-            call(pariActuel);
-        } else if(decision>1){
-            raise(decision);
+    public void jouer(int pariActuel, boolean humain, int moment){
+        if(humain){
+            playing = false;
+            jouerHumain();
+        } else{
+            playing = false;
+            int decision = intelligence.decision(moment);
+            if(decision == -1) {
+                fold();
+            }else if(decision == 0){
+                check();
+            } else if(decision == 1){
+                call(pariActuel);
+            } else if(decision>1){
+                raise(decision);
+            }
+            if(jeu.moment==0 && bigBlind && pariActuel==jeu.valeurBigBlind){
+                jeu.nouveauTour();
+            }
+            jeu.fenetreJeu.mettreAJourInfosJoueur(this);
         }
         dejaJoue = true;
-        return parie;
     }
+    public void jouerHumain(){
+        jeu.fenetreJeu.montrerBoutons();
+    }
+
     public void fold(){
-        //IMPLEMENTER
+        dansJeu = false;
+        jeu.next(position==(jeu.getNJoueurs()-1));
     }
     public void check(){
-        //implementer
+        jeu.next(position==(jeu.getNJoueurs()-1));
     }
-    public void call(int i ){
-        if(argent>i){
-            argent = argent -i;
+    public void call(int pariAutreJoueur ){
+        int valeurAPayer = (pariAutreJoueur-this.pari);
+        if(argent>valeurAPayer){
+            //jeu.ajouterAuPot(valeurAPayer)
+            argent = argent -valeurAPayer;
         }else{
-            argent =0;
+            //jeu.ajouterAuPot(argent)
+            argent =0; //all IN
         }
-        jeu.next();
+        System.out.println(nom +"paye");
+        jeu.next(position==5);
+        System.out.println(nom +"next");
     }
     public void raise(int pari){
-        //implementer
+        jeu.definirPositionsPari(this);
+        //jeu.ajouterAuPot(pari)
+        argent = argent-pari;
+        jeu.next(position==(jeu.getNJoueurs()-1));
     }
     /*
     Retroune la somme d'argent actuelle

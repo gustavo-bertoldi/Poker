@@ -2,12 +2,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 public class Jeu {
-    private FenetreJeuV2 fenetreJeu;
+    protected FenetreJeuV2 fenetreJeu;
 
-    private CircularLinkedList joueurs; //essai avec circular LL
+    protected CircularLinkedList joueurs; //essai avec circular LL
     private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
     private Table table;
-    private int moment; // 0 = preFlop; 1 = flop; 2 = turn; 3 = river; 4 = tout le monde fold;
+    protected int moment; // 0 = preFlop; 1 = flop; 2 = turn; 3 = river; 4 = tout le monde fold;
     private int niveau;
     private int nJoueurs; //Le numéro actuel de joueurs dans le jeu
     private LinkedList<Joueur> joueursGagnants;
@@ -189,57 +189,66 @@ public class Jeu {
 
 
     /*                              Idée derrière l'avancement du jeu
-    0) SB et BB placent leur bets -> definirPositionsBB() le fait
-    1) On définit l'ordre des prises de décision avec definirPositionsBB() -> appellée sur changer dealer
-    -> après l'appel à la méthode, on aura les positions comme le suivant:
-    D (nJoueurs-3) SB (nJoueurs-2) BB (nJoueurs-1) J1 (0) J2 (1) J3(2)...
-    Le joueur J1 a comme position 0, et a playing == true; tous les autres playing == false.
-    2) Puis, on commence avec le joueur de position 0: il pourra (call, fold, raise) (dans un premier temps call)
-        3) Si fold, j.dansJeu =false, puis, passer au joueur de position == position +1;
-        4) Si call, passer au joueur de position == position+1;
-        5) Si raise, redefinir positions de tous les joueurs, étant lui celui de position == 0, puis passer a celui de position==position+1;
-    6) Pour savoir si joueur va jouer on regarde j.dansJeu
-    7) On tourne la table jusqua ce qu'on arrive à position == nJoueurs, donc juste après le joueur de position nJ-1 avoir joue
-    8) On redéfinit les positions de façon à ce que le SB soit celui de position 0 et le Dealer celui de position nJ-1 definirPositionsDealer();
-                                 Dès que le tour est fini:
-    9) ajouter l'argent parié au pot -> changer label
-    10) recommencer le parcours de la table par les positions en vérifiant dansJeu;
-                                 Dès que la main est finie:
-    11) redefinir Dealer;
-    12) redefinir Positions;
-    13) tous dansJeu = true;
-    14) Recommencer de 0;
+    0) On définit qui est le dealer est par conséquent les SB et BB, puis les positions (definirposBB())
+    1) SB et BB payent leurs respectifs  blinds (fait sur definirposBB())(pour l'instant pariActuel = BB)
+    2) Le joueur juste après le BB, commence à decider (j.playing = true; fait sur definirposBB()) et jouer (j.jouer(pariActuel, true), appellé par next() sur defBB())
+    3)
+    3) Après avoir joué, j.playing =false et j.prochain.playing = true (changerJPlaying());
+    4)
      */
-
-    public void next(){
-        Node current = joueurs.getJoueurPlaying(); //ce joueur est playing et pos 0
-        if(current.joueur.position!=0){
-            if(current.equals(joueurs.head)){
-                fenetreJeu.montrerBoutons();
-            } else {
-                current.joueur.call(valeurBigBlind);
-                if(current.joueur.dejaJoue){
-                    fenetreJeu.mettreAJourInfosJoueur(current.joueur);
-                    next();
-                }
-            }
-        }/* else{
-            if(moment == 0 && current.joueur.bigBlind){
-                if(current.equals(joueurs.head)){
-                    fenetreJeu.montrerBoutons();
-                } else{
-                    current.joueur.jouer(pariActuel, true); // à la fin de jouer, appel à next()
-                }
+    public Node getJoueurPlaying(){
+        Node current = joueurs.head;
+        do{
+            current = current.prochainNode;
+        }while(!current.joueur.playing);
+        System.out.println("joueur playing 1 = " + current.joueur.nom);
+        return current;
+    }
+    /*
+                                                NEXT()
+           Appeller le prochain joueur
+     */
+    public void next(boolean dernierJoueur){ //dernierJoueur = joueur.position==(nJoueurs-1)
+        Node current = getJoueurPlaying();
+        System.out.println("joueur playing" +current.joueur.nom);
+        if(dernierJoueur){ //si position== jeu.getNJoueurs()-1, 2 cas: moment ==0, moment!=0
+            if(moment==0 && pariActuel==valeurBigBlind){ // si personne n'a parie, le BB peut encore decider, le dernier sera forcement le BB
+                current.prochainNode.joueur.jouer(pariActuel, current.prochainNode.equals(getHead()), moment); //condition pour verifier si humain ou pas
             }else{
-                avancerJeu();
+                nouveauTour();
             }
-        }*/
+        }else{
+            changerJoueurPlaying(current);
+            current.prochainNode.joueur.jouer(pariActuel, current.prochainNode.equals(getHead()), moment);
+        }
+        fenetreJeu.mettreFenAJour();
+    }
+    /*
+    Problemes pour l'instant:
+     */
+    public void setMoment(int i){
+        moment = i;
+    }
+    public Node getDealer(){
+        Node current = getHead();
+        do{
+            current = current.prochainNode;
+        }while(!current.joueur.dealer);
+        return current;
+    }
+    public void nouveauTour(){
+        avancerJeu();
+        Node joueurAJouer = getJoueurPlaying(); //defini par definirPosDealer() ou BB
+        joueurAJouer.joueur.jouer(0, joueurAJouer.equals(getHead()), moment);
+    }
+
+    public void changerJoueurPlaying(Node joueurNode){
+        joueurNode.prochainNode.joueur.playing = true;
     }
     public void avancerJeu(){
         if(getNumDansJeu()==1){
             //changerDealer();
             fenetreJeu.restart();
-            moment =0;
         }else {
             if (moment == 0) {
                 fenetreJeu.flop();
@@ -253,9 +262,7 @@ public class Jeu {
             } else if (moment == 3) {
                 joueursGagnants= null;
                 fenetreJeu.restart();
-                moment = -1;
             }
-            moment++;
         }
     }
 
@@ -273,7 +280,7 @@ public class Jeu {
     /*
                         Methode pour definir l'ordre du premier tour de decisions à partir du BB
      */
-    public void definirPositionsBB() {
+    public void definirPositionsBB() { //TESTÉ OK
         Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le BB
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
@@ -285,14 +292,24 @@ public class Jeu {
                 current.joueur.parier(valeurBigBlind);
             }
         } while (!current.joueur.bigBlind);// en sortant de la boucle current == BB
-        Node bigBlind = current;
-        do {
-            current.joueur.position = pos; // BB pos ==0
-            pos++; //incrementation de la position pour que ça augmente au fur et a mesure
-            current = current.prochainNode;
-        } while (current.prochainNode!=bigBlind);
         fenetreJeu.mettreAJourInfosJoueurs();
-        next();
+        Node bigBlind = current;
+        bigBlind.joueur.position =0;
+        System.out.println(bigBlind.joueur.nom + "est BB"); // Verifier que le code est ok -> OK
+        System.out.println(current.joueur.nom + " pos = " + current.joueur.position);
+        current=bigBlind.prochainNode;
+        do {
+            pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+            current.joueur.position = pos; // BB pos ==0
+            if(pos == 1){
+                current.joueur.playing=true;
+            }
+            System.out.println(current.joueur.nom + " pos = " + current.joueur.position);
+            current = current.prochainNode;
+        } while (!current.equals(bigBlind));
+
+        bigBlind.prochainNode.joueur.jouer(valeurBigBlind,bigBlind.prochainNode.equals(getHead()), moment);
+        System.out.println("definir positions bb c'est bon");
         // à la fin le but est que celui a gauche du BB ait pos == 1 et BB ait pos 0
     }
     /*
@@ -311,27 +328,37 @@ public class Jeu {
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
             current = current.prochainNode;
         } while (current!=aParie);
-        next();
     }
     /*
                     Methode pour definir les positions en fonction de la position du dealer
                                 (utilisée pour fin de tour de paris)
      */
     public void definirPositionsDealer() {
-        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le Dealer
+        Node current = joueurs.head; // partir de la tete de la liste jusqua trouver le BB
         int pos = 0; // ça va définir l'ordre sur le tour de paris
         do {
             current = current.prochainNode;
         } while (!current.joueur.dealer);// en sortant de la boucle current == BB
-        Node dealerNode = current; // Node correspondant au joueur qui a parie
+        Node dealer = current;
+        dealer.joueur.position =0;
+        System.out.println(dealer.joueur.nom + " est D "); // Verifier que le code est ok -> OK
+        System.out.println(current.joueur.nom + " pos = " + current.joueur.position);
+        current=dealer.prochainNode;
+        current.joueur.playing=true;
         do {
-            current.joueur.position = pos; // Dealer ==0, prochain ==1
             pos++; //incrementation de la position pour que ça augmente au fur et a mesure
+            current.joueur.position = pos; // D pos ==0
+            System.out.println(current.joueur.nom + " pos = " + current.joueur.position);
             current = current.prochainNode;
-        } while (current != dealerNode);
-        next();
-        // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
+        } while (!current.equals(dealer));
+
+        fenetreJeu.mettreAJourInfosJoueurs();
+
+        System.out.println("definir positions dealer c'est bon");
+        // à la fin le but est que celui a gauche du BB ait pos == 1 et BB ait pos 0
     }
+        // à la fin le but est que celui a gauche du dealer ait pos == 0 et le dealer ait pos la plus grande
+
     public void recommencer(){
         paquet= new Paquet();
         table = new Table();

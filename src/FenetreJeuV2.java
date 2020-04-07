@@ -433,20 +433,28 @@ public class FenetreJeuV2 extends JFrame {
         for(int i=0;i<3;i++) {
             cartesTable.get(i).setIcon(jeu.getCartesTable().get(i).icon);
         }
+        jeu.setMoment(1);
         revalidate();
         repaint();
     }
 
     protected void turn(){
         cartesTable.get(3).setIcon(jeu.getCartesTable().get(3).icon);
+        jeu.setMoment(2);
         revalidate();
         repaint();
     }
 
     protected void river(){
         cartesTable.get(4).setIcon(jeu.getCartesTable().get(4).icon);
-        joueurGagnant.setVisible(true);
+        jeu.setMoment(3);
+        revalidate();
+        repaint();
+    }
 
+    public void montrerGagnant(){
+        joueurGagnant.setVisible(true);
+        jeu.setMoment(0);
         revalidate();
         repaint();
     }
@@ -456,6 +464,7 @@ public class FenetreJeuV2 extends JFrame {
         jeu.recommencer();
         FenetreJeuV2 nouvelleFenetre = new FenetreJeuV2(jeu);
         jeu.setFenetreJeu(nouvelleFenetre);
+        jeu.moment=0;
     }
     public void avancerJeu(){
         jeu.avancerJeu();
@@ -483,26 +492,43 @@ public class FenetreJeuV2 extends JFrame {
         }
     }
     public void call(){
+        jeu.getHeadJoueur().call(jeu.pariActuel);
         cacherBoutons();
-        jeu.next();
+        jeu.next(jeu.getHeadJoueur().position==jeu.getNJoueurs()-1);
+        revalidate();
+        repaint();
     }
     public void fold(){
         cacherBoutons();
-        jeu.next();
+        jeu.next(jeu.getHeadJoueur().position==jeu.getNJoueurs()-1);
+        revalidate();
+        repaint();
     }
     public void raise(int bet){
         cacherBoutons();
-        jeu.next();
+        jeu.next(jeu.getHeadJoueur().position==jeu.getNJoueurs()-1);
+        revalidate();
+        repaint();
     }
     public void check(){
         cacherBoutons();
-        jeu.next();
+        jeu.next(jeu.getHeadJoueur().position==jeu.getNJoueurs()-1);
+        revalidate();
+        repaint();
     }
     public void montrerBoutons(){
         panelBoutons.setVisible(true);
+        revalidate();
+        repaint();
     }
     public void cacherBoutons(){
         panelBoutons.setVisible(false);
+        revalidate();
+        repaint();
+    }
+    public void mettreFenAJour(){
+        revalidate();
+        repaint();
     }
 
 
