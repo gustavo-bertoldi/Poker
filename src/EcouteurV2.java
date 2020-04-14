@@ -14,10 +14,18 @@ public class EcouteurV2 implements ActionListener {
 
     public void actionPerformed(ActionEvent e){
         if(fun == "restart"){
-            fenetre.restart();
+            try {
+                fenetre.restart();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         else if(fun == "commencer"){
-            fenetre.avancerJeu();
+            try {
+                fenetre.avancerJeu();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         else if(fun == "flop"){
             fenetre.flop();
@@ -29,14 +37,30 @@ public class EcouteurV2 implements ActionListener {
             fenetre.river();
         }
         else if(fun == "call"){
-            fenetre.setActionJoueurHumain(1);
+            try {
+                fenetre.setActionJoueurHumain(1);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         else if(fun == "raise"){
-            fenetre.setActionJoueurHumain(fenetre.getValeurRaiseSlider());
+            try {
+                fenetre.setActionJoueurHumain(fenetre.getValeurRaiseSlider());
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         else if(fun == "fold"){
-            fenetre.foldJoueurHumain();
-            fenetre.setActionJoueurHumain(0);
+            try {
+                fenetre.foldJoueurHumain();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            try {
+                fenetre.setActionJoueurHumain(0);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
     }
 }

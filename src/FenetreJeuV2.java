@@ -29,15 +29,17 @@ public class FenetreJeuV2 extends JFrame {
 
     private int nJoueurs;
 
+    private Joueur joueurHumain;
+
     protected Jeu jeu;
 
-    public FenetreJeuV2 (int nJoueurs) {
+    public FenetreJeuV2 (int nJoueurs) throws Exception {
         super("Poker V2");
 
         setSize(1300, 650);
 
         this.nJoueurs = nJoueurs;
-        jeu = new Jeu(nJoueurs, 0, this);
+        jeu = new Jeu(nJoueurs);
 
         joueurGagnant = new JPanel(new BorderLayout());
 
@@ -52,23 +54,21 @@ public class FenetreJeuV2 extends JFrame {
         cartesTourneesJoueur.add(new JLabel(carteTournee));
 
         //Configuration du raiseSlider
-        raiseSlider = new JSlider(2*jeu.pariActuel, jeu.getJoueursCirc().head.joueur.getArgent(), 2*jeu.pariActuel);
+        joueurHumain = jeu.getJoueurHumain();
+        raiseSlider = new JSlider(2*jeu.pariActuel, joueurHumain.getArgent(), 2*jeu.pariActuel);
         JLabel valeurActuelleSlider = new JLabel("",SwingConstants.CENTER);
         raiseSlider.setMinorTickSpacing(10);
         raiseSlider.setSnapToTicks(true);
         Hashtable<Integer, JLabel> valeursSlider = new Hashtable();
         valeursSlider.put(jeu.valeurBigBlind, new JLabel(""+jeu.valeurBigBlind));
-        valeursSlider.put(jeu.getHeadJoueur().getArgent(), new JLabel(""+jeu.getHeadJoueur().getArgent()));
+        valeursSlider.put(joueurHumain.getArgent(), new JLabel(""+joueurHumain.getArgent()));
         raiseSlider.setLabelTable(valeursSlider);
-        raiseSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (raiseSlider.getValue()==jeu.getHeadJoueur().getArgent()){
-                    valeurActuelleSlider.setText("All in: "+raiseSlider.getValue());
-                }
-                else {
-                    valeurActuelleSlider.setText("Raise: " + raiseSlider.getValue());
-                }
+        raiseSlider.addChangeListener(e -> {
+            if (raiseSlider.getValue()==joueurHumain.getArgent()){
+                valeurActuelleSlider.setText("All in: "+raiseSlider.getValue());
+            }
+            else {
+                valeurActuelleSlider.setText("Raise: " + raiseSlider.getValue());
             }
         });
         raiseSlider.setPaintLabels(true);
@@ -104,7 +104,7 @@ public class FenetreJeuV2 extends JFrame {
 
 
     private void ajouterCartesEtInfosJoueurs(){
-        Node current = jeu.getHead();
+        Node current = jeu.getFirstNode();
         cartesJoueurs = new HashMap<>();
         infosJoueur = new HashMap<>();
         cartesEtInfosJoueurs = new HashMap<>();
@@ -118,13 +118,13 @@ public class FenetreJeuV2 extends JFrame {
             for(Carte c : current.joueur.getCartesSurMain()){
                 cartesJoueurs.get(current.joueur).add(new JLabel(c.icon));
             }
-            if(current.joueur.isDealer()){
+            if(current.joueur.dealer){
                 infosJoueur.put(current.joueur, new JLabel(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || Dealer", SwingConstants.CENTER));
             }
-            else if(current.joueur.isBigBlind()){
+            else if(current.joueur.bigBlind){
                 infosJoueur.put(current.joueur, new JLabel(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || BigBlind", SwingConstants.CENTER));
             }
-            else if(current.joueur.isSmallBlind()){
+            else if(current.joueur.smallBlind){
                 infosJoueur.put(current.joueur, new JLabel(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || SmallBlind", SwingConstants.CENTER));
             }
             else {
@@ -140,15 +140,15 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     public void nouvelleTournee(){
-        Node current = jeu.getHead();
+        Node current = jeu.getFirstNode();
         for(int i=0;i<nJoueurs;i++){
-            if(current.joueur.isDealer()){
+            if(current.joueur.dealer){
                 infosJoueur.get(current.joueur).setText(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || Dealer");
             }
-            else if(current.joueur.isBigBlind()){
+            else if(current.joueur.bigBlind){
                 infosJoueur.get(current.joueur).setText(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || BigBlind");
             }
-            else if(current.joueur.isSmallBlind()){
+            else if(current.joueur.smallBlind){
                 infosJoueur.get(current.joueur).setText(current.joueur.nom+" || Argent: "+current.joueur.getArgent()+" || SmallBlind");
             }
             else {
@@ -166,13 +166,13 @@ public class FenetreJeuV2 extends JFrame {
     Méthode appelée lors quand un joueur a joué son tour et ses informations on changé (Argent, coup)
      */
     public void mettreAJourInfosJoueur(Joueur j){
-        if(j.isDealer()){
+        if(j.dealer){
             infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+" || Dealer");
         }
-        else if(j.isBigBlind()){
+        else if(j.bigBlind){
             infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+" || BigBlind");
         }
-        else if(j.isSmallBlind()){
+        else if(j.smallBlind){
             infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+" || SmallBlind");
         }
         else {
@@ -217,7 +217,7 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     public void creerLayout(){
-        Node current = jeu.getHead();
+        Node current = jeu.getFirstNode();
         ajouterCartesEtInfosJoueurs();
         ajouterTable();
         gbcPrincipal = new GridBagConstraints();
@@ -462,20 +462,20 @@ public class FenetreJeuV2 extends JFrame {
         repaint();
     }
 
-    public void restart(){
+    public void restart() throws Exception {
         this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         new FenetreJeuV2(nJoueurs);
     }
 
-    protected void avancerJeu(){
+    protected void avancerJeu() throws Exception {
         jeu.commencerTournee();
 
     }
 
-    protected void foldJoueurHumain(){
-        cartesJoueurs.get(jeu.getHeadJoueur()).removeAll();
-        cartesJoueurs.get(jeu.getHeadJoueur()).add(new JLabel(carteTournee));
-        cartesJoueurs.get(jeu.getHeadJoueur()).add(new JLabel(carteTournee));
+    protected void foldJoueurHumain() throws Exception {
+        cartesJoueurs.get(jeu.getJoueurHumain()).removeAll();
+        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(carteTournee));
+        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(carteTournee));
         revalidate();
         repaint();
     }
@@ -490,16 +490,16 @@ public class FenetreJeuV2 extends JFrame {
     }
 
     private void valeursHandTerminal(){
-        Node current = jeu.getHead();
+        Node current = jeu.getFirstNode();
         for(int i=0; i<nJoueurs; i++){
             System.out.println(current.joueur.nom+" : "+current.joueur.getHand().getValeurHand());
             current=current.prochainNode;
         }
     }
 
-    protected void setActionJoueurHumain(int action){
-        jeu.getJoueursCirc().head.joueur.setAction(action, jeu.pariActuel);
-        jeu.getJoueursCirc().head.joueur.dejaJoue=true;
+    protected void setActionJoueurHumain(int action) throws Exception {
+        jeu.getJoueurHumain().setAction(action, jeu.pariActuel);
+        jeu.getJoueurHumain().playing=false;
     }
 
     protected void sortirJoueur(Joueur j){
@@ -513,7 +513,7 @@ public class FenetreJeuV2 extends JFrame {
     }
 
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception {
         FenetreJeuV2 f = new FenetreJeuV2(6);
         f.avancerJeu();
 

@@ -3,10 +3,11 @@ public class Ordinateur extends Joueur {
     private int niveau;
 
     public Ordinateur (String nom, int niveau){
-        super(nom, niveau);
+        super(nom);
+        humain=false;
     }
 
-    public void jouer(int pariActuel){
+    public void jouer(int pariActuel) throws Exception {
         //Cas de l'intelligence aléatoire
         if(niveau==0){
             int r = (int) (Math.random() * 30);

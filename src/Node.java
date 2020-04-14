@@ -13,4 +13,12 @@ public class Node  {
         egaux = n.joueur.equals(this.joueur); //  les noms étant imposes differents, ça suffit
         return egaux;
     }
+
+    public Node prochainNode(){
+        if (joueur.playing){
+            joueur.playing=false;
+            prochainNode.joueur.playing=true;
+        }
+        return prochainNode;
+    }
 }
