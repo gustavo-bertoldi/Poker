@@ -11,6 +11,7 @@ public class Intelligence {
     private LinkedList<Carte> surMain = new LinkedList<>(); // les cartes distribuees au debut du jeu
     private LinkedList<Carte> surTable = new LinkedList<>(); //affectée en ajoutant les cartes tournees
     protected Hand hand; // protected pour pouvoir affecter depouis joueur; y a til une façon de l'affecter directement?
+    private Joueur joueur;
 
     /*
     - qualiteMain mesure en pourcentage le pouvoir de la main
@@ -40,85 +41,37 @@ public class Intelligence {
      */
     private ArrayList<Integer> blef = new ArrayList<>();// Array pour avoir contains()
 
-    public Intelligence(int i) {
+    public Intelligence(int i,Joueur j,Hand h) {
         niveau = i; //i donne par Jeu
+        this.joueur=j;
+        this.hand=h;
     }
    /* public void setSurMain(LinkedList<Carte> surMain){
         this.surMain = surMain;
         hand.setSurMain(surMain);
-    }
 
     public void setSurTable(LinkedList<Carte> tourneesSurTable){
         surTable.addAll(tourneesSurTable); // ajoute toutes les cartes prises comme parametre à surTable
         hand.setHand(tourneesSurTable);
     }*/
-    public int decision(int moment){
-        int decision = 0;
-        if(moment==0){
-            decision =1;
-        }else{
-            decision =0;
-        }
-        return decision;
-    }
 
-    public double qualiteHighCard(){ // appellee s'il y a high card
-        double qualite = 0.0;
-        //qualite = hand.highCard().valeur/10.0; // indice multiplicatif de qualiteMain
-        return qualite;
-    }
+    public boolean Jouable(){// methode pour sortir si on a pas mieu que hotaur as
+		int v=0;
+		v= hand.getValeurHand();
+			if (v<15){
+			return false;
+		}
+   /* public int decision(){
+        return 0;
+    }*/
 
-    public double qualitePair(){
-        double qualite = 0.0;
-        //completer methode
-        return qualite;
-    }
 
-    public double qualiteThreeOfAKind(){
-        double qualite = 0.0;
-        //completer methode
-        return qualite;
+    /*public void setRangeBet(){
+         ajouter methode prenant en compte qualite main
     }
-    public double qualiteTwoPairs(){
-        double qualite = 0.0;
-        //completer methode
-        return qualite;
-    }
+    * */
 
-    public double qualiteStraight(){
-        double qualite = 0;
-        //completer methode
-        return qualite;
-    }
-    public double qualiteFullHouse(){
-        double qualite = 0;
-        //completer methode
-        return qualite;
-    }
-
-    public double qualiteFourOfAKind(){
-        double qualite = 0;
-        //completer methode
-        return qualite;
-    }
-
-    public double qualiteFlush(){
-        double qualite = 0;
-        //completer methode
-        return qualite;
-    }
-
-    public double qualiteStraightFlush(){
-        double qualite = 0;
-        //completer methode
-        return qualite;
-    }
-
-    public void setRangeBet(){
-        // ajouter methode prenant en compte qualite main
-    }
-
-    public char jouer(int pariActuel, int argentJoueur){
+   public char jouer(int pariActuel; int argentJoueur){
         //Cas de l'intelligence aléatoire
         if(niveau==0){
             int r = (int) (Math.random() * 3);
@@ -136,7 +89,30 @@ public class Intelligence {
             }
         }
         else{
+			if(niveau ==1){
+				int v= hand.getValeurHand();
+				if (joueur.getArgent()>= pariActuel+100){
+					if ( Jouable()== true){
+						if( v<14001){		// egaler la mise pour continuer dans le jeu si on a inferieur a 2 paires
+							return "c";
+						}
+						else{
+							joueur.parier(pariActuel+(int)(Math.random()*((10-1)+1)*10));// aumenter la mise d'une quntiter aleatoire entre 0-100
+							return "r";
+						}
+					}
+				else {
+					return "f";// joueur ne joue pas ce tour et couche
+				}
+				}
+				}
+
+			else{
             return 'a';
-        }
-    }
+         }
+	 }
+	 }
+
+
+}
 }
