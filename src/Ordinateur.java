@@ -3,7 +3,7 @@ public class Ordinateur extends Joueur {
     private int niveau;
 
     public Ordinateur (String nom, int niveau){
-        super(nom);
+        super(nom,false);
         humain=false;
     }
 

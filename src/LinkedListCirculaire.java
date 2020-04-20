@@ -167,7 +167,7 @@ public class LinkedListCirculaire {
 
     public static void main(String[] args) throws Exception {
         LinkedList<Joueur> cl = new LinkedList<>();
-        Joueur almir = new Joueur("almir");
+        Joueur almir = new Joueur("almir",true);
         Ordinateur gus = new Ordinateur("gus",0);
         Ordinateur maria = new Ordinateur("maria",0);
         Ordinateur xing = new Ordinateur("xing",0);

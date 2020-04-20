@@ -51,7 +51,7 @@ public class Jeu extends Thread{
 
         //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
         joueurs = new LinkedListCirculaire();
-        joueurs.add(new Joueur(nomJoueurHumain));
+        joueurs.add(new Joueur(nomJoueurHumain,true));
         for (int i=0; i<nJoueurs;i++){
             //Création des joueurs ordinateurs qui prennent un nom aléatoire de la liste nomsJoueursOrdinateurs
             int a = (int)(Math.random()*nomsJoueursOrdinateurs.size());
@@ -69,7 +69,7 @@ public class Jeu extends Thread{
         //Distribution des cartes de chaque joueur ainsi que celles de la table
         distribuerCartesJoueurs();
         distribuerCartesTable();
-        joueurs.getJoueurs().forEach(j -> j.setArgent(3000)); //On distribue une quantité d'argent initiale à chaque joueur
+        joueurs.getJoueurs().forEach(j -> j.setArgent(10000)); //On distribue une quantité d'argent initiale à chaque joueur
 
         //Initialization des attributs pour la première tournée
         valeurSmallBlind=10;
@@ -149,7 +149,7 @@ public class Jeu extends Thread{
         if(gagnantsDeLaTournee==null){
             throw new Exception("LinkedList<Joueur> gagnantsDeLaTournee non initialisée");
         }
-        Node current = joueursDansLaTournee.getNodePlaying();
+        Node current = joueursDansLaTournee.getNodeBigBlind().prochainNode;
         Node dernierAParier = current;
         boolean tourFini = false;
         boolean controle = false; //boolean controle utilisé pour assurer que le premier joueur a déjà joué par le première fois

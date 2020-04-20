@@ -19,9 +19,9 @@ public class Joueur implements Comparable {
     protected int dernierValeurPariee=0;
     protected int action=-1;
 
-    public Joueur (String nom){
+    public Joueur (String nom, boolean humain){
         this.nom = nom;
-        humain=true;
+        this.humain=humain;
     }
 
     public void setAction(int action, int valeurPariActuelle) throws Exception {
@@ -42,13 +42,8 @@ public class Joueur implements Comparable {
         this.action=action;
     }
 
-    public void parier(int quantite) throws Exception{
-        if(quantite>argent){
-            throw new Exception("Joueur "+nom+": Pari supérieur a la quantite d'argent.");
-        }
-        else{
-            argent=argent-quantite;
-        }
+    public void parier(int quantite){
+        argent-=quantite;
     }
 
     public int getArgent(){
