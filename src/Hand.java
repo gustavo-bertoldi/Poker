@@ -155,7 +155,6 @@ public class Hand  implements Comparable{
         int qp=0; //QUANTITE DE CARTES DE PIQUES
         int qk=0; //QUANTITR DE CARTES DE CARREAUX
         LinkedList<Carte> flush=new LinkedList<>();
-
         /*
         La boucle compte la quantité de cartes de chaque couleur dans la hand
          */
@@ -207,9 +206,7 @@ public class Hand  implements Comparable{
         }
         if(flush.size()>=5) {
             Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
-            while (flush.size()>5){
-                flush.removeLast();
-            }
+            // flush() renvoie la totalite des cartes de la meme couleur, 5, 6 ou 7. (important pour straightFlush()), mais valeur calculé avec les 5 plus fortes
             return flush;
         }
         else{
@@ -248,81 +245,85 @@ public class Hand  implements Comparable{
     private LinkedList<Carte> straight(){
         // 5 das sete cartes sejam em sequencia // caso a parte pro As 2 3 4 5
         LinkedList<Carte> straight = new LinkedList<Carte>();
-        if(!isRoyalStraightPossible() && cartes.get(0).valeur==14){
-            cartes.get(0).valeur=1;
-            if(cartes.get(1).valeur==13) {
-                cartes.get(1).valeur = 1;
+
+        if(!isRoyalStraightPossible()){
+            for(Carte c : cartes){
+                if(c.valeur == 14){
+                    c.valeur=1;
+                }
             }
             Collections.sort(cartes, Collections.reverseOrder());
-            // si un troisieme ace dans la hand, Royal Straight false.
         }
-        straight.add(cartes.get(0));
-        for(int i =1; i<cartes.size() ;i++) {
+        straight.add(cartes.get(0)); // j'ajoute la carte la plus grande à straight
+        int j = 0; // position de la derniere carte ajoutée a straight
+        for(int i = 1; i<cartes.size() ;i++) {
+
             if(straight.size()<5) {
-                if (cartes.get(i - 1).valeur == (cartes.get(i).valeur + 1)) {
+                if (cartes.get(j).valeur == (cartes.get(i).valeur + 1)) {
+                    /*
+                    Comparer la dernière carte ajoutée à straight avec chaque carte de cartes;
+                    si valeur de la carte ajoutée == valeur carte comparée +1, on ajoute la carte a straight et j++
+                     */
                     straight.add(cartes.get(i));
-                } else if(cartes.get(i - 1).valeur == (cartes.get(i).valeur )) {
-                    // regarder si les couleurs sont égales à celles déjà ajoutées
-                    if(straight.get(0).couleur == cartes.get(i).couleur){
-                        straight.add(cartes.get(i));
-                    }
-                }else {
-                    straight.removeAll(straight);
+                    j++;
+                } else {
+                    straight.clear();
                     straight.add(cartes.get(i));
+                    j = 0; //reinitialiser j
                 }
             }
 
         }
 
-        if(straight.size() <5) {
+        if(straight.size() < 5) {
             straight = null;
             Collections.sort(cartes,Collections.reverseOrder());
-            if(cartes.getLast().valeur==1){ // si pas de straight 12345, rechanger la valeur du ace pour ne pas gener les autres methodes
-                cartes.getLast().valeur = 14;
+            for(Carte c: cartes){
+                if(c.valeur==1){ // si pas de straight 12345, rechanger la valeur des aces pour ne pas gener les autres methodes
+                    c.valeur = 14;
+                }
             }
+            Collections.sort(cartes,Collections.reverseOrder()); //retrier la hand
         }
-
 
         return straight;
     }
 
 
     private LinkedList<Carte> straight(LinkedList<Carte> flush){
-        // meme methode mais en utilisant flush a la place de cartes, appelle juste dans straightFlush()
+        // 5 das sete cartes sejam em sequencia // caso a parte pro As 2 3 4 5
         LinkedList<Carte> straight = new LinkedList<Carte>();
-        if(!isRoyalStraightPossible() && flush.get(0).valeur==14){
-            flush.get(0).valeur=1;
-            if(flush.get(1).valeur==13) {
-                flush.get(1).valeur = 1;
+
+        if(!isRoyalStraightPossible()){
+            for(Carte c : flush){
+                if(c.valeur == 14){
+                    c.valeur=1;
+                }
             }
             Collections.sort(flush, Collections.reverseOrder());
-            // si un troisieme ace dans la hand, Royal Straight false.
         }
-        straight.add(flush.get(0));
-        for(int i =1; i<flush.size() ;i++) {
+        straight.add(flush.get(0)); // j'ajoute la carte la plus grande à straight
+        int j = 0; // position de la derniere carte ajoutée a straight
+        for(int i = 1; i<flush.size() ;i++) {
+
             if(straight.size()<5) {
-                if (flush.get(i - 1).valeur == (flush.get(i).valeur + 1)) {
+                if (straight.get(j).valeur == (flush.get(i).valeur + 1)) {
+                    /*
+                    Comparer la dernière carte ajoutée à straight avec chaque carte de cartes;
+                    si valeur de la carte ajoutée == valeur carte comparée +1, on ajoute la carte a straight et j++
+                     */
                     straight.add(flush.get(i));
-                } else if(flush.get(i - 1).valeur == (flush.get(i).valeur )) {
-                    // regarder si les couleurs sont égales à celles déjà ajoutées
-                    if(straight.get(0).couleur == flush.get(i).couleur){
-                        straight.add(flush.get(i));
-                    }
-                }else {
-                    straight.removeAll(straight);
+                    j++;
+                } else {
+                    straight.clear();
                     straight.add(flush.get(i));
+                    j = 0; //reinitialiser j
                 }
             }
 
         }
-        for(Carte c : flush){
-            if(c.valeur==1){
-                c.valeur=14;
-            }
-        }
-        if(straight.size() <5) {
-            straight = null; // pas besoin de rechanger la valeur parce qu'on utilise flush et pas cartes
-        }
+        // Pour les cartes de flush, pas besoin de rechanger la valeur des aces, vu que ça ne change pas la valeur de la carte sur cartes, juste sur flush
+
         return straight;
     }
 
@@ -399,6 +400,9 @@ public class Hand  implements Comparable{
         }
         else if(flush()!=null){
             result.addAll(flush());
+            while(result.size()>5){
+                result.removeLast();
+            }
             valeurHand = 10000*result.getFirst().valeur + 1000*result.get(1).valeur + 100*result.get(2).valeur + 10*result.get(3).valeur + result.get(4).valeur;
             description = "Flush, carte haute "+result.getFirst().description(false);
         }
