@@ -4,39 +4,46 @@ import java.awt.event.ActionListener;
 
 public class EcouteurV2 implements ActionListener {
 
-    private FenetreJeuV2 fenetre;
+    private FenetreJeuV3 fenetre;
     private String fun;
 
-    public EcouteurV2(FenetreJeuV2 fenetre, String fonction){
+    public EcouteurV2(FenetreJeuV3 fenetre, String fonction){
         this.fenetre=fenetre;
         this.fun=fonction;
     }
 
     public void actionPerformed(ActionEvent e){
         if(fun == "restart"){
-            fenetre.restart();
+
         }
-        else if(fun == "commencer"){
-            fenetre.avancerJeu();
+        else if(fun == "Call"){
+            try {
+                fenetre.setActionJoueurHumain(1);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
-        else if(fun == "flop"){
-            fenetre.flop();
+        else if(fun == "Raise"){
+            try {
+                fenetre.setActionJoueurHumain(fenetre.getValeurRaiseSlider());
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
-        else if(fun == "turn"){
-            fenetre.turn();
+        else if(fun == "ProchaineTournee"){
+            try {
+                fenetre.prochaineTournee();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
-        else if(fun == "river"){
-            fenetre.river();
-        }
-        else if(fun == "call"){
-            fenetre.setActionJoueurHumain(1);
-        }
-        else if(fun == "raise"){
-            fenetre.setActionJoueurHumain(fenetre.getValeurRaiseSlider());
-        }
-        else if(fun == "fold"){
+        else if(fun == "Fold"){
             fenetre.foldJoueurHumain();
-            fenetre.setActionJoueurHumain(0);
+            try {
+                fenetre.setActionJoueurHumain(0);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
     }
 }
