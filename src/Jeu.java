@@ -42,7 +42,7 @@ public class Jeu {
         this.joueurs = new CircularLinkedList();
         creerListeNomsJoueursOrdinateurs();
         nomJoueurHumain = "BALTAZAR"; // ça viendra du constructeur, mais mis par default pour simplicite
-        joueurs.addNode(new Joueur(nomJoueurHumain));
+        joueurs.addNode(new Joueur(nomJoueurHumain, 0, this));
         for(int i=1;i<nJoueurs;i++){
             int r = (int)((nomsJoueursOrdinateurs.size())*Math.random());
             Joueur j = new Joueur(nomsJoueursOrdinateurs.get(r), niveau, this); // Ajouté pour pouvoir ajouter aussi a joueursCirc sans avoir a tt enlever
@@ -201,7 +201,6 @@ public class Jeu {
         do{
             current = current.prochainNode;
         }while(!current.joueur.playing);
-        System.out.println("joueur playing 1 = " + current.joueur.nom);
         return current;
     }
     /*
@@ -210,15 +209,18 @@ public class Jeu {
      */
     public void next(boolean dernierJoueur){ //dernierJoueur = joueur.position==(nJoueurs-1)
         Node current = getJoueurPlaying();
-        System.out.println("joueur playing" +current.joueur.nom);
+        changerJoueurPlaying(current);
+        System.out.println("joueur a joué " +current.joueur.nom);
+        System.out.println(getJoueurPlaying().joueur.nom + " devient playing");
         if(dernierJoueur){ //si position== jeu.getNJoueurs()-1, 2 cas: moment ==0, moment!=0
             if(moment==0 && pariActuel==valeurBigBlind){ // si personne n'a parie, le BB peut encore decider, le dernier sera forcement le BB
                 current.prochainNode.joueur.jouer(pariActuel, current.prochainNode.equals(getHead()), moment); //condition pour verifier si humain ou pas
+                
             }else{
                 nouveauTour();
             }
         }else{
-            changerJoueurPlaying(current);
+
             current.prochainNode.joueur.jouer(pariActuel, current.prochainNode.equals(getHead()), moment);
         }
         fenetreJeu.mettreFenAJour();
@@ -243,6 +245,7 @@ public class Jeu {
     }
 
     public void changerJoueurPlaying(Node joueurNode){
+        joueurNode.joueur.playing=false;
         joueurNode.prochainNode.joueur.playing = true;
     }
     public void avancerJeu(){

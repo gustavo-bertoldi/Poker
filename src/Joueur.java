@@ -45,7 +45,7 @@ public class Joueur implements Comparable{
         this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
-        this.intelligence = new Intelligence(niveau);
+        this.intelligence = new Intelligence(niveau, this, this.hand);
         this.coup = "";
         this.jeu = jeu;
     }
@@ -90,19 +90,21 @@ public class Joueur implements Comparable{
      */
     public void jouer(int pariActuel, boolean humain, int moment){
         if(humain){
-            playing = false;
             jouerHumain();
         } else{
-            playing = false;
             int decision = intelligence.decision(moment);
-            if(decision == -1) {
+            if(decision <0) {
                 fold();
+                System.out.println("fold");
             }else if(decision == 0){
                 check();
+                System.out.println("check");
             } else if(decision == 1){
                 call(pariActuel);
+                System.out.println("call");
             } else if(decision>1){
                 raise(decision);
+                System.out.println("raise");
             }
             if(jeu.moment==0 && bigBlind && pariActuel==jeu.valeurBigBlind){
                 jeu.nouveauTour();
@@ -132,7 +134,7 @@ public class Joueur implements Comparable{
             argent =0; //all IN
         }
         System.out.println(nom +"paye");
-        jeu.next(position==5);
+        jeu.next(position==0);
         System.out.println(nom +"next");
     }
     public void raise(int pari){

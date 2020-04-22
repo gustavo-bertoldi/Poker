@@ -244,28 +244,23 @@ public class Hand  implements Comparable{
         }
     }
 
-    // si straight
+    // ne pas s'embetter avec straight flush
+
     private LinkedList<Carte> straight(){
         // 5 das sete cartes sejam em sequencia // caso a parte pro As 2 3 4 5
         LinkedList<Carte> straight = new LinkedList<Carte>();
         if(!isRoyalStraightPossible() && cartes.get(0).valeur==14){
             cartes.get(0).valeur=1;
-            if(cartes.get(1).valeur==13) {
-                cartes.get(1).valeur = 1;
-            }
             Collections.sort(cartes, Collections.reverseOrder());
-            // si un troisieme ace dans la hand, Royal Straight false.
         }
         straight.add(cartes.get(0));
-        for(int i =1; i<cartes.size() ;i++) {
+
+        for(int i = 1; i<cartes.size() ;i++) {
             if(straight.size()<5) {
                 if (cartes.get(i - 1).valeur == (cartes.get(i).valeur + 1)) {
                     straight.add(cartes.get(i));
                 } else if(cartes.get(i - 1).valeur == (cartes.get(i).valeur )) {
                     // regarder si les couleurs sont égales à celles déjà ajoutées
-                    if(straight.get(0).couleur == cartes.get(i).couleur){
-                        straight.add(cartes.get(i));
-                    }
                 }else {
                     straight.removeAll(straight);
                     straight.add(cartes.get(i));
@@ -280,6 +275,7 @@ public class Hand  implements Comparable{
             if(cartes.getLast().valeur==1){ // si pas de straight 12345, rechanger la valeur du ace pour ne pas gener les autres methodes
                 cartes.getLast().valeur = 14;
             }
+            Collections.sort(cartes,Collections.reverseOrder()); //retrier la hand
         }
 
 

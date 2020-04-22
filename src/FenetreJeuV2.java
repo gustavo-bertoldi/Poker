@@ -495,6 +495,7 @@ public class FenetreJeuV2 extends JFrame {
         jeu.getHeadJoueur().call(jeu.pariActuel);
         cacherBoutons();
         jeu.next(jeu.getHeadJoueur().position==jeu.getNJoueurs()-1);
+        mettreAJourInfosJoueur(jeu.getHeadJoueur());
         revalidate();
         repaint();
     }

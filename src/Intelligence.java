@@ -41,10 +41,10 @@ public class Intelligence {
      */
     private ArrayList<Integer> blef = new ArrayList<>();// Array pour avoir contains()
 
-    public Intelligence(int i,Joueur j,Hand h) {
+    public Intelligence(int i, Joueur j, Hand hand) {
         niveau = i; //i donne par Jeu
-        this.joueur=j;
-        this.hand=h;
+        this.joueur = j;
+        this.hand = hand;
     }
    /* public void setSurMain(LinkedList<Carte> surMain){
         this.surMain = surMain;
@@ -55,64 +55,29 @@ public class Intelligence {
         hand.setHand(tourneesSurTable);
     }*/
 
-    public boolean Jouable(){// methode pour sortir si on a pas mieu que hotaur as
-		int v=0;
-		v= hand.getValeurHand();
-			if (v<15){
-			return false;
-		}
-   /* public int decision(){
-        return 0;
-    }*/
-
-
-    /*public void setRangeBet(){
-         ajouter methode prenant en compte qualite main
-    }
-    * */
-
-   public char jouer(int pariActuel; int argentJoueur){
-        //Cas de l'intelligence aléatoire
-        if(niveau==0){
-            int r = (int) (Math.random() * 3);
-            if(r==0){
-                return 'f';
-            }
-
-            else if(r==1){
-                return 'c';
-            }
-
-            else{
-                int raise = pariActuel + (int)((argentJoueur+1)*Math.random());
-                return 'r';
-            }
+    public boolean Jouable() {// methode pour sortir si on a pas mieu que hotaur as
+        int v = 0;
+        v = hand.getValeurHand();
+        if (v < 15) {
+            return false;
         }
-        else{
-			if(niveau ==1){
-				int v= hand.getValeurHand();
-				if (joueur.getArgent()>= pariActuel+100){
-					if ( Jouable()== true){
-						if( v<14001){		// egaler la mise pour continuer dans le jeu si on a inferieur a 2 paires
-							return "c";
-						}
-						else{
-							joueur.parier(pariActuel+(int)(Math.random()*((10-1)+1)*10));// aumenter la mise d'une quntiter aleatoire entre 0-100
-							return "r";
-						}
-					}
-				else {
-					return "f";// joueur ne joue pas ce tour et couche
-				}
-				}
-				}
+        return false;
+    }
 
-			else{
-            return 'a';
-         }
-	 }
-	 }
+    public int decision(int moment){
+        int decision = 0;
+        if(niveau==0) {
+            int puissance = (int)(Math.random()*10);
+            decision = (int)((Math.random()*Math.PI/2)*Math.pow(-1,puissance));
+        }
+
+        return decision;
+    }
 
 
-}
+    public void setRangeBet(){
+        // ajouter methode prenant en compte qualite main
+    }
+
+
 }
