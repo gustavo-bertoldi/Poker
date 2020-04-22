@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 public class FenetreJeuV3 extends JFrame {
 
-    private ImageIcon carteTournee;
+    private final ImageIcon carteTournee;
     private JPanel table, pannelBoutons,cartesTable, pannelSlider, principal, handGagnante;
     private HashMap<Joueur, JPanel> panneauxJoueurs, cartesJoueurs;
     private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
@@ -70,8 +70,7 @@ public class FenetreJeuV3 extends JFrame {
 
 
         //Création de l'icone de la carte tournée
-        carteTournee = new ImageIcon("src/res/back.png");
-        carteTournee = Carte.redimensioner(84, 112, carteTournee);
+        carteTournee = Carte.redimensioner(84, 112, new ImageIcon("src/res/back.png"));
 
         //Configuration du raiseSlider
         raiseSlider = new JSlider();
@@ -111,6 +110,11 @@ public class FenetreJeuV3 extends JFrame {
         this.setVisible(true);
     }
 
+    public void nouvelleTournee() throws Exception {
+        jeu.prochaineTournee();
+
+    }
+
     public void creerTable(){
         iconCartesTable.addAll(jeu.getIconCartesTable());
         for(int i=0; i<5; i++){
@@ -125,31 +129,6 @@ public class FenetreJeuV3 extends JFrame {
         valeurPot.setText("Pot : "+jeu.potActuel);
     }
 
-    public void nouvelleTournee(){
-        cartesJoueurs = new LinkedHashMap<>();
-        infosJoueur = new LinkedHashMap<>();
-        coupsJoueur = new LinkedHashMap<>();
-        panneauxJoueurs = new LinkedHashMap<>();
-        iconCartesJoueurs = new LinkedHashMap<>();
-        jeu.getJoueurs().getJoueurs().forEach(joueur ->
-                {cartesJoueurs.put(joueur,new JPanel(layoutCartes));
-                    infosJoueur.put(joueur,new JLabel("",SwingConstants.CENTER));
-                    coupsJoueur.put(joueur, new JLabel("", SwingConstants.CENTER));
-                    panneauxJoueurs.put(joueur, new JPanel(new BorderLayout()));
-                    iconCartesJoueurs.put(joueur, new LinkedList<>());
-                }
-        );
-
-        iconCartesTable = new LinkedList<>();
-        cartesTable.removeAll();
-        table.removeAll();
-        handGagnante.removeAll();
-        gbcPrincipal = new GridBagConstraints();
-
-        creerLayout();
-
-
-    }
 
     public void creerPanneauxJoueurs(){
         Node current = jeu.getJoueurs().getNodeHumain();
@@ -370,9 +349,6 @@ public class FenetreJeuV3 extends JFrame {
         prochaineTournee.setVisible(true);
     }
 
-    public void prochaineTournee() throws Exception {
-        jeu.prochaineTournee();
-    }
 
     public int getValeurRaiseSlider(){
         return raiseSlider.getValue();

@@ -54,6 +54,17 @@ public class Joueur implements Comparable{
         this.cartesSurMain = cartesSurMain;
     }
 
+    public void payerBigBlind(int bigBlind, FenetreJeuV3 fenetre){
+        coup = "Paye BigBlind "+bigBlind;
+        parier(bigBlind);
+        fenetre.mettreAJourInfosJoueur(this);
+    }
+    public void payerSmallBlind(int smallBlind, FenetreJeuV3 fenetre){
+        coup = "Paye SmallBlind "+smallBlind;
+        parier(smallBlind);
+        fenetre.mettreAJourInfosJoueur(this);
+    }
+
     public void setAction(int action, int valeurPari, Jeu jeu) throws Exception {
         if(action==0){
             coup="Fold";
@@ -75,7 +86,7 @@ public class Joueur implements Comparable{
             jeu.potActuel = jeu.potActuel+action;
             coup="Raise "+action;
             parier(action);
-            jeu.dernierAParier = jeu.joueursDansLaTournee.getNodeAnterieur(this).joueur;
+            jeu.dernierAParier = (jeu.joueursDansLaTournee.getNodeAnterieur(this)).joueur;
         }
         System.out.println("Joueur : "+this.nom+", "+this.coup);
         dejaJoue=true;

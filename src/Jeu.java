@@ -88,6 +88,8 @@ public class Jeu extends Thread {
         //Initialisation de l'interface graphique
         fenetre = new FenetreJeuV3(this);
 
+        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, fenetre);
+        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, fenetre);
         if (!joueurActuel.joueur.humain) {
             long waitTime = System.currentTimeMillis() + 3000;
             while (System.currentTimeMillis() != waitTime) {
@@ -176,9 +178,8 @@ public class Jeu extends Thread {
     }
 
     public void prochaineTournee() throws Exception {
-        long waitTime = System.currentTimeMillis() + 5000;
-        while (System.currentTimeMillis() != waitTime) {
-        }
+        fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
+        joueurs.getJoueurs().forEach(joueur -> joueur.coup="");
         joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
         Node ancienDealer = joueursDansLaTournee.getNodeDealer();
         joueursDansLaTournee.getJoueurs().forEach(Joueur::resetRolesJeu);
@@ -205,14 +206,14 @@ public class Jeu extends Thread {
         table = new Table();
         distribuerCartesJoueurs();
         distribuerCartesTable();
-        fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
-        fenetre = new FenetreJeuV3(this);
-        fenetre.effacerCoupsJoueur();
-
-
+        Thread reconstruireFenetre = new Thread(() -> fenetre = new FenetreJeuV3(this));
+        reconstruireFenetre.start();
+        while(reconstruireFenetre.isAlive()){};
+        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, fenetre);
+        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, fenetre);
         if (!joueurActuel.joueur.humain) {
             ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
-        }
+         }
     }
 
     public void prochainJoueur() throws Exception {
@@ -225,7 +226,7 @@ public class Jeu extends Thread {
         if (joueursDansLaTournee.size() == 1) {
             tourneeFinie();
         } else if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 1500;
+            long waitTime = System.currentTimeMillis() + 1000;
             while (System.currentTimeMillis() != waitTime) {
             }
             ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
@@ -244,8 +245,8 @@ public class Jeu extends Thread {
             while (System.currentTimeMillis() != waitTime) {
             }
             fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueursDansLaTournee.getNodeAnterieur(joueurActuel.joueur).joueur;
+            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying()); //Sera le prochain lors de l'execution de prochainJoueur()
+            dernierAParier = joueurActuel.joueur;
             prochainJoueur();
         }
         else if (!turn) {
@@ -258,7 +259,7 @@ public class Jeu extends Thread {
             }
             fenetre.effacerCoupsJoueur();
             joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueursDansLaTournee.getNodeAnterieur(joueurActuel.joueur).joueur;
+            dernierAParier = joueurActuel.joueur;
             prochainJoueur();
         }
         else if (!river){
@@ -271,7 +272,7 @@ public class Jeu extends Thread {
             }
             fenetre.effacerCoupsJoueur();
             joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueursDansLaTournee.getNodeAnterieur(joueurActuel.joueur).joueur;
+            dernierAParier = joueurActuel.joueur;
             prochainJoueur();
         }
         else {

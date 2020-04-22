@@ -32,7 +32,7 @@ public class EcouteurV2 implements ActionListener {
         }
         else if(fun == "ProchaineTournee"){
             try {
-                fenetre.prochaineTournee();
+                fenetre.nouvelleTournee();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
