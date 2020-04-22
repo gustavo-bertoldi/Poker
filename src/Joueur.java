@@ -15,6 +15,7 @@ public class Joueur implements Comparable{
     protected boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
     protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
     protected boolean playing = false;
+    protected boolean humain;
 
     protected int action;
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
@@ -22,7 +23,7 @@ public class Joueur implements Comparable{
 
      */
 
-    public Joueur(String nom){ // création joueur humain
+    public Joueur(String nom, boolean humain){ // création joueur humain
         this.nom=nom;
         this.argent=0;
         this.dealer=false;
@@ -31,22 +32,9 @@ public class Joueur implements Comparable{
         this.smallBlind=false;
         this.intelligence = null;
         this.coup = "";
+        this.humain=humain;
     }
 
-    /*
-    Constructeur pour creer un joueur ordinateur, prend en parametre le niveau d'inteligence
-    @param - int niveau - niveau d'inteligence de l'ordi
-     */
-    public Joueur(String nom, int niveau){
-        this.argent=0;
-        this.nom=nom;
-        this.dealer=false;
-        this.dansJeu=true;
-        this.bigBlind=false;
-        this.smallBlind=false;
-        this.intelligence = new Intelligence(niveau);
-        this.coup = "";
-    }
     /*
     Retourne la hand actuelle du joueur en forme de ll de cartes
      */
@@ -60,7 +48,7 @@ public class Joueur implements Comparable{
         dansJeu=false;
     }
 
-    public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
+    public void setHand(LinkedList<Carte> cartesSurTable){
         hand.setHand(cartesSurMain,cartesSurTable);
     }
 
@@ -68,19 +56,68 @@ public class Joueur implements Comparable{
         this.cartesSurMain = cartesSurMain;
     }
 
-    public void setAction(int action, int valeurPari){
+    public void setAction(int action, int valeurPari, Jeu jeu) throws Exception {
         if(action==0){
             coup="Fold";
+            jeu.sortirDeLaTournee(this);
+            jeu.fenetre.enleverCartesJoueur(this);
         }
         else if(action==1){
-            coup="Call "+valeurPari;
+            if(valeurPari==0) {
+                coup = "Check";
+            }
+            else{
+                coup="Call "+valeurPari;
+            }
+            jeu.potActuel = jeu.potActuel+valeurPari;
             parier(valeurPari);
         }
         else{
+            jeu.pariActuel=action;
+            jeu.potActuel = jeu.potActuel+action;
             coup="Raise "+action;
             parier(action);
+            jeu.dernierAParier = jeu.joueursDansLaTournee.getNodeAnterieur(this).joueur;
         }
+        System.out.println("Joueur : "+this.nom+", "+this.coup);
+        dejaJoue=true;
         this.action=action;
+        jeu.fenetre.mettreAJourInfosJoueur(this);
+        jeu.fenetre.mettreAJourValuerPot();
+        if(jeu.joueurActuel.joueur.equals(jeu.dernierAParier)){
+            System.out.println("tour de paris fini");
+            jeu.tourDeParisFini();
+        }
+        else {
+            jeu.prochainJoueur();
+        }
+    }
+
+    public void setActionJoueurHumain(int action, int pariActul, Jeu jeu) {
+        Runnable setActionJoueurHumain = () -> {
+            try {
+                setAction(action,pariActul,jeu);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+        Thread setAction = new Thread(setActionJoueurHumain);
+        setAction.start();
+    }
+
+
+    public void setRoleJeu(boolean dealer, boolean smallBlind, boolean bigBlind, boolean playing){
+        this.dealer=dealer;
+        this.smallBlind=smallBlind;
+        this.bigBlind=bigBlind;
+        this.playing=playing;
+    }
+
+    public void resetRolesJeu(){
+        dealer=false;
+        bigBlind=false;
+        smallBlind=false;
+        playing=false;
     }
 
 
@@ -88,6 +125,10 @@ public class Joueur implements Comparable{
         Retourne les deux cartes initiales du joueur e forme de ll de cartes
          */
     public LinkedList<Carte> getCartesSurMain(){return cartesSurMain;}
+
+    public LinkedList<Carte> getCartesHand(){
+        return hand.getCartesHand();
+    }
 
     /*
     Permet au joueur de parier si la quantite desiree est inferieure ou egale à la somme d'argent
@@ -103,20 +144,9 @@ public class Joueur implements Comparable{
         }
     }
 
+
     /*
-    METHODE A CREER
-     */
-    public void jouer(int pariActuel){
-        while (!dejaJoue){
-            if(dejaJoue){
-                break;
-            }
-            System.out.print("");
-        }
-        dejaJoue=false;
-    }
-    /*
-    Retroune la somme d'argent actuelle
+    Retourne la somme d'argent actuelle
      */
     public int getArgent(){
         return argent;
@@ -132,59 +162,9 @@ public class Joueur implements Comparable{
     Permet de modifier la somme d'argent actuelle, au cas ou le joueur ait gagne ou perdu de l'argent
      */
     public void ajouterArgent(int q){
-        this.argent += q;}
-
-
-    /*
-    Permet de definir le joueur comme dealer
-     */
-    public void setDealer(){
-        this.dealer=true;
+        this.argent += q;
     }
 
-    /*
-    Retourne TRUE si le jouer est le dealer, sinon retourne FALSE
-     */
-    public boolean isDealer(){
-        return dealer;
-    }
-
-
-
-    /*
-    Retourne TRUE si le joueur est actif dans le jeu, sinon retourne FALSE
-     */
-    public boolean isDansJeu(){
-        return dansJeu;
-    }
-
-    /*
-    Permet de definir le joueur comme le big blind
-     */
-    public void setBigBlind(){
-        bigBlind=true;
-    }
-
-    /*
-    Permet de definir le joueur comme le small blind
-     */
-    public void setSmallBlind(){
-        smallBlind=true;
-    }
-
-    /*
-    Retourne TRUE si le joueur est le big blind, sinon retourne false
-     */
-    public boolean isBigBlind() {
-        return bigBlind;
-    }
-
-    /*
-    Retourne TRUE si le joueur est le small blind, sinon retourne false
-     */
-    public boolean isSmallBlind(){
-        return smallBlind;
-    }
 
 
     /*
