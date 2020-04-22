@@ -211,9 +211,6 @@ public class Jeu extends Thread {
 
 
         if (!joueurActuel.joueur.humain) {
-            waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
             ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
         }
     }

@@ -7,7 +7,6 @@ public class Joueur implements Comparable{
     protected String nom; //Nom du joueur
     private static LinkedList<String> nomsJoueursOrdinateurs;
     private int argent; //L'ARGENT
-    protected Intelligence intelligence;
     protected String coup;
     //Attributs à utiliser pour déroulement du jeu
     protected boolean dealer; //SI LE JOUEUR EST LE DEALER
@@ -30,7 +29,6 @@ public class Joueur implements Comparable{
         this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
-        this.intelligence = null;
         this.coup = "";
         this.humain=humain;
     }
