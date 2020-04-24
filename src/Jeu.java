@@ -174,7 +174,7 @@ public class Jeu extends Thread {
 
     public void prochaineTournee() throws Exception {
         fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
-        smallBlindDansJeu = false;
+        smallBlindDansJeu = true;
         joueurs.getJoueurs().forEach(joueur -> {
             joueur.coup="";
             if(joueur.getArgent()<=10 && joueur.dealer){

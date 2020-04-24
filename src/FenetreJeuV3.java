@@ -143,7 +143,7 @@ public class FenetreJeuV3 extends JFrame {
     }
 
     public void mettreAJourValuerPot(){
-        valeurPot.setText("Pot : "+jeu.potActuel);
+        valeurPot.setText("Pot : "+jeu.potActuel+" || Pari : "+jeu.pariActuel);
     }
 
 
@@ -367,7 +367,7 @@ public class FenetreJeuV3 extends JFrame {
 
     public void afficherBoutons(boolean afficher){
         mettreAJourRaiseSlider();
-        if(jeu.pariActuel==0) {
+        if((jeu.pariActuel-jeu.getJoueurHumain().derniereValeurPariee)==0) {
             call.setText("Check");
         }
         else {

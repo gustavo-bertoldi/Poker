@@ -65,8 +65,10 @@ public class Joueur implements Comparable{
         //Cas joueur a couché ses cartes et ne participe plus
         if(action==0){
             coup="Fold";
-            jeu.sortirDeLaTournee(this);
             jeu.fenetre.enleverCartesJoueur(this);
+            if(!humain) {
+                jeu.sortirDeLaTournee(this);
+            }
         }
         //Cas joueur a payé le pari
         else if(action==1){
@@ -118,9 +120,12 @@ public class Joueur implements Comparable{
         }
     }
 
-    public void setActionJoueurHumain(int action, int pariActuel, Jeu jeu){
+    public void setActionJoueurHumain(int action, int pariActuel, Jeu jeu) throws InterruptedException {
         Runnable setActionJoueurHumain = () -> {
             try {
+                if(action==0) {
+                    jeu.sortirDeLaTournee(this);
+                }
                 setAction(action,pariActuel,jeu);
             } catch (Exception e) {
                 e.printStackTrace();
