@@ -194,13 +194,16 @@ public class FenetreJeuV3 extends JFrame {
     public void mettreAJourInfosJoueur(Joueur j){
         coupsJoueur.get(j).setText(j.coup);
         if(j.dealer) {
-            infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent()+" || Dealer");
+            infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent()+" || Dealer");
         }
         else if (j.bigBlind){
-            infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent()+" || BigBlind");
+            infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent()+" || BigBlind");
         }
         else if (j.smallBlind){
-            infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent()+" || SmallBlind");
+            infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent()+" || SmallBlind");
+        }
+        else {
+            infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent());
         }
         revalidate();
         repaint();

@@ -62,7 +62,7 @@ public class Joueur implements Comparable{
     }
 
     public void setAction(int action, int valeurPari, Jeu jeu) throws Exception {
-        //Cas joueur a caché ses cartes et ne participe plus
+        //Cas joueur a couché ses cartes et ne participe plus
         if(action==0){
             coup="Fold";
             jeu.sortirDeLaTournee(this);
@@ -106,9 +106,9 @@ public class Joueur implements Comparable{
             jeu.dernierAParier = (jeu.joueursDansLaTournee.getNodeAnterieur(this)).joueur;
             derniereValeurPariee = action;
         }
-        System.out.println("Joueur : "+this.nom+", "+this.coup);
         jeu.fenetre.mettreAJourInfosJoueur(this);
         jeu.fenetre.mettreAJourValuerPot();
+        System.out.println("Joueur : "+this.nom+", "+this.coup);
         if(jeu.joueurActuel.joueur.equals(jeu.dernierAParier)){
             System.out.println("tour de paris fini");
             jeu.tourDeParisFini();
