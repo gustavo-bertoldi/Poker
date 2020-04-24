@@ -1,3 +1,5 @@
+import kotlin.reflect.jvm.internal.impl.load.java.structure.JavaLiteralAnnotationArgument;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
@@ -13,9 +15,10 @@ public class FenetreJeuV3 extends JFrame {
     private HashMap<Joueur, JPanel> panneauxJoueurs, cartesJoueurs;
     private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
     private HashMap<Joueur, LinkedList<ImageIcon>> iconCartesJoueurs;
+    Hashtable<Integer, JLabel> valeursSlider;
     private JButton call, raise, fold, restart, prochaineTournee;
     private JSlider raiseSlider;
-    private JLabel valeurPot;
+    private JLabel valeurPot, valeurActuelleSlider;
     private LinkedList<ImageIcon> iconCartesTable;
     private final FlowLayout layoutCartes;
     private GridBagConstraints gbcPrincipal;
@@ -40,8 +43,14 @@ public class FenetreJeuV3 extends JFrame {
         coupsJoueur = new HashMap<>();
         iconCartesJoueurs = new HashMap<>();
         iconCartesTable = new LinkedList<>();
-        pannelBoutons = new JPanel(new FlowLayout());
         valeurPot= new JLabel("",SwingConstants.CENTER);
+        raiseSlider = new JSlider();
+        valeurActuelleSlider = new JLabel("",SwingConstants.CENTER);
+        pannelSlider = new JPanel(new BorderLayout());
+        pannelSlider.add(valeurActuelleSlider,BorderLayout.SOUTH);
+        pannelSlider.add(raiseSlider,BorderLayout.CENTER);
+        pannelBoutons.add(pannelSlider, BorderLayout.SOUTH);
+        mettreAJourRaiseSlider();
 
         jeu.getJoueurs().getJoueurs().forEach(joueur ->
             {cartesJoueurs.put(joueur,new JPanel(layoutCartes));
@@ -72,34 +81,6 @@ public class FenetreJeuV3 extends JFrame {
         //Création de l'icone de la carte tournée
         carteTournee = Carte.redimensioner(84, 112, new ImageIcon("src/res/back.png"));
 
-        //Configuration du raiseSlider
-        raiseSlider = new JSlider();
-        JLabel valeurActuelleSlider = new JLabel("",SwingConstants.CENTER);
-        raiseSlider.setSnapToTicks(true);
-        raiseSlider.setMinorTickSpacing(20);
-        raiseSlider.setPaintLabels(true);
-        raiseSlider.setMinimum(jeu.valeurBigBlind*2);
-        raiseSlider.setMaximum(jeu.getJoueurHumain().getArgent());
-        Hashtable<Integer, JLabel> valeursSlider = new Hashtable();
-        valeursSlider.put(jeu.valeurBigBlind, new JLabel(""+jeu.valeurBigBlind));
-        valeursSlider.put(jeu.getJoueurHumain().getArgent(), new JLabel(""+jeu.getJoueurHumain().getArgent()));
-        raiseSlider.setLabelTable(valeursSlider);
-        raiseSlider.addChangeListener(e -> {
-            String text;
-            if (raiseSlider.getValue()==jeu.getJoueurHumain().getArgent()){
-                text="All in: "+raiseSlider.getValue();
-                valeurActuelleSlider.setText(text);
-            }
-            else {
-                text="Raise: " + raiseSlider.getValue();
-                valeurActuelleSlider.setText(text);
-            }
-            raise.setText(text);
-        });
-        pannelSlider = new JPanel(new BorderLayout());
-        pannelSlider.add(raiseSlider, BorderLayout.CENTER);
-        pannelSlider.add(valeurActuelleSlider, BorderLayout.SOUTH);
-        pannelBoutons.add(pannelSlider, BorderLayout.SOUTH);
 
         gbcPrincipal = new GridBagConstraints();
         principal = new JPanel(new GridBagLayout());
@@ -112,6 +93,42 @@ public class FenetreJeuV3 extends JFrame {
 
     public void nouvelleTournee() throws Exception {
         jeu.prochaineTournee();
+
+    }
+
+    public void mettreAJourRaiseSlider(){
+        raiseSlider.removeAll();
+        valeursSlider= new Hashtable<>();
+        if(jeu.pariActuel==0){
+            raiseSlider.setMinimum(10);
+            valeursSlider.put(10,new JLabel("10"));
+        }
+        else {
+            raiseSlider.setMinimum(jeu.pariActuel*2);
+            valeursSlider.put(jeu.pariActuel*2,new JLabel(""+raiseSlider.getMinimum()));
+        }
+        raiseSlider.setMaximum(jeu.getJoueurHumain().getArgent());
+        valeursSlider.put(raiseSlider.getMaximum(),new JLabel(""+raiseSlider.getMaximum()));
+        raiseSlider.setLabelTable(valeursSlider);
+        raiseSlider.setMinorTickSpacing(10);
+        raiseSlider.setMajorTickSpacing(500);
+        raiseSlider.setSnapToTicks(true);
+        raiseSlider.setValue(raiseSlider.getMinimum());
+        raiseSlider.setPaintLabels(true);
+        raiseSlider.addChangeListener(e -> {
+            String text;
+            if (raiseSlider.getValue()==jeu.getJoueurHumain().getArgent()){
+                text="All in: "+raiseSlider.getValue();
+                valeurActuelleSlider.setText(text);
+            }
+            else {
+                text="Raise: " + raiseSlider.getValue();
+                valeurActuelleSlider.setText(text);
+            }
+            raise.setText(text);
+        });
+        revalidate();
+        repaint();
 
     }
 
@@ -136,25 +153,31 @@ public class FenetreJeuV3 extends JFrame {
         for (int i=0; i<jeu.nJoueurs; i++){
             Joueur j = current.joueur;
             System.out.println("Current : "+j.nom);
-            j.getCartesSurMain().forEach(Carte -> {iconCartesJoueurs.get(j).add(Carte.icon);
-                cartesJoueurs.get(j).add(new JLabel(carteTournee));}
+            if(j.dansJeu) {
+                j.getCartesSurMain().forEach(Carte -> {
+                            iconCartesJoueurs.get(j).add(Carte.icon);
+                            cartesJoueurs.get(j).add(new JLabel(carteTournee));
+                        }
                 );
-            if (j.dealer){
-                infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+"|| Dealer");
-            }
-            else if (j.smallBlind){
-                infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+"|| Small Blind");
-            }
-            else if (j.bigBlind){
-                infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent()+"|| Big Blind");
+                if (j.dealer) {
+                    infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent() + "|| Dealer");
+                } else if (j.smallBlind) {
+                    infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent() + "|| Small Blind");
+                } else if (j.bigBlind) {
+                    infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent() + "|| Big Blind");
+                } else {
+                    infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent());
+                }
+                coupsJoueur.get(j).setText(j.coup);
+                panneauxJoueurs.get(j).add(cartesJoueurs.get(j), BorderLayout.NORTH);
+                panneauxJoueurs.get(j).add(infosJoueur.get(j), BorderLayout.CENTER);
+                panneauxJoueurs.get(j).add(coupsJoueur.get(j), BorderLayout.SOUTH);
             }
             else {
-                infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent());
+                JPanel plusDArgent = new JPanel();
+                plusDArgent.add(new JLabel(j.nom+" || Hors jeu"));
+                panneauxJoueurs.get(j).add(plusDArgent);
             }
-            coupsJoueur.get(j).setText(j.coup);
-            panneauxJoueurs.get(j).add(cartesJoueurs.get(j), BorderLayout.NORTH);
-            panneauxJoueurs.get(j).add(infosJoueur.get(j), BorderLayout.CENTER);
-            panneauxJoueurs.get(j).add(coupsJoueur.get(j), BorderLayout.SOUTH);
             current=current.prochainNode;
         }
     }
@@ -170,7 +193,15 @@ public class FenetreJeuV3 extends JFrame {
 
     public void mettreAJourInfosJoueur(Joueur j){
         coupsJoueur.get(j).setText(j.coup);
-        infosJoueur.get(j).setText(j.nom+" || Argent: "+j.getArgent());
+        if(j.dealer) {
+            infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent()+" || Dealer");
+        }
+        else if (j.bigBlind){
+            infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent()+" || BigBlind");
+        }
+        else if (j.smallBlind){
+            infosJoueur.get(j).setText(j.nom + " || Argent: " + j.getArgent()+" || SmallBlind");
+        }
         revalidate();
         repaint();
     }
@@ -282,7 +313,8 @@ public class FenetreJeuV3 extends JFrame {
             gbcPrincipal.gridx = 3;
             gbcPrincipal.gridy = 2;
             gbcPrincipal.gridwidth = 2;
-            gbcPrincipal.anchor=GridBagConstraints.CENTER;
+            gbcPrincipal.insets = new Insets(0, 0, 10, 10);
+            gbcPrincipal.anchor=GridBagConstraints.SOUTHEAST;
             principal.add(pannelBoutons, gbcPrincipal);
 
             //Hand gagnante - bas
@@ -331,11 +363,12 @@ public class FenetreJeuV3 extends JFrame {
     }
 
     public void afficherBoutons(boolean afficher){
+        mettreAJourRaiseSlider();
         if(jeu.pariActuel==0) {
             call.setText("Check");
         }
         else {
-            call.setText("Call: "+jeu.pariActuel);
+            call.setText("Call: "+(jeu.pariActuel - jeu.getJoueurHumain().derniereValeurPariee));
         }
         pannelBoutons.setVisible(afficher);
     }

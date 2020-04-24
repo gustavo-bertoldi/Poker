@@ -3,21 +3,21 @@ import java.util.LinkedList;
 public class Joueur implements Comparable{
 
     private Hand hand= new Hand();
-    private LinkedList<Carte> cartesSurMain = new LinkedList<>(); //Ll avec les deux cartes initiales sur la main du joueur
     protected String nom; //Nom du joueur
-    private static LinkedList<String> nomsJoueursOrdinateurs;
-    private int argent; //L'ARGENT
+    private int argent;
     protected String coup;
+
     //Attributs à utiliser pour déroulement du jeu
     protected boolean dealer; //SI LE JOUEUR EST LE DEALER
-    protected boolean dansJeu; //SI LE JOUEUR EST ACTIF DANS LA UNE TOURNéE (NA PAS FOLDÉ)
     protected boolean bigBlind; //SI LE JOUEUR EST LE BIG BLIND, PAS UTILISE JUSQUICI
     protected boolean smallBlind; //SI LE JOUEUR EST LE SMALL BLIND, PAS UTILISE JUSQUICI
-    protected boolean playing = false;
+    protected boolean playing;
     protected boolean humain;
-
-    protected int action;
+    protected int derniereValeurPariee;
     protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
+    protected boolean dansJeu;
+    protected boolean allIn;
+    protected int valeurAllIn;
     /*
 
      */
@@ -26,11 +26,13 @@ public class Joueur implements Comparable{
         this.nom=nom;
         this.argent=0;
         this.dealer=false;
-        this.dansJeu=true;
         this.bigBlind=false;
         this.smallBlind=false;
-        this.coup = "";
+        this.coup ="";
         this.humain=humain;
+        this.derniereValeurPariee=0;
+        this.dansJeu=true;
+        this.allIn=false;
     }
 
     /*
@@ -40,57 +42,71 @@ public class Joueur implements Comparable{
         return hand;
     }
 
-    public void fold(){
-        action=0;
-        coup="Fold";
-        dansJeu=false;
-    }
-
-    public void setHand(LinkedList<Carte> cartesSurTable){
+    public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
         hand.setHand(cartesSurMain,cartesSurTable);
     }
 
-    public void setCartesSurMain(LinkedList<Carte> cartesSurMain) {
-        this.cartesSurMain = cartesSurMain;
-    }
-
-    public void payerBigBlind(int bigBlind, FenetreJeuV3 fenetre){
+    public void payerBigBlind(int bigBlind, Jeu jeu){
         coup = "Paye BigBlind "+bigBlind;
         parier(bigBlind);
-        fenetre.mettreAJourInfosJoueur(this);
+        derniereValeurPariee=bigBlind;
+        jeu.potActuel=jeu.potActuel+bigBlind;
+        jeu.fenetre.mettreAJourInfosJoueur(this);
     }
-    public void payerSmallBlind(int smallBlind, FenetreJeuV3 fenetre){
+    public void payerSmallBlind(int smallBlind, Jeu jeu){
         coup = "Paye SmallBlind "+smallBlind;
         parier(smallBlind);
-        fenetre.mettreAJourInfosJoueur(this);
+        derniereValeurPariee=smallBlind;
+        jeu.potActuel=jeu.potActuel+smallBlind;
+        jeu.fenetre.mettreAJourInfosJoueur(this);
     }
 
     public void setAction(int action, int valeurPari, Jeu jeu) throws Exception {
+        //Cas joueur a caché ses cartes et ne participe plus
         if(action==0){
             coup="Fold";
             jeu.sortirDeLaTournee(this);
             jeu.fenetre.enleverCartesJoueur(this);
         }
+        //Cas joueur a payé le pari
         else if(action==1){
-            if(valeurPari==0) {
+            if(valeurPari==0 || valeurPari==derniereValeurPariee) {
                 coup = "Check";
             }
             else{
-                coup="Call "+valeurPari;
+                //Cas où la valeur de pari est supérieure à l'argent du joueur - All in pour jouer
+                if(valeurPari>=argent){
+                    coup="Call - All in "+(argent);
+                    jeu.potActuel = jeu.potActuel + argent;
+                    parier(argent);
+                    derniereValeurPariee=argent;
+                }
+                else {
+                    coup = "Call " + (valeurPari - derniereValeurPariee);
+                    parier(valeurPari - derniereValeurPariee);
+                    jeu.potActuel = jeu.potActuel + (valeurPari - derniereValeurPariee);
+                    derniereValeurPariee = valeurPari;
+                }
             }
-            jeu.potActuel = jeu.potActuel+valeurPari;
-            parier(valeurPari);
         }
+        //Cas joueur a augmenté le pari
         else{
-            jeu.pariActuel=action;
-            jeu.potActuel = jeu.potActuel+action;
-            coup="Raise "+action;
-            parier(action);
+            if(action>=argent){
+                coup="All in "+(argent);
+                jeu.pariActuel = argent;
+                jeu.potActuel = jeu.potActuel + (argent);
+                parier(action);
+            }
+            else {
+                jeu.pariActuel = action;
+                jeu.potActuel = jeu.potActuel + (action - derniereValeurPariee);
+                coup = "Raise " + (action);
+                parier(action - derniereValeurPariee);
+            }
             jeu.dernierAParier = (jeu.joueursDansLaTournee.getNodeAnterieur(this)).joueur;
+            derniereValeurPariee = action;
         }
         System.out.println("Joueur : "+this.nom+", "+this.coup);
-        dejaJoue=true;
-        this.action=action;
         jeu.fenetre.mettreAJourInfosJoueur(this);
         jeu.fenetre.mettreAJourValuerPot();
         if(jeu.joueurActuel.joueur.equals(jeu.dernierAParier)){
@@ -102,10 +118,10 @@ public class Joueur implements Comparable{
         }
     }
 
-    public void setActionJoueurHumain(int action, int pariActul, Jeu jeu) {
+    public void setActionJoueurHumain(int action, int pariActuel, Jeu jeu){
         Runnable setActionJoueurHumain = () -> {
             try {
-                setAction(action,pariActul,jeu);
+                setAction(action,pariActuel,jeu);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -127,13 +143,11 @@ public class Joueur implements Comparable{
         bigBlind=false;
         smallBlind=false;
         playing=false;
+        derniereValeurPariee=0;
     }
 
 
-    /*
-        Retourne les deux cartes initiales du joueur e forme de ll de cartes
-         */
-    public LinkedList<Carte> getCartesSurMain(){return cartesSurMain;}
+    public LinkedList<Carte> getCartesSurMain(){return hand.getSurMain();}
 
     public LinkedList<Carte> getCartesHand(){
         return hand.getCartesHand();
@@ -141,16 +155,14 @@ public class Joueur implements Comparable{
 
     /*
     Permet au joueur de parier si la quantite desiree est inferieure ou egale à la somme d'argent
-    @param int q - quantite a parier
+    @param int q - quantité a parier
      */
-    public boolean parier(int q){
-        if(q<=argent) {
-            argent = argent - q;
-            return true;
+    public void parier(int q){
+        if(q>=argent) {
+            q=argent;
+            allIn=true;
         }
-        else{
-            return false;
-        }
+        argent = argent - q;
     }
 
 

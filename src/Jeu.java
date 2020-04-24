@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Jeu extends Thread {
 
@@ -27,6 +28,7 @@ public class Jeu extends Thread {
     protected int potActuel;
     protected Joueur dernierAParier;
     protected Node joueurActuel;
+    private boolean smallBlindDansJeu;
 
     /*      DÉROULEMENT JEU
     - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
@@ -82,14 +84,13 @@ public class Jeu extends Thread {
 
         paquet = new Paquet();
         table = new Table();
-        distribuerCartesJoueurs();
-        distribuerCartesTable();
+        distribuerCartes();
 
         //Initialisation de l'interface graphique
         fenetre = new FenetreJeuV3(this);
 
-        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, fenetre);
-        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, fenetre);
+        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, this);
+        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, this);
         if (!joueurActuel.joueur.humain) {
             long waitTime = System.currentTimeMillis() + 3000;
             while (System.currentTimeMillis() != waitTime) {
@@ -135,7 +136,19 @@ public class Jeu extends Thread {
     /*
   Distribution des 2 cartes sur la main de chaque joueur, de manière aléatoire
    */
-    private void distribuerCartesJoueurs() {
+    private void distribuerCartes() {
+        //On distribue 5 cartes de la table de manière aléatoire à la table
+        LinkedList<Carte> cartesTable = new LinkedList<>();
+        iconCartesTable = new LinkedList<>();
+        for (int i = 0; i < 5; i++) {
+            int m = (int) ((paquet.size()) * Math.random());
+            Carte c = paquet.get(m);
+            cartesTable.add(c);
+            iconCartesTable.add(c.icon);
+            paquet.remove(c);
+        }
+        table.setCartesTable(cartesTable);
+
         //On prend deux cartes aléatoires du paquet et les distribue à chaque joueur
         joueurs.getJoueurs().forEach(Joueur -> {
             LinkedList<Carte> cartesJoueur = new LinkedList<>();
@@ -147,28 +160,10 @@ public class Jeu extends Thread {
             c = paquet.get(r);
             cartesJoueur.add(c);
             paquet.remove(c);
-            Joueur.setCartesSurMain(cartesJoueur);
+            Joueur.setHand(cartesJoueur,cartesTable);
         });
     }
 
-    /*
-    Distribution des 5 cartes de la table et définition de la hand de 7 cartes de chaque joueur
-     */
-    private void distribuerCartesTable() {
-        //On distribue 5 cartes de manière aléatoire à la table
-        LinkedList<Carte> cartesTable = new LinkedList<>();
-        iconCartesTable = new LinkedList<>();
-        for (int i = 0; i < 5; i++) {
-            int m = (int) ((paquet.size()) * Math.random());
-            Carte c = paquet.get(m);
-            cartesTable.add(c);
-            iconCartesTable.add(c.icon);
-            paquet.remove(c);
-        }
-        table.setCartesTable(cartesTable);
-        //On ajoute les cartes de la table dans la hand de chaque joueur pour le calcul du valeur de la hand
-        joueurs.getJoueurs().forEach(Joueur -> Joueur.setHand(cartesTable));
-    }
 
     public void sortirDeLaTournee(Joueur j) throws Exception {
         if (j.playing) {
@@ -179,8 +174,22 @@ public class Jeu extends Thread {
 
     public void prochaineTournee() throws Exception {
         fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
-        joueurs.getJoueurs().forEach(joueur -> joueur.coup="");
-        joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
+        smallBlindDansJeu = false;
+        joueurs.getJoueurs().forEach(joueur -> {
+            joueur.coup="";
+            if(joueur.getArgent()<=10 && joueur.dealer){
+                joueurs.getNode(joueur).prochainNode.joueur.dealer=true;
+                joueur.dansJeu=false;}
+            else if(joueur.getArgent()<=10){
+                joueur.dansJeu=false;
+            }
+        });
+        LinkedList<Joueur> joueursDansJeu = joueurs.getJoueurs();
+        if (joueursDansJeu.size()==1){
+            jeuFini();
+        }
+        joueursDansJeu.removeIf(joueur -> !joueur.dansJeu);
+        joueursDansLaTournee = new LinkedListCirculaire(joueursDansJeu);
         Node ancienDealer = joueursDansLaTournee.getNodeDealer();
         joueursDansLaTournee.getJoueurs().forEach(Joueur::resetRolesJeu);
         if (joueursDansLaTournee.size() >= 4) {
@@ -193,6 +202,7 @@ public class Jeu extends Thread {
             ancienDealer.prochainNode.prochainNode.joueur.setRoleJeu(false, true, false, false);
             ancienDealer.prochainNode.prochainNode.prochainNode.joueur.setRoleJeu(false, false, true, false);
         } else if (joueursDansLaTournee.size() == 2) {
+            smallBlindDansJeu=false;
             ancienDealer.prochainNode.joueur.setRoleJeu(true, false, false, true);
             ancienDealer.joueur.setRoleJeu(false, false, true, false);
         }
@@ -200,26 +210,43 @@ public class Jeu extends Thread {
         turn = false;
         river = false;
         potActuel = 0;
+        pariActuel=valeurBigBlind;
         dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
         joueurActuel = joueursDansLaTournee.getNodePlaying();
         paquet = new Paquet();
         table = new Table();
-        distribuerCartesJoueurs();
-        distribuerCartesTable();
+        distribuerCartes();
+
         Thread reconstruireFenetre = new Thread(() -> fenetre = new FenetreJeuV3(this));
+        Thread continuerTournee = new Thread(() -> {
+            try {
+                joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, this);
+                if(smallBlindDansJeu){
+                    joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, this);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (!joueurActuel.joueur.humain) {
+                try {
+                    ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                fenetre.afficherBoutons(true);
+            }});
         reconstruireFenetre.start();
-        while(reconstruireFenetre.isAlive()){};
-        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, fenetre);
-        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, fenetre);
-        if (!joueurActuel.joueur.humain) {
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
-         }
+        reconstruireFenetre.join();
+        continuerTournee.start();
     }
 
     public void prochainJoueur() throws Exception {
         joueurActuel = joueurActuel.prochainNode;
         if(joueurActuel.joueur.humain){
             fenetre.afficherBoutons(true);
+            joueursDansLaTournee.toString();
         }
         System.out.println("Joueur actuel:" + joueurActuel.joueur.nom);
         System.out.println("Dernier a parier:" + dernierAParier.nom + "\n\n");
@@ -236,47 +263,58 @@ public class Jeu extends Thread {
 
 
     public void tourDeParisFini() throws Exception {
-        if (!flop){
-            System.out.println("***\nFLOP\n***");
-            flop = true;
-            pariActuel=0;
-            fenetre.flop();
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
+        AtomicBoolean tousAllIn= new AtomicBoolean(true);
+        joueursDansLaTournee.getJoueurs().forEach(joueur -> {
+            joueur.derniereValeurPariee=0;
+            if(!joueur.allIn){
+                tousAllIn.set(false);
             }
-            fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying()); //Sera le prochain lors de l'execution de prochainJoueur()
-            dernierAParier = joueurActuel.joueur;
-            prochainJoueur();
-        }
-        else if (!turn) {
-            System.out.println("TURN");
-            turn = true;
-            pariActuel=0;
-            fenetre.turn();
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueurActuel.joueur;
-            prochainJoueur();
-        }
-        else if (!river){
-            System.out.println("RIVER");
-            river = true;
-            pariActuel=0;
+        });
+        //Dans ce cas tous les joueurs ont parie tout leur argent, on montre toutes les cartes et on compare les hands
+        if(tousAllIn.get()){
             fenetre.river();
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            fenetre.effacerCoupsJoueur();
-            joueurActuel=joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-            dernierAParier = joueurActuel.joueur;
-            prochainJoueur();
+            tourneeFinie();
         }
         else {
-            tourneeFinie();
+            if (!flop) {
+                System.out.println("***\nFLOP\n***");
+                flop = true;
+                pariActuel = 0;
+                fenetre.flop();
+                long waitTime = System.currentTimeMillis() + 3000;
+                while (System.currentTimeMillis() != waitTime) {
+                }
+                fenetre.effacerCoupsJoueur();
+                joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying()); //Sera le prochain lors de l'execution de prochainJoueur()
+                dernierAParier = joueurActuel.joueur;
+                prochainJoueur();
+            } else if (!turn) {
+                System.out.println("TURN");
+                turn = true;
+                pariActuel = 0;
+                fenetre.turn();
+                long waitTime = System.currentTimeMillis() + 3000;
+                while (System.currentTimeMillis() != waitTime) {
+                }
+                fenetre.effacerCoupsJoueur();
+                joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
+                dernierAParier = joueurActuel.joueur;
+                prochainJoueur();
+            } else if (!river) {
+                System.out.println("RIVER");
+                river = true;
+                pariActuel = 0;
+                fenetre.river();
+                long waitTime = System.currentTimeMillis() + 3000;
+                while (System.currentTimeMillis() != waitTime) {
+                }
+                fenetre.effacerCoupsJoueur();
+                joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
+                dernierAParier = joueurActuel.joueur;
+                prochainJoueur();
+            } else {
+                tourneeFinie();
+            }
         }
     }
 
@@ -299,6 +337,10 @@ public class Jeu extends Thread {
             });
         }
         fenetre.afficherBoutonProchaineTournee();
+    }
+
+    public void jeuFini(){
+        fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
     }
 
     public Joueur getJoueurHumain() {
