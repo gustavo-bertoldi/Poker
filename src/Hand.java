@@ -8,6 +8,7 @@ public class Hand  implements Comparable{
     private LinkedList<Carte> surMain;
     private LinkedList<Carte> surTable;
     private LinkedList<Carte> hand;
+
     private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
     private int valeurHand = -1;
     /*

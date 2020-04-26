@@ -149,10 +149,8 @@ public class FenetreJeuV3 extends JFrame {
 
     public void creerPanneauxJoueurs(){
         Node current = jeu.getJoueurs().getNodeHumain();
-        System.out.println("Creation des panneaux des joueurs");
         for (int i=0; i<jeu.nJoueurs; i++){
             Joueur j = current.joueur;
-            System.out.println("Current : "+j.nom);
             if(j.dansJeu) {
                 j.getCartesSurMain().forEach(Carte -> {
                             iconCartesJoueurs.get(j).add(Carte.icon);

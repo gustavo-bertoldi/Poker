@@ -14,10 +14,10 @@ public class Joueur implements Comparable{
     protected boolean playing;
     protected boolean humain;
     protected int derniereValeurPariee;
-    protected boolean dejaJoue = false;// pas necessaire si "playing" et "position"
     protected boolean dansJeu;
+    protected boolean dansTournee;
     protected boolean allIn;
-    protected int valeurAllIn;
+    protected int valeurAllInIncomplet;
     /*
 
      */
@@ -33,6 +33,7 @@ public class Joueur implements Comparable{
         this.derniereValeurPariee=0;
         this.dansJeu=true;
         this.allIn=false;
+        this.valeurAllInIncomplet=0;
     }
 
     /*
@@ -66,9 +67,7 @@ public class Joueur implements Comparable{
         if(action==0){
             coup="Fold";
             jeu.fenetre.enleverCartesJoueur(this);
-            if(!humain) {
-                jeu.sortirDeLaTournee(this);
-            }
+            jeu.sortirDeLaTournee(this);
         }
         //Cas joueur a payé le pari
         else if(action==1){
@@ -79,6 +78,7 @@ public class Joueur implements Comparable{
                 //Cas où la valeur de pari est supérieure à l'argent du joueur - All in pour jouer
                 if(valeurPari>=argent){
                     coup="Call - All in "+(argent);
+                    valeurAllInIncomplet = argent;
                     jeu.potActuel = jeu.potActuel + argent;
                     parier(argent);
                     derniereValeurPariee=argent;
@@ -94,6 +94,7 @@ public class Joueur implements Comparable{
         //Cas joueur a augmenté le pari
         else{
             if(action>=argent){
+                jeu.potAvantAllIn=jeu.potActuel;
                 coup="All in "+(argent);
                 jeu.pariActuel = argent;
                 jeu.potActuel = jeu.potActuel + (argent);
@@ -107,12 +108,11 @@ public class Joueur implements Comparable{
             }
             jeu.dernierAParier = (jeu.joueursDansLaTournee.getNodeAnterieur(this)).joueur;
             derniereValeurPariee = action;
+            jeu.fenetre.effacerCoupsJoueur();
         }
         jeu.fenetre.mettreAJourInfosJoueur(this);
         jeu.fenetre.mettreAJourValuerPot();
-        System.out.println("Joueur : "+this.nom+", "+this.coup);
         if(jeu.joueurActuel.joueur.equals(jeu.dernierAParier)){
-            System.out.println("tour de paris fini");
             jeu.tourDeParisFini();
         }
         else {
@@ -123,9 +123,6 @@ public class Joueur implements Comparable{
     public void setActionJoueurHumain(int action, int pariActuel, Jeu jeu) throws InterruptedException {
         Runnable setActionJoueurHumain = () -> {
             try {
-                if(action==0) {
-                    jeu.sortirDeLaTournee(this);
-                }
                 setAction(action,pariActuel,jeu);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -191,17 +188,6 @@ public class Joueur implements Comparable{
         this.argent += q;
     }
 
-
-
-    /*
-    Permet de reinitialiser toutes les atributs dealer, small blind et big blind du joueur
-     */
-    public void resetAll(){
-        this.dealer=false;
-        this.smallBlind=false;
-        this.bigBlind=false;
-        this.dejaJoue=false;
-    }
     /*
     Prend en compte la valeur de la hand du joueur pour les trier selon la puissance de la hand
      */

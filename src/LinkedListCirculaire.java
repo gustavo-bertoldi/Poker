@@ -52,10 +52,22 @@ public class LinkedListCirculaire {
             }
 
             else if(joueurAEnlever.equals(tete.joueur)){
+                System.out.println("Enlever TETE");
                 tete=tete.prochainNode;
+                nodes.remove(joueurAEnlever);
+                queue.prochainNode=tete;
+                size--;
+            }
+            else if(joueurAEnlever.equals(queue.joueur)){
+                Node current=tete;
+                while (!current.prochainNode.joueur.equals(joueurAEnlever)){
+                    current=current.prochainNode;
+                }
+                queue=current;
                 queue.prochainNode=tete;
                 nodes.remove(joueurAEnlever);
                 size--;
+
             }
             else {
                 Node current = tete;
@@ -97,39 +109,6 @@ public class LinkedListCirculaire {
             System.out.println("getNodeAnterieur : Node fourni n'est pas dans la liste");
             return null;
         }
-    }
-
-    public boolean remove(Node nodeAEnlever) {
-        if(nodeAEnlever==null){
-            return  false;
-        }
-        else if (nodes.containsValue(nodeAEnlever)){
-            if(size==1){
-                tete=null;
-                queue=null;
-                nodes.remove(nodeAEnlever.joueur);
-                size--;
-            }
-
-            else if(nodeAEnlever.equals(tete)){
-                tete=tete.prochainNode;
-                queue.prochainNode=tete;
-                nodes.remove(nodeAEnlever.joueur);
-                size--;
-            }
-
-            else {
-                Node current = tete;
-                while (!current.prochainNode.equals(nodeAEnlever)){
-                    current=current.prochainNode;
-                }
-                current.prochainNode= nodeAEnlever.prochainNode;
-                nodes.remove(nodeAEnlever.joueur);
-                size--;
-            }
-            return true;
-        }
-        else{return false;}
     }
 
     public int size(){
@@ -186,7 +165,7 @@ public class LinkedListCirculaire {
             StringBuilder s = new StringBuilder("Joueurs dans la liste: \n");
             Node current = tete;
             for(int i=0; i<size;i++) {
-                s.append(current.joueur.nom).append("\n");
+                s.append(current.joueur.nom).append(". Prochain node: ").append(current.prochainNode.joueur.nom).append("\n");
                 current=current.prochainNode;
             }
             System.out.println(s.toString());
@@ -218,13 +197,12 @@ public class LinkedListCirculaire {
         cl.add(matheus);
         LinkedListCirculaire circ = new LinkedListCirculaire(cl);
 
-        circ.getNodeDealer();
-        circ.getNodeSmallBlind();
-        circ.getNode(pri);
-        circ.remove(maria);
-        System.out.println(cl.toString());
+
         circ.toString();
-        Node current = circ.tete;
+        circ.remove(matheus);
+        circ.toString();
+        circ.remove(almir);
+        circ.toString();
     }
 
 }
