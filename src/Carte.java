@@ -16,8 +16,8 @@ public class Carte extends Object implements Comparable{
     public Carte(int valeur, char couleur){
         this.valeur=valeur;
         this.couleur=couleur;
-        this.chemin = "src/res/"+valeur+"_"+couleur+".png";
-        this.icon = new ImageIcon(chemin);
+        this.chemin = "res/"+valeur+"_"+couleur+".png";
+        this.icon = new ImageIcon(getClass().getResource(chemin));
         icon = redimensioner(84,112, icon);
         tournée=true;
     }

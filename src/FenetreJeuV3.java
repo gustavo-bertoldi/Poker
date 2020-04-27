@@ -79,7 +79,7 @@ public class FenetreJeuV3 extends JFrame {
 
 
         //Création de l'icone de la carte tournée
-        carteTournee = Carte.redimensioner(84, 112, new ImageIcon("src/res/back.png"));
+        carteTournee = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/back.png")));
 
 
         gbcPrincipal = new GridBagConstraints();
