@@ -1,11 +1,7 @@
-import kotlin.reflect.jvm.internal.impl.load.java.structure.JavaLiteralAnnotationArgument;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 public class FenetreJeuV3 extends JFrame {
@@ -149,7 +145,7 @@ public class FenetreJeuV3 extends JFrame {
 
     public void creerPanneauxJoueurs(){
         Node current = jeu.getJoueurs().getNodeHumain();
-        for (int i=0; i<jeu.nJoueurs; i++){
+        for (int i=0; i<6; i++){
             Joueur j = current.joueur;
             if(j.dansJeu) {
                 j.getCartesSurMain().forEach(Carte -> {
@@ -207,7 +203,7 @@ public class FenetreJeuV3 extends JFrame {
         repaint();
     }
 
-    public void creerHandGagnant(boolean tousFold){
+    public void creerHandGagnant(boolean tousFold, String descriptionPot){
         if(tousFold){
             handGagnante.add(new JLabel(jeu.getDernierDansLaTournee().nom+" prend le pot.", SwingConstants.CENTER), BorderLayout.SOUTH);
         }
@@ -219,21 +215,23 @@ public class FenetreJeuV3 extends JFrame {
                 Joueur gagnant = jeu.getJoueursGagnants().getFirst();
                 gagnant.getCartesHand().forEach(carte -> cartesHandGagnante.add(new JLabel(carte.icon)));
                 infosHandGagnante.append(gagnant.nom).append(" || ").append(gagnant.getHand().getDescription());
-                handGagnante.add(cartesHandGagnante, BorderLayout.CENTER);
-                handGagnante.add(new JLabel(infosHandGagnante.toString(), SwingConstants.CENTER), BorderLayout.SOUTH);
+                handGagnante.add(cartesHandGagnante, BorderLayout.NORTH);
+                handGagnante.add(new JLabel(infosHandGagnante.toString(), SwingConstants.CENTER), BorderLayout.CENTER);
+                handGagnante.add(new JLabel(descriptionPot, SwingConstants.CENTER), BorderLayout.SOUTH);
             } else {
                 for (Joueur j : jeu.getJoueursGagnants()) {
                     infosHandGagnante.append(j.nom).append(" || ");
                 }
                 infosHandGagnante.append(jeu.getJoueursGagnants().getFirst().getHand().getDescription());
-                handGagnante.add(new JLabel(infosHandGagnante.toString()));
+                handGagnante.add(new JLabel(infosHandGagnante.toString()),BorderLayout.CENTER);
+                handGagnante.add(new JLabel(descriptionPot,SwingConstants.CENTER), BorderLayout.SOUTH);
             }
         }
 
     }
 
-    public void afficherHandGagnante(boolean tousFold){
-        creerHandGagnant(tousFold);
+    public void afficherHandGagnante(boolean tousFold, String descriptionPot){
+        creerHandGagnant(tousFold, descriptionPot);
         revalidate();
         repaint();
         handGagnante.setVisible(true);
@@ -248,8 +246,6 @@ public class FenetreJeuV3 extends JFrame {
         creerPanneauxJoueurs();
 
         Node current = jeu.getJoueurs().getNodeHumain();
-
-        if (jeu.nJoueurs == 6){
             //Joueur 0 - humain
             gbcPrincipal.gridx = 2;
             gbcPrincipal.gridy = 2;
@@ -265,7 +261,7 @@ public class FenetreJeuV3 extends JFrame {
             gbcPrincipal.gridx = 0;
             gbcPrincipal.gridy = 1;
             gbcPrincipal.anchor=GridBagConstraints.WEST;
-            gbcPrincipal.insets = new Insets(0, 0, 0, 5);
+            gbcPrincipal.insets = new Insets(0, 10, 0, 0);
             principal.add(panneauxJoueurs.get(current.joueur), gbcPrincipal);
             current = current.prochainNode;
 
@@ -299,7 +295,7 @@ public class FenetreJeuV3 extends JFrame {
             gbcPrincipal.gridx = 4;
             gbcPrincipal.gridy = 1;
             gbcPrincipal.anchor=GridBagConstraints.EAST;
-            gbcPrincipal.insets = new Insets(0, 0, 0, 5);
+            gbcPrincipal.insets = new Insets(0, 0, 0, 10);
             principal.add(panneauxJoueurs.get(current.joueur), gbcPrincipal);
 
             //Table - centre
@@ -321,11 +317,10 @@ public class FenetreJeuV3 extends JFrame {
             //Hand gagnante - bas
             gbcPrincipal.gridx = 0;
             gbcPrincipal.gridy = 2;
-            gbcPrincipal.anchor=GridBagConstraints.CENTER;
+            gbcPrincipal.anchor=GridBagConstraints.SOUTHWEST;
+        gbcPrincipal.insets = new Insets(0, 10, 10, 0);
             handGagnante.setVisible(false);
             principal.add(handGagnante, gbcPrincipal);
-
-        }
     }
 
     public void foldJoueurHumain(){

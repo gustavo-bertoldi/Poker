@@ -6,34 +6,59 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Jeu extends Thread {
+    /*
+    Attribut de base pour la création du jeu
+     */
+    protected LinkedListCirculaire joueurs; //Liste circulaire avec tous les joueurs.
+    protected LinkedListCirculaire joueursDansLaTournee; //Liste circulaire avec les joueurs qui participent de la tournée active.
+    private Paquet paquet; //Paquet de cartes de jeu.
+    private LinkedList<Carte> cartesTable; //Liste des cartes qui sont sur la table.
+    private LinkedList<ImageIcon> iconCartesTable; //Liste des icons des cartes qui sont sur la table, utilisée par la GUI.
+    private LinkedList<String> nomsJoueursOrdinateurs; //Liste avec les possibles noms à être attribués aux joueurs ordinateurs.
+    protected FenetreJeuV3 fenetre; //La fenêtre qui contient les éléments principaux de la GUI.
+    /*
+    Attributs pour assures le déroulement du jeu
+     */
+    protected boolean flop; //True si les cartes du flop ont déjà été affichées (3 prmières de la table)
+    protected boolean turn; //True si les cartes du turn ont déjà été affichées (4 prémières de la table)
+    protected boolean river; //True si les cartes du river ont été déjà affichées (toutes les cartes sur table)
+    protected int valeurSmallBlind; //La valeur du small blind actuel
+    protected int valeurBigBlind; //La valeur du big blind (2*valeurSmallBlind par définition)
+    protected int pariActuel; //La valeur du pari actuel
+    protected int potActuel; //Le pot actuel
+    private boolean smallBlindDansJeu; //Quand il n'y a que deux joueurs dans le jeu il n'y a pas de Small Blind, le boolean indique cette situation
+    /*
+    Le boolean potsSecondaires dans jeu indique qu'au moins un pot secondaire a été créé.
+    Les pots secondaires sont crées lorsque un joueur n'a pas d'argent suffisant pour payer le pari,
+    toute fois il peut parier tout ce qu'il a et continuer dans le jeu, néanmoins s'il gagne, il n'a pas droit au pot
+    complet vu qu'il n'a pas parié le montant nécessaire, il a donc un pot secondaire calculé selon la valeur qu'il a pariée.
+    CALCUL :
+    Ex : Joueur A - 500 fiches
+         Joueur B - 100 fiches
+         Joueur C - 200 fiches
+         Le joueur A parie 300 fiches, si les joueur B et C souhaitent continuer dans le jeu ils soivent parier tout leur argent
+         On a alors le pot suivant : 400 (Joueur A) + 100 (Joueur B) + 200 (Joueur C)
+         Pot joueur A : 700 (Il peut prendre toutes les fiches) + pots antérieurs
+         Pot joueur B : 300 (Il peut prendre 100 fiches de chaque joueur) + pots antérieurs
+         Pot Joueur C : 600 (Il peut prendre 200 fiches de chaque joueur) + pots antérieurs
+         Donc on multiplie le nombre de joueurs qui ont payé le pari par l'argent du joueur et on obtient son pot secondaire.
+     */
+    protected boolean potsSecondairesDansJeu; //True s'il y a des pots secondaires dans le jeu
+    protected int nJueursQuiOntPayeLeTour; //Utilisé dans le calcul des pots secondaires
+    private int potAvantFlop; //Utilisé dans le calcul des pots secondaires
+    private int potAvantTurn; //Utilisé dans le calcul des pots secondaires
+    private int potAvantRiver; //Utilisé dans le calcul des pots secondaires
+    protected Joueur dernierAParier; //Défini au début d'une tournée, c'est le dernier joueur qui va joueur, après lui la tournée est finie
+    protected Node joueurActuel; //Le joueur qui joue actuellement
 
-    protected LinkedListCirculaire joueurs; //essai avec circular LL
-    protected LinkedListCirculaire joueursDansLaTournee;
-    private Paquet paquet; //Le paquet du jeu - remplie dans le constructeur
-    private Table table;
-    private LinkedList<ImageIcon> iconCartesTable;
-
-    protected int nJoueurs; //Le numéro actuel de joueurs dans le jeu
-    private LinkedList<String> nomsJoueursOrdinateurs;
-    protected String nomJoueurHumain;
-    protected FenetreJeuV3 fenetre;
-
-    protected boolean flop;
-    protected boolean turn;
-    protected boolean river;
-    private LinkedList<Joueur> joueursGagnants;
-    protected int valeurSmallBlind = 10; //La valeur du small blind actuel
-    protected int valeurBigBlind = 20;
-    protected int pariActuel;
-    protected int potActuel;
-    protected int potAvantAllIn;
-    protected Joueur dernierAParier;
-    protected Node joueurActuel;
-    private boolean smallBlindDansJeu;
+    /*
+    Attributs utilisés en fin de tournées pour bien distribuer l'argent au(x) gagnant(s).
+     */
+    private LinkedList<Joueur> joueursGagnants; //Liste avec le(s) joueur(s) gagnant(s). Obtenue par la plus grande valeur de hand.
+    private LinkedHashMap<Joueur, Integer> potsSecondaires; //Liste avec les pots secondaires associés à son respectif joueur.
 
 
     /*      DÉROULEMENT JEU
-
     - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
     - Au début, pos Dealer = joueurs.size()-3, pos SB = joueurs.size()-2, posBB = joueurs.size()-1 étant le dernier a decider
     - S'il y a un pari, le joueur qui a parié prend la position joueurs.size() et tous les autres changent aussi.
@@ -51,15 +76,13 @@ public class Jeu extends Thread {
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(int nJoueurs) throws Exception {
-        this.nJoueurs = nJoueurs;
+    public Jeu(String nomJoueurHumain) throws Exception {
         creerListeNomsJoueursOrdinateurs();
-        nomJoueurHumain = "Baltazar";
 
         //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
         joueurs = new LinkedListCirculaire();
         joueurs.add(new Joueur(nomJoueurHumain, true));
-        for (int i = 0; i < nJoueurs - 1; i++) {
+        for (int i = 0; i < 5; i++) {
             //Création des joueurs ordinateurs qui prennent un nom aléatoire de la liste nomsJoueursOrdinateurs
             int a = (int) (Math.random() * nomsJoueursOrdinateurs.size());
             joueurs.add(new Ordinateur(nomsJoueursOrdinateurs.get(a), 0));
@@ -71,30 +94,34 @@ public class Jeu extends Thread {
         joueurs.getFirst().prochainNode.prochainNode.prochainNode.joueur.playing = true;
 
         joueurs.getJoueurs().forEach(j -> j.setArgent(3000)); //On distribue une quantité d'argent initiale à chaque joueur
-
         joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
 
         //Initialization des attributs pour la première tournée
         valeurSmallBlind = 10;
         valeurBigBlind = 20;
         potActuel = 0;
-        potAvantAllIn = 0;
         pariActuel = 20;
+        potAvantFlop=0;
+        potAvantTurn=0;
+        potAvantRiver=0;
         flop = false;
         turn = false;
         river = false;
+        potsSecondairesDansJeu=false;
         dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
         joueurActuel = joueursDansLaTournee.getNodePlaying();
+        potsSecondaires = new LinkedHashMap<>();
+        nJueursQuiOntPayeLeTour=0;
 
         paquet = new Paquet();
-        table = new Table();
+        cartesTable = new LinkedList<>();
         distribuerCartes();
 
         //Initialisation de l'interface graphique
         fenetre = new FenetreJeuV3(this);
 
-        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, this);
-        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, this);
+        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
+        joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
         if (!joueurActuel.joueur.humain) {
             long waitTime = System.currentTimeMillis() + 3000;
             while (System.currentTimeMillis() != waitTime) {
@@ -125,7 +152,6 @@ public class Jeu extends Thread {
    */
     private void distribuerCartes() {
         //On distribue 5 cartes de la table de manière aléatoire à la table
-        LinkedList<Carte> cartesTable = new LinkedList<>();
         iconCartesTable = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
             int m = (int) ((paquet.size()) * Math.random());
@@ -134,7 +160,6 @@ public class Jeu extends Thread {
             iconCartesTable.add(c.icon);
             paquet.remove(c);
         }
-        table.setCartesTable(cartesTable);
 
         //On prend deux cartes aléatoires du paquet et les distribue à chaque joueur
         joueurs.getJoueurs().forEach(Joueur -> {
@@ -162,7 +187,6 @@ public class Jeu extends Thread {
         de la liste. Cela est fait pour assurer la bonne continuité du jeu.
          */
         if (j.playing) {
-            j.dansTournee=false;
             joueursDansLaTournee.getNode(j).prochainNode.joueur.playing = true;
         }
         joueursDansLaTournee.remove(j);
@@ -206,20 +230,25 @@ public class Jeu extends Thread {
         turn = false;
         river = false;
         potActuel = 0;
-        potAvantAllIn = 0;
+        potAvantFlop=0;
+        potAvantTurn=0;
+        potAvantRiver=0;
         pariActuel=valeurBigBlind;
         dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
         joueurActuel = joueursDansLaTournee.getNodePlaying();
+        potsSecondaires= new LinkedHashMap<>();
+        potsSecondairesDansJeu=false;
+        nJueursQuiOntPayeLeTour=0;
         paquet = new Paquet();
-        table = new Table();
+        cartesTable=new LinkedList<>();
         distribuerCartes();
 
         Thread reconstruireFenetre = new Thread(() -> fenetre = new FenetreJeuV3(this));
         Thread continuerTournee = new Thread(() -> {
             try {
-                joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(valeurBigBlind, this);
+                joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
                 if(smallBlindDansJeu){
-                    joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(valeurSmallBlind, this);
+                    joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -245,7 +274,12 @@ public class Jeu extends Thread {
     public void prochainJoueur() throws Exception {
         joueurActuel=joueurActuel.prochainNode;
         if(joueurActuel.joueur.humain){
-            fenetre.afficherBoutons(true);
+            if(joueurActuel.joueur.allIn){
+                joueurActuel.joueur.setAction(1,pariActuel,this);
+            }
+            else{
+                fenetre.afficherBoutons(true);
+            }
         }
         if (joueursDansLaTournee.size() == 1) {
             tourneeFinie();
@@ -264,11 +298,11 @@ public class Jeu extends Thread {
     Sinon, on montre les cartes de la table et on exécute les actions nécessaires pour un nouveau tour de paris
      */
     public void tourDeParisFini() throws Exception {
-        AtomicBoolean tousAllIn= new AtomicBoolean(false);
+        AtomicBoolean tousAllIn= new AtomicBoolean(true);
         joueursDansLaTournee.getJoueurs().forEach(joueur -> {
             joueur.derniereValeurPariee=0;
-            if(joueur.allIn){
-                tousAllIn.set(true);
+            if(!joueur.allIn){
+                tousAllIn.set(false);
             }
         });
         //Dans ce cas tous les joueurs ont mis All In, on montre toutes les cartes et on compare les hands
@@ -279,11 +313,14 @@ public class Jeu extends Thread {
         }
         //Sinon on poursuit le jeu
         else {
+            nJueursQuiOntPayeLeTour = 0;
             if (!flop) {
                 flop = true;
                 pariActuel = 0;
-                potAvantAllIn=0;
+                potAvantFlop=potActuel;
                 fenetre.flop();
+                potsSecondaires.forEach((joueur, pot) -> joueur.potsDejaCompletes=true);
+                potsSecondaires.forEach((joueur, pot) -> joueur.potsDejaCompletes=true);
                 long waitTime = System.currentTimeMillis() + 3000;
                 while (System.currentTimeMillis() != waitTime) {
                 }
@@ -294,7 +331,7 @@ public class Jeu extends Thread {
             } else if (!turn) {
                 turn = true;
                 pariActuel = 0;
-                potAvantAllIn=0;
+                potAvantTurn=potActuel;
                 fenetre.turn();
                 long waitTime = System.currentTimeMillis() + 3000;
                 while (System.currentTimeMillis() != waitTime) {
@@ -306,7 +343,7 @@ public class Jeu extends Thread {
             } else if (!river) {
                 river = true;
                 pariActuel = 0;
-                potAvantAllIn=0;
+                potAvantRiver=potActuel;
                 fenetre.river();
                 long waitTime = System.currentTimeMillis() + 3000;
                 while (System.currentTimeMillis() != waitTime) {
@@ -328,25 +365,113 @@ public class Jeu extends Thread {
      */
     public void tourneeFinie(){
         //Cas où il ne reste qu'un joueur dans la tournée.
+        StringBuilder descriptionPot = new StringBuilder("");
         if (joueursDansLaTournee.size()==1){
-            fenetre.afficherHandGagnante(true);
+            fenetre.afficherHandGagnante(true, descriptionPot.toString());
             joueursDansLaTournee.getFirst().joueur.ajouterArgent(potActuel);
         }
         //Cas où tous les tours de paris sont dinis, on cherche le(s) gagnant(s).
         else {
             joueursGagnants = new LinkedList<>(trouverJoueursGagnants(joueursDansLaTournee.getJoueurs()));
-            potActuel = potActuel/joueursGagnants.size();
-            fenetre.afficherHandGagnante(false);
-            joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
-            //Cas où le joeurs gagnant n'a pas payé la valeur complète du pari et a mis AllIn
-            joueursGagnants.forEach(joueur -> {
-                joueur.ajouterArgent(potActuel);
-                fenetre.mettreAJourInfosJoueur(joueur);
-            });
+            descriptionPot.append(" || ");
+            if(potsSecondairesDansJeu && joueursGagnants.getFirst().valeurAllInIncomplet!=0){
+                System.out.println("Gagnant pot secondaire");
+                int potTotal = potActuel;
+                potActuel = potActuel/joueursGagnants.size();
+                for(Joueur j : joueursGagnants){
+                    if(j.valeurAllInIncomplet!=0) {
+                        if (potActuel > potsSecondaires.get(j)) {
+                            descriptionPot.append(j.nom).append(" : ").append(potsSecondaires.get(j)).append(" fiches ||");
+                            j.ajouterArgent(potsSecondaires.get(j));
+                            potTotal = potTotal - potsSecondaires.get(j);
+                        } else {
+                            descriptionPot.append(j.nom).append(" : ").append(potActuel).append(" fiches ||");
+                            j.ajouterArgent(potActuel);
+                            potTotal = potTotal - potActuel;
+                        }
+                    }
+                    else{
+                        descriptionPot.append(j.nom).append(" : ").append(potActuel).append(" fiches");
+                        j.ajouterArgent(potActuel);
+                        potTotal = potTotal - potActuel;
+                    }
+                }
+                if(potTotal>0){
+                    LinkedList<Joueur> dansTournee = joueursDansLaTournee.getJoueurs();
+                    dansTournee.removeAll(joueursGagnants);
+                    ajouterKicker(dansTournee);
+                    if(!dansTournee.isEmpty()){
+                        dansTournee.sort(Collections.reverseOrder());
+                        while(potTotal>0 && dansTournee.size()>=1){
+                            if(potsSecondaires.containsKey(dansTournee.getFirst())) {
+                                if (potTotal > potsSecondaires.get(dansTournee.getFirst())) {
+                                    dansTournee.getFirst().ajouterArgent(potsSecondaires.get(dansTournee.getFirst()));
+                                    descriptionPot.append(" || ").append(dansTournee.getFirst().nom).append(" : ").append(potsSecondaires.get(dansTournee.getFirst()));
+                                    potTotal = potTotal - potsSecondaires.get(dansTournee.getFirst());
+                                } else {
+                                    dansTournee.getFirst().ajouterArgent(potTotal);
+                                    descriptionPot.append(" || ").append(dansTournee.getFirst().nom).append(" prend les ").append(potTotal).append(" fiches restantes ||");
+                                    potTotal = 0;
+                                }
+                            }
+                            else {
+                                dansTournee.getFirst().ajouterArgent(potTotal);
+                                descriptionPot.append(" || ").append(dansTournee.getFirst().nom).append(" prend les ").append(potTotal).append(" fiches restantes ||");
+                                potTotal = 0;
+                            }
+                            dansTournee.removeFirst();
+                        }
+                    }
+                }
+            }
+            else {
+                potActuel = potActuel / joueursGagnants.size();
+                //Cas où le joeurs gagnant n'a pas payé la valeur complète du pari et a mis AllIn
+                joueursGagnants.forEach(joueur -> {
+                    joueur.ajouterArgent(potActuel);
+                    fenetre.mettreAJourInfosJoueur(joueur);
+                    descriptionPot.append(joueur.nom).append(" : ").append(potActuel).append(" || ");
+                });
+            }
+            fenetre.afficherHandGagnante(false, descriptionPot.toString());
         }
+        joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
         fenetre.afficherBoutonProchaineTournee();
     }
 
+    public void completerPotsSecondaires(int valeur){
+        System.out.println("Completer pots secondaires");
+        potsSecondaires.keySet().forEach((joueur) -> {
+            if(!joueur.potsDejaCompletes) {
+                int pot = potsSecondaires.get(joueur);
+                if (valeur > joueur.valeurAllInIncomplet) {
+                    pot = pot + joueur.valeurAllInIncomplet;
+                } else {
+                    pot = pot + valeur;
+                }
+                potsSecondaires.replace(joueur, pot);
+            }
+        });
+        System.out.println(potsSecondaires.toString());
+    }
+
+    public void creerPotsSecondaires(Joueur j){
+        potsSecondairesDansJeu=true;
+        System.out.println("Creer pot secondaire: "+j.nom);
+        if(!flop){
+            potsSecondaires.put(j, j.getArgent() *(nJueursQuiOntPayeLeTour+1));
+        }
+        else if(!turn){
+            potsSecondaires.put(j, potAvantFlop + j.getArgent()*(nJueursQuiOntPayeLeTour+1));
+        }
+        else if(!river){
+            potsSecondaires.put(j, potAvantTurn + j.getArgent()*(nJueursQuiOntPayeLeTour+1));
+        }
+        else{
+            potsSecondaires.put(j, potAvantRiver + j.getArgent()*(nJueursQuiOntPayeLeTour+1));
+        }
+        System.out.println(potsSecondaires.toString());
+    }
 
 
     /*
@@ -558,7 +683,7 @@ public class Jeu extends Thread {
 
     }
     public static void main(String[] args) throws Exception {
-        Jeu j = new Jeu(6);
+        Jeu j = new Jeu("Gustavo");
 
     }
 }
