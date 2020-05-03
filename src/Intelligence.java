@@ -69,7 +69,7 @@ public class Intelligence{
         int decision;
         int valeurMoment1=0;
         int valeurMoment2=0;
-        int valeurHand = joueur.getHand().getValeurHand();
+        int valeurHand = joueur.getHand().getValeurHandApresRiver();
 
         if (!jeu.flop) { //quand le joueur a seulement ses 2 cartes à lui
 
@@ -87,7 +87,7 @@ public class Intelligence{
            }
 
            else { //si le pari actuel est assez important
-                if (joueur.getHand().getValeurHand() >= 8) { //si le joueur a une carte supérieure ou égale à 8 (et pas de paires ni rien meilleur), il paye le parie. Sinon, il arrête de jouer.
+                if (joueur.getHand().getValeurHandSurMain() >= 8) { //si le joueur a une carte supérieure ou égale à 8 (et pas de paires ni rien meilleur), il paye le parie. Sinon, il arrête de jouer.
                     decision = 1;
                 } else {
                     decision = 0;
@@ -102,13 +102,13 @@ public class Intelligence{
                 decision = 0;
             }
 
-            if (joueur.getHand().getValeurHand() < 60) { //si le joueur a une paire de 5 ou une Hand moins importante, il paye le pari actuel. Si il a une Hand plus importante, il augmente de 500 le pari actuel.
+            if (joueur.getHand().getValeurHandApresFlop() < 60) { //si le joueur a une paire de 5 ou une Hand moins importante, il paye le pari actuel. Si il a une Hand plus importante, il augmente de 500 le pari actuel.
                 decision = 1;
             } else {
                 decision = jeu.pariActuel + 500;
             }
 
-            valeurMoment1 = joueur.getHand().getValeurHand(); //variable intermédiaire pour stocker la valeur du Hand au moment 1
+            valeurMoment1 = joueur.getHand().getValeurHandApresFlop(); //variable intermédiaire pour stocker la valeur du Hand au moment 1
         }
 
         else if (!jeu.river) { //quand il y a 4 cartes révélées
@@ -116,20 +116,20 @@ public class Intelligence{
                 decision=1;
             }
 
-            else if (joueur.getHand().getValeurHand() == valeurMoment1) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
+            else if (joueur.getHand().getValeurHandApresTurn() == valeurMoment1) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
                 decision = 1;
 
             } else {
                 decision = (jeu.pariActuel + 200); //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel
             }
-            valeurMoment2 = joueur.getHand().getValeurHand(); //variable intermédiaire pour stocker la valeur du Hand au moment 2
+            valeurMoment2 = joueur.getHand().getValeurHandApresTurn(); //variable intermédiaire pour stocker la valeur du Hand au moment 2
         }
 
         else { //quand toutes les cartes ont été révélées
             if(joueur.allIn){
                 decision=1;
             }
-            else if (joueur.getHand().getValeurHand() == valeurMoment2) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
+            else if (joueur.getHand().getValeurHandApresRiver() == valeurMoment2) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
                 decision = 1;
             } else {
                 decision =  jeu.pariActuel + 100; //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel
@@ -142,7 +142,7 @@ public class Intelligence{
     private static int intelligenceNiveau2 (Jeu jeu, Joueur joueur){
         int decision;
         int valeurMoment2=0;
-        int valeurHand = joueur.getHand().getValeurHand();
+        int valeurHand = joueur.getHand().getValeurHandApresRiver();
 
         if (!jeu.flop) { //quand le joueur a seulement ses 2 cartes à lui
 
@@ -160,7 +160,7 @@ public class Intelligence{
            }
 
            else { //si le pari actuel est assez important
-                if (joueur.getHand().getValeurHand() >= 8) { //si le joueur a une carte supérieure ou égale à 8 (et pas de paires ni rien meilleur), il paye le parie. Sinon, il arrête de jouer.
+                if (joueur.getHand().getValeurHandSurMain() >= 8) { //si le joueur a une carte supérieure ou égale à 8 (et pas de paires ni rien meilleur), il paye le parie. Sinon, il arrête de jouer.
                     decision = 1;
                 } else {
                     decision = 0;
@@ -175,7 +175,7 @@ public class Intelligence{
                 decision = 0;
             }
 
-            if (joueur.getHand().getValeurHand() < 60) { //si le joueur a une paire de 5 ou une Hand moins importante 
+            if (joueur.getHand().getValeurHandApresFlop() < 60) { //si le joueur a une paire de 5 ou une Hand moins importante
                 
                 if(jeu.pariActuel > 0.5*joueur.getArgent()){ //si le pari est supérieur à la moitié de l´argent que possède le joueur
 					decision = -1; // il arrête de jouer
@@ -195,23 +195,23 @@ public class Intelligence{
                 decision=1;
             }
 
-            else if (joueur.getHand().getValeurHand() < 230 && jeu.pariActuel > 0) { // si le joueur n´a pas au moins 2 paires, il arrête de jouer
+            else if (joueur.getHand().getValeurHandApresTurn() < 230 && jeu.pariActuel > 0) { // si le joueur n´a pas au moins 2 paires, il arrête de jouer
 				decision = -1;
 					
-			} else if (joueur.getHand().getValeurHand() < 650){ //sinon (le joueur a au moins deux paires), si les 2 paires sont moyennement fortes, il paye le pari actuel 
+			} else if (joueur.getHand().getValeurHandApresTurn() < 650){ //sinon (le joueur a au moins deux paires), si les 2 paires sont moyennement fortes, il paye le pari actuel
 				decision = 1; 
 
             } else { //si le joueur a au moins 2 paires fortes, il augmente de 200 le pari actuel
                 decision = (jeu.pariActuel + 200);  
             }
-            valeurMoment2 = joueur.getHand().getValeurHand(); //variable intermédiaire pour stocker la valeur du Hand au moment 2
+            valeurMoment2 = joueur.getHand().getValeurHandApresTurn(); //variable intermédiaire pour stocker la valeur du Hand au moment 2
         }
 
         else { //quand toutes les cartes ont été révélées
             if(joueur.allIn){
                 decision=1;
             }
-            else if (joueur.getHand().getValeurHand() == valeurMoment2) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
+            else if (joueur.getHand().getValeurHandApresRiver() == valeurMoment2) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
                 decision = 1;
             } else {
                 decision =  jeu.pariActuel + 200; //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel

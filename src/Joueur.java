@@ -125,18 +125,19 @@ public class Joueur implements Comparable{
                 } else {
                     //Cas où la valeur de pari est supérieure à l'argent du joueur - All in pour jouer
                     if (valeurPari >= (argent + derniereValeurPariee)) {
+                        valeurAllInIncomplet = argent + derniereValeurPariee;
                         if (jeu.potsSecondairesDansJeu) {
-                            jeu.completerPotsSecondaires(argent);
+                            jeu.completerPotsSecondaires(valeurAllInIncomplet);
                         }
                         coup = "Call - All in " + (argent);
-                        valeurAllInIncomplet = argent;
+                        valeurAllInIncomplet = argent + derniereValeurPariee;
                         jeu.potActuel = jeu.potActuel + argent;
                         jeu.creerPotsSecondaires(this);
                         parier(argent);
                         derniereValeurPariee = argent;
                     } else {
                         if (jeu.potsSecondairesDansJeu) {
-                            jeu.completerPotsSecondaires(valeurPari - derniereValeurPariee);
+                            jeu.completerPotsSecondaires(valeurPari);
                         }
                         coup = "Call " + (valeurPari - derniereValeurPariee);
                         parier(valeurPari - derniereValeurPariee);
@@ -275,9 +276,9 @@ public class Joueur implements Comparable{
      */
     public int compareTo(Object j2) {
         int comparaison = 0;
-        if (this.getHand().getValeurHand() > ((Joueur)j2).getHand().getValeurHand()) {
+        if (this.getHand().getValeurHandApresRiver() > ((Joueur)j2).getHand().getValeurHandApresRiver()) {
             comparaison = 1;
-        } else if (this.getHand().getValeurHand() < ((Joueur)j2).getHand().getValeurHand()) {
+        } else if (this.getHand().getValeurHandApresRiver() < ((Joueur)j2).getHand().getValeurHandApresRiver()) {
             comparaison = -1;
         }
         return comparaison;
@@ -290,6 +291,6 @@ public class Joueur implements Comparable{
 
 
     public String toString(){
-        return "Joueur: "+nom+". Argent: "+argent;
+        return "Joueur: "+nom;
     }
 }

@@ -4,15 +4,19 @@ import java.util.*;
 
 public class Hand  implements Comparable{
 
-    private LinkedList<Carte> cartes;
     private LinkedList<Carte> surMain;
-    private LinkedList<Carte> surTable;
+    private LinkedList<Carte> apresFlop;
+    private LinkedList<Carte> apresTurn;
+    private LinkedList<Carte> apresRiver;
     private LinkedList<Carte> hand;
 
     private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
-    private int valeurHand = -1;
+    private int valeurHandApresRiver = -1;
+    private int valeurHandSurMain = -1;
+    private int valeurHandApresFlop = -1;
+    private int valeurHandApresTurn = -1;
     /*
-    Idée derrière valeurHand: *IDEIA FODA*
+    Idée derrière valeurHand:
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
     - VALEURS:
     Hand                           Calcul                                                                   Range                          DONE
@@ -33,13 +37,21 @@ public class Hand  implements Comparable{
     public Hand(){
     }
 
-    public LinkedList<Carte> getToutesCartes(){return cartes;}
+    public LinkedList<Carte> getToutesCartes(){return apresRiver;}
 
     public LinkedList<Carte> getSurMain() {
         return surMain;
     }
 
-    public LinkedList<Carte> getCartesHand() {return hand;}
+    public LinkedList<Carte> getCartesHand() {
+        if (hand.isEmpty()) {
+            calculerValeurHand(apresRiver);
+            return hand;
+        }
+        else{
+            return hand;
+        }
+    }
 
     public String getDescription(){
         return description;
@@ -52,29 +64,83 @@ public class Hand  implements Comparable{
 
     public void ajouterCarteKicker(Carte kicker){
         hand.add(kicker);
-        valeurHand=valeurHand+kicker.valeur;
+        valeurHandApresRiver=valeurHandApresRiver+kicker.valeur;
     }
 
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
         surMain= new LinkedList<>();
-        surTable = new LinkedList<>();
-        cartes = new LinkedList<>();
+        apresFlop = new LinkedList<>();
+        apresTurn = new LinkedList<>();
+        apresRiver = new LinkedList<>();
+        hand = new LinkedList<>();
+        valeurHandSurMain = -1;
+        valeurHandApresFlop = -1;
+        valeurHandApresTurn = -1;
+        valeurHandApresRiver = -1;
         Collections.sort(cartesSurMain,Collections.reverseOrder());
         this.surMain = cartesSurMain;
-        this.surTable = cartesTable;
-        this.cartes.addAll(surTable);
-        this.cartes.addAll(surMain);
-        Collections.sort(cartes, Collections.reverseOrder());
-        calculerValeurHand();
+        //On définit la liste de cartes après flop étant les 2 sur main + les 3 premières de la table.
+        this.apresFlop.addAll(cartesSurMain);
+        this.apresFlop.add(cartesTable.getFirst());
+        this.apresFlop.add(cartesTable.get(1));
+        this.apresFlop.add(cartesTable.get(2));
+        Collections.sort(apresFlop, Collections.reverseOrder());
+        //On définit la liste de cartes après turn étant les 2 sur main + les 4 premières de la table.
+        this.apresTurn.addAll(apresFlop);
+        this.apresTurn.add(cartesTable.get(3));
+        Collections.sort(apresTurn, Collections.reverseOrder());
+        //On définit la liste de cartes après river étant les 2 sur main + les 5 sur table.
+        this.apresRiver.addAll(cartesTable);
+        this.apresRiver.addAll(surMain);
+        Collections.sort(apresRiver, Collections.reverseOrder());
     }
 
-    public int getValeurHand(){
-        return valeurHand;
+    public int getValeurHandApresRiver(){
+        if(valeurHandApresRiver!=-1) {
+            return valeurHandApresRiver;
+        }
+        else{
+            calculerValeurHand(apresRiver);
+            return valeurHandApresRiver;
+        }
     }
+
+
+    public int getValeurHandSurMain() {
+        if(valeurHandSurMain!=-1) {
+            return valeurHandSurMain;
+        }
+        else{
+            calculerValeurHand(surMain);
+            return valeurHandSurMain;
+        }
+    }
+
+    public int getValeurHandApresFlop(){
+        if(valeurHandApresFlop!=-1) {
+            return valeurHandApresFlop;
+        }
+
+        else{
+            calculerValeurHand(apresFlop);
+            return valeurHandApresFlop;
+        }
+    }
+
+    public int getValeurHandApresTurn(){
+        if(valeurHandApresTurn!=-1) {
+            return valeurHandApresTurn;
+        }
+        else{
+            calculerValeurHand(apresTurn);
+            return valeurHandApresTurn;
+        }
+    }
+
     /*
     Verifie la quantite de pairs dans une hand et retourne une LL avec les cartes trouvées
      */
-    private LinkedList<Carte> pairs(){
+    private LinkedList<Carte> pairs(LinkedList<Carte> cartes){
         LinkedList<Carte> pairs = new LinkedList<>();
         for (int i=2;i<=14;i++){
             int q = 0;
@@ -99,7 +165,7 @@ public class Hand  implements Comparable{
         else{return null;}
     }
 
-    private LinkedList<Carte> threeOfAKind(){
+    private LinkedList<Carte> threeOfAKind(LinkedList<Carte> cartes){
         LinkedList<Carte> threeOfAKind = new LinkedList<>();
         for (int i=2;i<=14;i++){
             int q=0;
@@ -114,7 +180,7 @@ public class Hand  implements Comparable{
                 threeOfAKind.addAll(cartesTrouvees);
             }
         }
-        Collections.sort(threeOfAKind,Collections.reverseOrder());
+        threeOfAKind.sort(Collections.reverseOrder());
         if(threeOfAKind.size()>=3) {
             while (threeOfAKind.size() > 3) {
                 threeOfAKind.removeLast();
@@ -125,7 +191,7 @@ public class Hand  implements Comparable{
     }
 
 
-    private LinkedList<Carte> fourOfAKind(){
+    private LinkedList<Carte> fourOfAKind(LinkedList<Carte> cartes){
         LinkedList<Carte> fourOfAKind = new LinkedList<>();
         for (int i=2;i<=14;i++){
             int q=0;
@@ -150,7 +216,7 @@ public class Hand  implements Comparable{
     /*
     S'il y a un flush dans la hand, la methode retourne une LL avec les 5 cartes du flush, sinon elle retourne null
      */
-    private LinkedList<Carte> flush(){
+    private LinkedList<Carte> flush(LinkedList<Carte> cartes){
         int qt=0; //QUANTITE DE CARTES DE TREFLES
         int qc=0; //QUANTITE DE CARTES DE COEURS
         int qp=0; //QUANTITE DE CARTES DE PIQUES
@@ -218,7 +284,7 @@ public class Hand  implements Comparable{
     /*
         Retourne la carte de valeur plus haute dans la hand
      */
-    private Carte highCard(){
+    private Carte highCard(LinkedList<Carte> cartes){
         Collections.sort(cartes, Collections.reverseOrder());
         return cartes.getFirst();
     }
@@ -227,11 +293,11 @@ public class Hand  implements Comparable{
     Verifie s'il y a un full house dans la hand et retourne une liste avec
     les cartes du full house, sinon retourne null
      */
-    private LinkedList<Carte> fullHouse(){
+    private LinkedList<Carte> fullHouse(LinkedList<Carte> cartes){
         LinkedList<Carte> fullHouse = new LinkedList<Carte>();
-        if(pairs()!=null && threeOfAKind()!=null && pairs().size()>=2 && threeOfAKind().size()>=1){ //possibilité d'avoir deux pairs et une TOAK
-            LinkedList<Carte> pair = pairs();
-            LinkedList<Carte> brelan = threeOfAKind();
+        if(pairs(cartes)!=null && threeOfAKind(cartes)!=null && pairs(cartes).size()>=2 && threeOfAKind(cartes).size()>=1){ //possibilité d'avoir deux pairs et une TOAK
+            LinkedList<Carte> pair = pairs(cartes);
+            LinkedList<Carte> brelan = threeOfAKind(cartes);
             fullHouse.addAll(brelan);
             fullHouse.add(pair.get(0));
             fullHouse.add(pair.get(1));
@@ -242,118 +308,110 @@ public class Hand  implements Comparable{
         }
     }
 
-    // si straight
-    private LinkedList<Carte> straight(){
-        // 5 das sete cartes sejam em sequencia // caso a parte pro As 2 3 4 5
-        LinkedList<Carte> straight = new LinkedList<Carte>();
-
-        if(!isRoyalStraightPossible()){
-            for(Carte c : cartes){
-                if(c.valeur == 14){
-                    c.valeur=1;
+    private LinkedList<Carte> straight(LinkedList<Carte> cartes){
+        LinkedList<Carte> candidats = new LinkedList<>(cartes);
+        Collections.sort(candidats);
+        int i = 0;
+        int enlevees = 0;
+        while(i+1 < candidats.size()){
+            if (candidats.get(i).valeur+1 != candidats.get(i+1).valeur) {
+                if (candidats.get(i).valeur == candidats.get(i+1).valeur){
+                    candidats.remove(i+1);
+                    enlevees++;
+                }
+                else{
+                    if (i >= 4) {
+                        while (candidats.size() > 5) {
+                            candidats.removeLast();
+                        }
+                    } else {
+                        int j = i;
+                        while (j >= 0) {
+                            candidats.remove(j);
+                            j--;
+                            enlevees++;
+                        }
+                    }
                 }
             }
-            Collections.sort(cartes, Collections.reverseOrder());
-        }
-        straight.add(cartes.get(0)); // j'ajoute la carte la plus grande à straight
-        int j = 0; // position de la derniere carte ajoutée a straight
-        for(int i = 1; i<cartes.size() ;i++) {
-
-            if(straight.size()<5) {
-                if (cartes.get(j).valeur == (cartes.get(i).valeur + 1)) {
-                    /*
-                    Comparer la dernière carte ajoutée à straight avec chaque carte de cartes;
-                    si valeur de la carte ajoutée == valeur carte comparée +1, on ajoute la carte a straight et j++
-                     */
-                    straight.add(cartes.get(i));
-                    j++;
-                } else {
-                    straight.clear();
-                    straight.add(cartes.get(i));
-                    j = 0; //reinitialiser j
-                }
+            else{
+                i++;
             }
-
-        }
-
-        if(straight.size() < 5) {
-            straight = null;
-            Collections.sort(cartes,Collections.reverseOrder());
-            for(Carte c: cartes){
-                if(c.valeur==1){ // si pas de straight 12345, rechanger la valeur des aces pour ne pas gener les autres methodes
-                    c.valeur = 14;
-                }
+            //Straight n'est pas possible.
+            if((cartes.size()==5 && enlevees>1) || (cartes.size()==6 && enlevees>2) || (cartes.size()==7 && enlevees>3)){
+                break;
             }
-            Collections.sort(cartes,Collections.reverseOrder()); //retrier la hand
         }
-
-        return straight;
-    }
-
-
-    private LinkedList<Carte> straight(LinkedList<Carte> flush){
-        // 5 das sete cartes sejam em sequencia // caso a parte pro As 2 3 4 5
-        LinkedList<Carte> straight = new LinkedList<Carte>();
-
-        if(!isRoyalStraightPossible()){
-            for(Carte c : flush){
-                if(c.valeur == 14){
-                    c.valeur=1;
+        //Si une suite n'a pas été trouvé, on cherche si on peut avoir une commençant par As, et on change la valeur de l'As de 14 à 1.
+        if (candidats.size()<5){
+            //Une suite commençant par As n'est possible que s'il y a un As et un Deux dans les cartes
+            LinkedList<Carte> verification = new LinkedList<>(cartes);
+            Collections.sort(verification);
+            if(verification.getLast().valeur==14 && verification.getFirst().valeur==2) {
+                candidats = new LinkedList<>(cartes);
+                candidats.forEach(carte -> {
+                    if (carte.valeur == 14) {
+                        carte.valeur = 1;
+                    }
+                });
+                i=0;
+                enlevees=0;
+                Collections.sort(candidats);
+                while(i+1 < candidats.size()){
+                    if (candidats.get(i).valeur+1 != candidats.get(i+1).valeur) {
+                        if (candidats.get(i).valeur == candidats.get(i+1).valeur){
+                            candidats.remove(i+1);
+                            enlevees++;
+                        }
+                        else{
+                            if (i >= 4) {
+                                while (candidats.size() > 5) {
+                                    candidats.removeLast();
+                                }
+                            } else {
+                                int j = i;
+                                while (j >= 0) {
+                                    candidats.remove(j);
+                                    j--;
+                                    enlevees++;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        i++;
+                    }
+                    //Straight n'est pas possible.
+                    if((cartes.size()==5 && enlevees>=1) || (cartes.size()==6 && enlevees>=2) || (cartes.size()==7 && enlevees>=3)){
+                        break;
+                    }
                 }
+                cartes.forEach(carte -> {
+                    if(carte.valeur==1){
+                        carte.valeur=14;
+                    }
+                });
             }
-            Collections.sort(flush, Collections.reverseOrder());
         }
-        straight.add(flush.get(0)); // j'ajoute la carte la plus grande à straight
-        int j = 0; // position de la derniere carte ajoutée a straight
-        for(int i = 1; i<flush.size() ;i++) {
-
-            if(straight.size()<5) {
-                if (straight.get(j).valeur == (flush.get(i).valeur + 1)) {
-                    /*
-                    Comparer la dernière carte ajoutée à straight avec chaque carte de cartes;
-                    si valeur de la carte ajoutée == valeur carte comparée +1, on ajoute la carte a straight et j++
-                     */
-                    straight.add(flush.get(i));
-                    j++;
-                } else {
-                    straight.clear();
-                    straight.add(flush.get(i));
-                    j = 0; //reinitialiser j
-                }
-            }
-
+        if(candidats.size()<5){
+            return null;
         }
-        // Pour les cartes de flush, pas besoin de rechanger la valeur des aces, vu que ça ne change pas la valeur de la carte sur cartes, juste sur flush
 
-        return straight;
-    }
-
-    private boolean isRoyalStraightPossible(){
-        boolean possibilite = false;
-        Carte ace = new Carte(14, 't');
-        Carte roi = new Carte(13, 't');
-        Carte dame = new Carte(12, 't');
-        //Vérifier si les trois premieres cartes sont Ace, Roi et dame
-        if(cartes.get(0).compareTo(ace)==0){
-            if(cartes.get(1).compareTo(ace)==0 ||cartes.get(1).compareTo(roi)==0 ) {
-                if(cartes.get(2).compareTo(roi)==0||cartes.get(2).compareTo(dame)==0){
-                    possibilite = true;
-                }
-            }
-
+        else{
+            return candidats;
         }
-        return possibilite;
+
     }
 
     /*
     RETORNA UMA LISTA COM OS valeurES DO STRAIGHT FLUSH EM ORDEM DESCRESCENTE
      */
-    private LinkedList<Carte> straightFlush() {
+    private LinkedList<Carte> straightFlush(LinkedList<Carte> cartes) {
         // verif de flush()!=null et staight()!=null pas necessaire, car deja ne sera appellee si les deux sont dif de null
         /* Idée de la méthode: verifier si la liste flush() contient un Straight
          */
-        if(flush()!=null){
-            return straight(flush());
+        if(flush(cartes)!=null){
+            return straight(flush(cartes));
         }
         else{
             return null;
@@ -363,77 +421,205 @@ public class Hand  implements Comparable{
     /*
     RETORNA TRUE SE HOUVER UM ROYAL STRAIGHT FLUSH NA HAND E FALSE SE NAO HOUVER
      */
-    private boolean royalStraightFlush(){
-        return straightFlush()!=null && straightFlush().get(0).valeur == 14;
+    private boolean royalStraightFlush(LinkedList<Carte> cartes){
+        return straightFlush(cartes)!=null && straightFlush(cartes).getLast().valeur==14;
     }
 
     public int compareTo(Object h2) {
         int comparaison = 0;
-        if (valeurHand > ((Hand)h2).valeurHand) {
+        if (valeurHandApresRiver > ((Hand)h2).valeurHandApresRiver) {
             comparaison = 1;
-        } else if (valeurHand < ((Hand)h2).valeurHand) {
+        } else if (valeurHandApresRiver < ((Hand)h2).valeurHandApresRiver) {
             comparaison = -1;
         }
         return comparaison;
     }
 
-    public void calculerValeurHand(){
-        LinkedList<Carte> result = new LinkedList<>();
-        if(royalStraightFlush()){
-            result.addAll(flush());
-            description = "Royal straight flush";
-            valeurHand = 500000;
-        }
-        else if(straightFlush()!=null){
-            result.addAll(straightFlush());
-            description = "Straight flush, carte haute "+result.getFirst().description(false);
-            valeurHand = 400000 + result.getFirst().valeur;
-        }
-        else if(fourOfAKind()!=null){
-            result.addAll(fourOfAKind());
-            valeurHand = 300000 + result.getFirst().valeur;
-            description = "Carre de "+result.getFirst().description(true);
-        }
-        else if(fullHouse()!=null){
-            result.addAll(fullHouse());
-            valeurHand = 200000 + 10*result.getFirst().valeur + result.getLast().valeur;
-            description = "Full House, trois "+result.getFirst().description(true)+" et deux "+result.getLast().description(true);
-        }
-        else if(flush()!=null){
-            result.addAll(flush());
-            while(result.size()>5){
-                result.removeLast();
-            }
-            valeurHand = 10000*result.getFirst().valeur + 1000*result.get(1).valeur + 100*result.get(2).valeur + 10*result.get(3).valeur + result.get(4).valeur;
-            description = "Flush, carte haute "+result.getFirst().description(false);
-        }
-        else if(straight()!=null){
-            result.addAll(straight());
-            valeurHand = 15000 + result.getFirst().valeur;
-            description = "Suite, carte haute "+result.getFirst().description(false);
-        }
-        else if(threeOfAKind()!=null){
-            result.addAll(threeOfAKind());
-            valeurHand = 1000*result.getFirst().valeur;
-            description = "Brelan de "+result.getFirst().description(true);
-        }
-        else if(pairs()!=null){
-            result.addAll(pairs());
-            if (result.size()==2){
-                valeurHand = 10*result.getFirst().valeur;
-                description = "Pair de "+result.getFirst().description(true);
-            }
-            else if (result.size()==4){
-                valeurHand = 100*result.getFirst().valeur + result.getLast().valeur;
-                description = "Deux pairs, "+result.getFirst().description(true)+" et "+result.getLast().description(true);
+
+    public void calculerValeurHand(LinkedList<Carte> cartesDeLaHand) {
+        //Valeurs Han Sur Main
+        if (cartesDeLaHand.size() == 2) {
+            if (pairs(cartesDeLaHand) != null) {
+                LinkedList<Carte> pairs = pairs(cartesDeLaHand);
+                if (pairs.size() == 2) {
+                    valeurHandSurMain = 10 * pairs.getFirst().valeur;
+                } else if (pairs.size() == 4) {
+                    valeurHandSurMain = 100 * pairs.getFirst().valeur + pairs.getLast().valeur;
+                }
+            } else {
+                valeurHandSurMain = highCard(surMain).valeur;
             }
         }
+        //Calcul de la valeur de la hand après flop, turn et river.
         else {
-            result.add(highCard());
-            valeurHand = result.getFirst().valeur;
-            description = "Carte haute, "+result.getFirst().description(false);
+            LinkedList<Carte> result = new LinkedList<>();
+            if (royalStraightFlush(cartesDeLaHand)) {
+                result.addAll(flush(cartesDeLaHand));
+                //Si cartesDeLaHand.size()==5, c'est-à-dire que c'est après le flop.
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 500000;
+                }
+                //Si cartesDeLaHand.size()==6, c'est-à-dire que c'est après le turn.
+                else if(cartesDeLaHand.size()==6){
+                    valeurHandApresTurn = 500000;
+                }
+                //Si cartesDeLaHand.size()==7, c'est-à-dire que c'est après le river.
+                else{
+                    description = "Royal straight flush";
+                    valeurHandApresRiver = 500000;
+                }
+            } else if (straightFlush(cartesDeLaHand) != null) {
+                result.addAll(straightFlush(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 400000 + result.getFirst().valeur;
+                }
+                else if(cartesDeLaHand.size()==6){
+                    valeurHandApresTurn = 400000 + result.getFirst().valeur;
+                }
+                else{
+                    description = "Straight flush, carte haute " + result.getFirst().description(false);
+                    valeurHandApresRiver = 400000 + result.getFirst().valeur;
+                }
+            }
+
+            else if (fourOfAKind(cartesDeLaHand) != null) {
+                result.addAll(fourOfAKind(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 300000 + result.getFirst().valeur;
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    valeurHandApresTurn = 300000 + result.getFirst().valeur;
+                }
+                else{
+                    valeurHandApresRiver = 300000 + result.getFirst().valeur;
+                    description = "Carre de " + result.getFirst().description(true);
+                }
+            }
+
+            else if (fullHouse(cartesDeLaHand) != null) {
+                result.addAll(fullHouse(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    valeurHandApresTurn = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
+                }
+                else{
+                    valeurHandApresRiver = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
+                    description = "Full House, trois " + result.getFirst().description(true) + " et deux " + result.getLast().description(true);
+                }
+            }
+
+            else if (flush(cartesDeLaHand) != null) {
+                result.addAll(flush(cartesDeLaHand));
+                while (result.size() > 5) {
+                    result.removeLast();
+                }
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    valeurHandApresTurn = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
+                }
+                else{
+                    valeurHandApresRiver = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
+                    description = "Flush, carte haute " + result.getFirst().description(false);
+                }
+            }
+
+            else if (straight(cartesDeLaHand) != null) {
+                result.addAll(straight(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 15000 + result.getFirst().valeur;
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    valeurHandApresTurn = 15000 + result.getFirst().valeur;
+                }
+                else{
+                    valeurHandApresRiver = 15000 + result.getFirst().valeur;
+                    description = "Suite, carte haute " + result.getFirst().description(false);
+                }
+            }
+
+            else if (threeOfAKind(cartesDeLaHand) != null) {
+                result.addAll(threeOfAKind(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = 1000 * result.getFirst().valeur;
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    valeurHandApresTurn = 1000 * result.getFirst().valeur;
+                }
+                else{
+                    valeurHandApresRiver = 1000 * result.getFirst().valeur;
+                    description = "Brelan de " + result.getFirst().description(true);
+                }
+            }
+
+            else if (pairs(cartesDeLaHand) != null) {
+                result.addAll(pairs(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    if (result.size() == 2) {
+                        valeurHandApresFlop = 10 * result.getFirst().valeur;
+                    } else if (result.size() == 4) {
+                        valeurHandApresFlop = 100 * result.getFirst().valeur + result.getLast().valeur;
+                    }
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    if (result.size() == 2) {
+                        valeurHandApresTurn = 10 * result.getFirst().valeur;
+                    } else if (result.size() == 4) {
+                        valeurHandApresTurn = 100 * result.getFirst().valeur + result.getLast().valeur;
+                    }
+                }
+                else{
+                    if (result.size() == 2) {
+                        valeurHandApresRiver = 10 * result.getFirst().valeur;
+                        description = "Pair de " + result.getFirst().description(true);
+                    } else if (result.size() == 4) {
+                        valeurHandApresRiver = 100 * result.getFirst().valeur + result.getLast().valeur;
+                        description = "Deux pairs, " + result.getFirst().description(true) + " et " + result.getLast().description(true);
+                    }
+                }
+            }
+
+            else {
+                result.add(highCard(cartesDeLaHand));
+                if(cartesDeLaHand.size()==5){
+                    valeurHandApresFlop = result.getFirst().valeur;
+                }
+                else if(cartesDeLaHand.size()==6) {
+                    valeurHandApresTurn = result.getFirst().valeur;
+                }
+                else{
+                    valeurHandApresRiver = result.getFirst().valeur;
+                    description = "Carte haute, " + result.getFirst().description(false);
+                }
+            }
+
+            if (cartesDeLaHand.size()==7){
+                hand=result;
+            }
         }
-        hand=result;
+    }
+
+    public static void main(String[] args){
+        LinkedList<Carte> cartes = new LinkedList<>();
+        LinkedList<Carte> main = new LinkedList<>();
+        main.add(new Carte(14,'c'));
+        main.add(new Carte(3,'t'));
+        cartes.add(new Carte(2,'c'));
+        cartes.add(new Carte(2,'d'));
+        cartes.add(new Carte(5,'p'));
+        cartes.add(new Carte(14,'t'));
+        cartes.add(new Carte(10,'t'));
+        Hand h = new Hand();
+        h.setHand(main,cartes);
+        if(h.straight(h.apresRiver)!=null) {
+            System.out.println(h.straight(h.apresRiver).toString());
+        }
+
+        System.out.println(h.getValeurHandApresRiver());
+        System.out.println(h.getToutesCartes().toString());
     }
 }
 

@@ -445,7 +445,7 @@ public class Jeu extends Thread {
             if(!joueur.potsDejaCompletes) {
                 int pot = potsSecondaires.get(joueur);
                 if (valeur > joueur.valeurAllInIncomplet) {
-                    pot = pot + joueur.valeurAllInIncomplet;
+                    pot = pot + (joueur.valeurAllInIncomplet);
                 } else {
                     pot = pot + valeur;
                 }
@@ -457,18 +457,17 @@ public class Jeu extends Thread {
 
     public void creerPotsSecondaires(Joueur j){
         potsSecondairesDansJeu=true;
-        System.out.println("Creer pot secondaire: "+j.nom);
         if(!flop){
-            potsSecondaires.put(j, j.getArgent() *(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
         }
         else if(!turn){
-            potsSecondaires.put(j, potAvantFlop + j.getArgent()*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, potAvantFlop + (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
         }
         else if(!river){
-            potsSecondaires.put(j, potAvantTurn + j.getArgent()*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, potAvantTurn + (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
         }
         else{
-            potsSecondaires.put(j, potAvantRiver + j.getArgent()*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, potAvantRiver + (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
         }
         System.out.println(potsSecondaires.toString());
     }
@@ -522,7 +521,7 @@ public class Jeu extends Thread {
                 /*
                 Cas carte haute
                  */
-                if (j.getHand().getValeurHand() <= 14) {
+                if (j.getHand().getValeurHandApresRiver() <= 14) {
                 /*
                 Si un des 4 kickers plus hauts est sur la main du joueur, sa valeur est ajoutée a la valeur de la hand
                  */
@@ -537,7 +536,7 @@ public class Jeu extends Thread {
                 /*
                 Cas pair
                 */
-                else if (j.getHand().getValeurHand() >= 20 && j.getHand().getValeurHand() <= 140) {
+                else if (j.getHand().getValeurHandApresRiver() >= 20 && j.getHand().getValeurHandApresRiver() <= 140) {
                     /*
                     Si un des 3 kicker plus hauts est sur la main du jouer, sa valeur est ajoutee a la valeur de la hand
                     */
@@ -552,7 +551,7 @@ public class Jeu extends Thread {
                 /*
                 Cas deux pairs
                 */
-                else if (j.getHand().getValeurHand() >= 230 && j.getHand().getValeurHand() <= 1530) {
+                else if (j.getHand().getValeurHandApresRiver() >= 230 && j.getHand().getValeurHandApresRiver() <= 1530) {
                     /*
                     Si le kicker est sur la main du joueur, sa valeur est ajoutée a la valeur de la hand
                     */
@@ -565,7 +564,7 @@ public class Jeu extends Thread {
                 /*
                 Cas brelan (three of a kind)
                  */
-                else if (j.getHand().getValeurHand() >= 2000 && j.getHand().getValeurHand() <= 14000) {
+                else if (j.getHand().getValeurHandApresRiver() >= 2000 && j.getHand().getValeurHandApresRiver() <= 14000) {
                     /*
                     Au moins un des deux kicker est sur la main du joueur
                      */
@@ -578,7 +577,7 @@ public class Jeu extends Thread {
                 /*
                 Cas carré (four of a kind)
                  */
-                else if (j.getHand().getValeurHand() >= 300002 && j.getHand().getValeurHand() <= 300014) {
+                else if (j.getHand().getValeurHandApresRiver() >= 300002 && j.getHand().getValeurHandApresRiver() <= 300014) {
                     /*
                     Le kicker est sur la main du joueur
                      */
@@ -596,7 +595,7 @@ public class Jeu extends Thread {
 
         joueursEgaux.sort(Collections.reverseOrder());
 
-        return joueursEgaux.getFirst().getHand().getValeurHand() > joueursEgaux.get(1).getHand().getValeurHand();
+        return joueursEgaux.getFirst().getHand().getValeurHandApresRiver() > joueursEgaux.get(1).getHand().getValeurHandApresRiver();
     }
 
     /*
@@ -612,13 +611,13 @@ public class Jeu extends Thread {
         /*
         Cas où il y a un seul joueur gagnant
          */
-        if (joueursDansLaTournee.getFirst().getHand().getValeurHand() > joueursDansLaTournee.get(1).getHand().getValeurHand()){
+        if (joueursDansLaTournee.getFirst().getHand().getValeurHandApresRiver() > joueursDansLaTournee.get(1).getHand().getValeurHandApresRiver()){
             joueursGagnants.add(joueursDansLaTournee.getFirst());
         }
 
         else {
-            int v1 = joueursDansLaTournee.getFirst().getHand().getValeurHand();
-            joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHand() < v1);
+            int v1 = joueursDansLaTournee.getFirst().getHand().getValeurHandApresRiver();
+            joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHandApresRiver() < v1);
             /*
             Après cette boucle for, tous les joueurs qui ont une valeur de hand inférieure à celle de la hand plus haute
             ont été enlevés de la liste tousJoueurs. On ajoute la valeur du kicker (si applicable) dans la nouvelle liste
@@ -639,8 +638,8 @@ public class Jeu extends Thread {
                 ont une hand de même valeur.
                  */
                 joueursDansLaTournee.sort(Collections.reverseOrder());
-                int v2 = joueursDansLaTournee.getFirst().getHand().getValeurHand();
-                joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHand() < v2);
+                int v2 = joueursDansLaTournee.getFirst().getHand().getValeurHandApresRiver();
+                joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHandApresRiver() < v2);
                 joueursGagnants.addAll(joueursDansLaTournee);
                 joueursGagnants.getFirst().getHand().ajouterDescription(". Partage du pot");
             }
