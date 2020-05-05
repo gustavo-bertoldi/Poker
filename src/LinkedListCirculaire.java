@@ -51,7 +51,6 @@ public class LinkedListCirculaire {
             }
 
             else if(joueurAEnlever.equals(tete.joueur)){
-                System.out.println("Enlever TETE");
                 tete=tete.prochainNode;
                 nodes.remove(joueurAEnlever);
                 queue.prochainNode=tete;

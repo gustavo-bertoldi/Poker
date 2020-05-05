@@ -320,19 +320,20 @@ public class Hand  implements Comparable{
                     enlevees++;
                 }
                 else{
-                        int j = i;
-                        while (j >= 0) {
-                            candidats.remove(j);
-                            j--;
-                            enlevees++;
-                        }
+                    int j = i;
+                    while (j >= 0) {
+                        candidats.remove(j);
+                        j--;
+                        enlevees++;
+                    }
                 }
+                i=0;
             }
             else{
                 i++;
             }
             //Straight n'est pas possible.
-            if((cartes.size()==5 && enlevees>1) || (cartes.size()==6 && enlevees>2) || (cartes.size()==7 && enlevees>3)){
+            if((cartes.size()==5 && enlevees>=1) || (cartes.size()==6 && enlevees>=2) || (cartes.size()==7 && enlevees>=3)){
                 break;
             }
         }
@@ -374,7 +375,6 @@ public class Hand  implements Comparable{
                         break;
                     }
                 }
-                Collections.sort(candidats);
                 cartes.forEach(carte -> {
                     if(carte.valeur==1){
                         carte.valeur=14;
@@ -388,7 +388,7 @@ public class Hand  implements Comparable{
 
         else{
             while(candidats.size()>5){
-                candidats.removeFirst();
+                candidats.removeLast();
             }
             return candidats;
         }
@@ -521,6 +521,7 @@ public class Hand  implements Comparable{
 
             else if (straight(cartesDeLaHand) != null) {
                 result.addAll(straight(cartesDeLaHand));
+                Collections.sort(result);
                 if(cartesDeLaHand.size()==5){
                     valeurHandApresFlop = 15000 + result.getLast().valeur;
                 }
@@ -597,21 +598,20 @@ public class Hand  implements Comparable{
     public static void main(String[] args){
         LinkedList<Carte> cartes = new LinkedList<>();
         LinkedList<Carte> main = new LinkedList<>();
-        main.add(new Carte(14,'c'));
-        main.add(new Carte(2,'t'));
-        cartes.add(new Carte(5,'c'));
+        main.add(new Carte(13,'c'));
+        main.add(new Carte(14,'t'));
+        cartes.add(new Carte(12,'c'));
         cartes.add(new Carte(3,'d'));
-        cartes.add(new Carte(4,'p'));
-        cartes.add(new Carte(8,'t'));
-        cartes.add(new Carte(9,'t'));
+        cartes.add(new Carte(5,'p'));
+        cartes.add(new Carte(2,'t'));
+        cartes.add(new Carte(4,'t'));
         Hand h = new Hand();
         h.setHand(main,cartes);
+        System.out.println(h.getToutesCartes().toString());
         if(h.straight(h.apresRiver)!=null) {
             System.out.println(h.straight(h.apresRiver).toString());
         }
 
-        System.out.println(h.getValeurHandApresRiver());
-        System.out.println(h.getToutesCartes().toString());
     }
 }
 
