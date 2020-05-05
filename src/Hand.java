@@ -310,28 +310,22 @@ public class Hand  implements Comparable{
 
     private LinkedList<Carte> straight(LinkedList<Carte> cartes){
         LinkedList<Carte> candidats = new LinkedList<>(cartes);
-        Collections.sort(candidats);
+        candidats.sort(Collections.reverseOrder());
         int i = 0;
         int enlevees = 0;
         while(i+1 < candidats.size()){
-            if (candidats.get(i).valeur+1 != candidats.get(i+1).valeur) {
+            if (candidats.get(i).valeur-1 != candidats.get(i+1).valeur) {
                 if (candidats.get(i).valeur == candidats.get(i+1).valeur){
                     candidats.remove(i+1);
                     enlevees++;
                 }
                 else{
-                    if (i >= 4) {
-                        while (candidats.size() > 5) {
-                            candidats.removeLast();
-                        }
-                    } else {
                         int j = i;
                         while (j >= 0) {
                             candidats.remove(j);
                             j--;
                             enlevees++;
                         }
-                    }
                 }
             }
             else{
@@ -346,8 +340,8 @@ public class Hand  implements Comparable{
         if (candidats.size()<5){
             //Une suite commençant par As n'est possible que s'il y a un As et un Deux dans les cartes
             LinkedList<Carte> verification = new LinkedList<>(cartes);
-            Collections.sort(verification);
-            if(verification.getLast().valeur==14 && verification.getFirst().valeur==2) {
+            verification.sort(Collections.reverseOrder());
+            if(verification.getFirst().valeur==14 && verification.getLast().valeur==2) {
                 candidats = new LinkedList<>(cartes);
                 candidats.forEach(carte -> {
                     if (carte.valeur == 14) {
@@ -356,26 +350,20 @@ public class Hand  implements Comparable{
                 });
                 i=0;
                 enlevees=0;
-                Collections.sort(candidats);
+                candidats.sort(Collections.reverseOrder());
                 while(i+1 < candidats.size()){
-                    if (candidats.get(i).valeur+1 != candidats.get(i+1).valeur) {
+                    if (candidats.get(i).valeur-1 != candidats.get(i+1).valeur) {
                         if (candidats.get(i).valeur == candidats.get(i+1).valeur){
                             candidats.remove(i+1);
                             enlevees++;
                         }
                         else{
-                            if (i >= 4) {
-                                while (candidats.size() > 5) {
-                                    candidats.removeLast();
-                                }
-                            } else {
                                 int j = i;
                                 while (j >= 0) {
                                     candidats.remove(j);
                                     j--;
                                     enlevees++;
                                 }
-                            }
                         }
                     }
                     else{
@@ -386,6 +374,7 @@ public class Hand  implements Comparable{
                         break;
                     }
                 }
+                Collections.sort(candidats);
                 cartes.forEach(carte -> {
                     if(carte.valeur==1){
                         carte.valeur=14;
@@ -398,6 +387,9 @@ public class Hand  implements Comparable{
         }
 
         else{
+            while(candidats.size()>5){
+                candidats.removeFirst();
+            }
             return candidats;
         }
 
@@ -530,14 +522,14 @@ public class Hand  implements Comparable{
             else if (straight(cartesDeLaHand) != null) {
                 result.addAll(straight(cartesDeLaHand));
                 if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 15000 + result.getFirst().valeur;
+                    valeurHandApresFlop = 15000 + result.getLast().valeur;
                 }
                 else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = 15000 + result.getFirst().valeur;
+                    valeurHandApresTurn = 15000 + result.getLast().valeur;
                 }
                 else{
-                    valeurHandApresRiver = 15000 + result.getFirst().valeur;
-                    description = "Suite, carte haute " + result.getFirst().description(false);
+                    valeurHandApresRiver = 15000 + result.getLast().valeur;
+                    description = "Suite, carte haute " + result.getLast().description(false);
                 }
             }
 
@@ -606,12 +598,12 @@ public class Hand  implements Comparable{
         LinkedList<Carte> cartes = new LinkedList<>();
         LinkedList<Carte> main = new LinkedList<>();
         main.add(new Carte(14,'c'));
-        main.add(new Carte(3,'t'));
-        cartes.add(new Carte(2,'c'));
-        cartes.add(new Carte(2,'d'));
-        cartes.add(new Carte(5,'p'));
-        cartes.add(new Carte(14,'t'));
-        cartes.add(new Carte(10,'t'));
+        main.add(new Carte(2,'t'));
+        cartes.add(new Carte(5,'c'));
+        cartes.add(new Carte(3,'d'));
+        cartes.add(new Carte(4,'p'));
+        cartes.add(new Carte(8,'t'));
+        cartes.add(new Carte(9,'t'));
         Hand h = new Hand();
         h.setHand(main,cartes);
         if(h.straight(h.apresRiver)!=null) {

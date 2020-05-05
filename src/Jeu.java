@@ -365,7 +365,8 @@ public class Jeu extends Thread {
      */
     public void tourneeFinie(){
         //Cas où il ne reste qu'un joueur dans la tournée.
-        StringBuilder descriptionPot = new StringBuilder("");
+        StringBuilder descriptionPot = new StringBuilder();
+        joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
         if (joueursDansLaTournee.size()==1){
             fenetre.afficherHandGagnante(true, descriptionPot.toString());
             joueursDansLaTournee.getFirst().joueur.ajouterArgent(potActuel);
@@ -430,12 +431,11 @@ public class Jeu extends Thread {
                 joueursGagnants.forEach(joueur -> {
                     joueur.ajouterArgent(potActuel);
                     fenetre.mettreAJourInfosJoueur(joueur);
-                    descriptionPot.append(joueur.nom).append(" : ").append(potActuel).append(" || ");
+                    descriptionPot.append(joueur.nom).append(" : ").append(potActuel).append(" fiches || ");
                 });
             }
             fenetre.afficherHandGagnante(false, descriptionPot.toString());
         }
-        joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
         fenetre.afficherBoutonProchaineTournee();
     }
 

@@ -63,7 +63,7 @@ public class FenetreJeuV3 extends JFrame {
         prochaineTournee.setVisible(false);
         call = new JButton("Call");
         call.addActionListener(new EcouteurV2(this, "Call"));
-        raise = new JButton("Raise");
+        raise = new JButton("Raise "+2*jeu.pariActuel);
         raise.addActionListener(new EcouteurV2(this, "Raise"));
         fold = (new JButton("Fold"));
         fold.addActionListener(new EcouteurV2(this, "Fold"));
@@ -123,8 +123,6 @@ public class FenetreJeuV3 extends JFrame {
             }
             raise.setText(text);
         });
-        revalidate();
-        repaint();
 
     }
 
@@ -199,8 +197,6 @@ public class FenetreJeuV3 extends JFrame {
         else {
             infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent());
         }
-        revalidate();
-        repaint();
     }
 
     public void creerHandGagnant(boolean tousFold, String descriptionPot){
@@ -232,8 +228,6 @@ public class FenetreJeuV3 extends JFrame {
 
     public void afficherHandGagnante(boolean tousFold, String descriptionPot){
         creerHandGagnant(tousFold, descriptionPot);
-        revalidate();
-        repaint();
         handGagnante.setVisible(true);
     }
 
