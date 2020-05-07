@@ -13,31 +13,31 @@ public class EcouteurV2 implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e){
-        if(fun == "restart"){
-
+        if(fun.equals("restart")){
+            //sauvegarder highscore, reouvrir menu.
         }
-        else if(fun == "Call"){
+        else if(fun.equals("Call")){
             try {
                 fenetre.setActionJoueurHumain(1);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
         }
-        else if(fun == "Raise"){
+        else if(fun.equals("Raise")){
             try {
                 fenetre.setActionJoueurHumain(fenetre.getValeurRaiseSlider());
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
         }
-        else if(fun == "ProchaineTournee"){
+        else if(fun.equals("ProchaineTournee")){
             try {
                 fenetre.nouvelleTournee();
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
         }
-        else if(fun == "Fold"){
+        else if(fun.equals("Fold")){
             fenetre.foldJoueurHumain();
             try {
                 fenetre.setActionJoueurHumain(0);

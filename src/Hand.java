@@ -5,16 +5,20 @@ import java.util.*;
 public class Hand  implements Comparable{
 
     private LinkedList<Carte> surMain;
-    private LinkedList<Carte> apresFlop;
+    private LinkedList<Carte> surTable;
     private LinkedList<Carte> apresTurn;
     private LinkedList<Carte> apresRiver;
+    private LinkedList<Carte> handMoment;
     private LinkedList<Carte> hand;
 
     private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
-    private int valeurHandApresRiver = -1;
+
+    private Range rangePreFlop;
+    private int valeurHandMoment = -1;
     private int valeurHandSurMain = -1;
     private int valeurHandApresFlop = -1;
     private int valeurHandApresTurn = -1;
+    private int valeurHandApresRiver = -1;
     /*
     Idée derrière valeurHand:
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
@@ -67,34 +71,35 @@ public class Hand  implements Comparable{
         valeurHandApresRiver=valeurHandApresRiver+kicker.valeur;
     }
 
-    public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
-        surMain= new LinkedList<>();
-        apresFlop = new LinkedList<>();
-        apresTurn = new LinkedList<>();
-        apresRiver = new LinkedList<>();
-        hand = new LinkedList<>();
-        valeurHandSurMain = -1;
-        valeurHandApresFlop = -1;
-        valeurHandApresTurn = -1;
-        valeurHandApresRiver = -1;
-        Collections.sort(cartesSurMain,Collections.reverseOrder());
-        this.surMain = cartesSurMain;
-        //On définit la liste de cartes après flop étant les 2 sur main + les 3 premières de la table.
-        this.apresFlop.addAll(cartesSurMain);
-        this.apresFlop.add(cartesTable.getFirst());
-        this.apresFlop.add(cartesTable.get(1));
-        this.apresFlop.add(cartesTable.get(2));
-        Collections.sort(apresFlop, Collections.reverseOrder());
-        //On définit la liste de cartes après turn étant les 2 sur main + les 4 premières de la table.
-        this.apresTurn.addAll(apresFlop);
-        this.apresTurn.add(cartesTable.get(3));
-        Collections.sort(apresTurn, Collections.reverseOrder());
-        //On définit la liste de cartes après river étant les 2 sur main + les 5 sur table.
-        this.apresRiver.addAll(cartesTable);
-        this.apresRiver.addAll(surMain);
-        Collections.sort(apresRiver, Collections.reverseOrder());
+    public int getValeurHandMoment() {
+        return valeurHandMoment;
     }
 
+    public void definirSurMainEtSurTable(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
+        surTable = cartesTable;
+        cartesSurMain.sort(Collections.reverseOrder());
+        surMain = cartesSurMain;
+
+    }
+    public void setHandMoment(int moment){
+        handMoment= new LinkedList<>();
+        if(moment == 0) {
+            handMoment = surMain;
+        }else if(moment == 1){
+            handMoment.add(surTable.getFirst());
+            handMoment.add(surTable.get(1));
+            handMoment.add(surTable.get(2));
+
+        }else if(moment == 2){
+            handMoment.add(surTable.get(3));
+        } else if(moment == 3){
+            handMoment.add(surTable.get(4));
+        }
+        handMoment.sort(Collections.reverseOrder());
+        calculerValeurHand(handMoment);
+
+    }
+/*
     public int getValeurHandApresRiver(){
         if(valeurHandApresRiver!=-1) {
             return valeurHandApresRiver;
@@ -137,6 +142,8 @@ public class Hand  implements Comparable{
         }
     }
 
+ */
+
     /*
     Verifie la quantite de pairs dans une hand et retourne une LL avec les cartes trouvées
      */
@@ -155,7 +162,7 @@ public class Hand  implements Comparable{
                 pairs.addAll(cartesTrouvees);
             }
         }
-        Collections.sort(pairs,Collections.reverseOrder());
+        pairs.sort(Collections.reverseOrder());
         if(pairs.size()>=2) {
             while (pairs.size() > 4) {
                 pairs.removeLast();
@@ -272,7 +279,7 @@ public class Hand  implements Comparable{
             }
         }
         if(flush.size()>=5) {
-            Collections.sort(flush, Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
+            flush.sort(Collections.reverseOrder()); //TRIE LA LISTE EN VALEURS DECROISSANTES
             // flush() renvoie la totalite des cartes de la meme couleur, 5, 6 ou 7. (important pour straightFlush()), mais valeur calculé avec les 5 plus fortes
             return flush;
         }
@@ -285,7 +292,7 @@ public class Hand  implements Comparable{
         Retourne la carte de valeur plus haute dans la hand
      */
     private Carte highCard(LinkedList<Carte> cartes){
-        Collections.sort(cartes, Collections.reverseOrder());
+        cartes.sort(Collections.reverseOrder());
         return cartes.getFirst();
     }
 
@@ -396,7 +403,7 @@ public class Hand  implements Comparable{
     }
 
     /*
-    RETORNA UMA LISTA COM OS valeurES DO STRAIGHT FLUSH EM ORDEM DESCRESCENTE
+    Return une liste avec les cartes triées en ordre decrescente de valeur
      */
     private LinkedList<Carte> straightFlush(LinkedList<Carte> cartes) {
         // verif de flush()!=null et staight()!=null pas necessaire, car deja ne sera appellee si les deux sont dif de null
@@ -429,170 +436,76 @@ public class Hand  implements Comparable{
 
 
     public void calculerValeurHand(LinkedList<Carte> cartesDeLaHand) {
-        //Valeurs Han Sur Main
+        LinkedList<Carte> result = new LinkedList<>();
         if (cartesDeLaHand.size() == 2) {
             if (pairs(cartesDeLaHand) != null) {
-                LinkedList<Carte> pairs = pairs(cartesDeLaHand);
-                if (pairs.size() == 2) {
-                    valeurHandSurMain = 10 * pairs.getFirst().valeur;
-                } else if (pairs.size() == 4) {
-                    valeurHandSurMain = 100 * pairs.getFirst().valeur + pairs.getLast().valeur;
-                }
+                result = pairs(cartesDeLaHand);
+                valeurHandMoment = 10 * result.getFirst().valeur;
             } else {
                 valeurHandSurMain = highCard(surMain).valeur;
             }
-        }
-        //Calcul de la valeur de la hand après flop, turn et river.
-        else {
-            LinkedList<Carte> result = new LinkedList<>();
-            if (royalStraightFlush(cartesDeLaHand)) {
-                result.addAll(flush(cartesDeLaHand));
-                //Si cartesDeLaHand.size()==5, c'est-à-dire que c'est après le flop.
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 500000;
-                }
-                //Si cartesDeLaHand.size()==6, c'est-à-dire que c'est après le turn.
-                else if(cartesDeLaHand.size()==6){
-                    valeurHandApresTurn = 500000;
-                }
-                //Si cartesDeLaHand.size()==7, c'est-à-dire que c'est après le river.
-                else{
-                    description = "Royal straight flush";
-                    valeurHandApresRiver = 500000;
-                }
-            } else if (straightFlush(cartesDeLaHand) != null) {
+        }else {  //Calcul de la valeur de la hand après flop, turn et river.
+            result = new LinkedList<>();
+            if (straightFlush(cartesDeLaHand) != null) { //PAS BESOIN DE DIVISION EN CAS, C'est la plus puissante possible
                 result.addAll(straightFlush(cartesDeLaHand));
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 400000 + result.getFirst().valeur;
-                }
-                else if(cartesDeLaHand.size()==6){
-                    valeurHandApresTurn = 400000 + result.getFirst().valeur;
-                }
-                else{
+                if (result.getFirst().valeur == 14) {
+                    description = "Royal straight flush";
+                    valeurHandMoment = 500000;
+                } else {
                     description = "Straight flush, carte haute " + result.getFirst().description(false);
-                    valeurHandApresRiver = 400000 + result.getFirst().valeur;
+                    valeurHandMoment = 400000 + result.getFirst().valeur;
                 }
-            }
-
-            else if (fourOfAKind(cartesDeLaHand) != null) {
+            } else if (fourOfAKind(cartesDeLaHand) != null) {
                 result.addAll(fourOfAKind(cartesDeLaHand));
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 300000 + result.getFirst().valeur;
-                }
-                else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = 300000 + result.getFirst().valeur;
-                }
-                else{
-                    valeurHandApresRiver = 300000 + result.getFirst().valeur;
-                    description = "Carre de " + result.getFirst().description(true);
-                }
-            }
-
-            else if (fullHouse(cartesDeLaHand) != null) {
+                valeurHandMoment = 300000 + result.getFirst().valeur;
+                description = "Carre de " + result.getFirst().description(true);
+            } else if (fullHouse(cartesDeLaHand) != null) {
                 result.addAll(fullHouse(cartesDeLaHand));
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
-                }
-                else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
-                }
-                else{
-                    valeurHandApresRiver = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
-                    description = "Full House, trois " + result.getFirst().description(true) + " et deux " + result.getLast().description(true);
-                }
-            }
-
-            else if (flush(cartesDeLaHand) != null) {
+                valeurHandMoment = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
+                description = "Full House, brelan de " + result.getFirst().description(true) + " et pair de " + result.getLast().description(true);
+            } else if (flush(cartesDeLaHand) != null) {
                 result.addAll(flush(cartesDeLaHand));
                 while (result.size() > 5) {
                     result.removeLast();
                 }
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
-                }
-                else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
-                }
-                else{
-                    valeurHandApresRiver = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
-                    description = "Flush, carte haute " + result.getFirst().description(false);
-                }
-            }
-
-            else if (straight(cartesDeLaHand) != null) {
+                valeurHandMoment = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
+                description = "Flush, carte haute " + result.getFirst().description(false);
+            } else if (straight(cartesDeLaHand) != null) {
                 result.addAll(straight(cartesDeLaHand));
                 Collections.sort(result);
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 15000 + result.getLast().valeur;
-                }
-                else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = 15000 + result.getLast().valeur;
-                }
-                else{
-                    valeurHandApresRiver = 15000 + result.getLast().valeur;
-                    description = "Suite, carte haute " + result.getLast().description(false);
-                }
-            }
-
-            else if (threeOfAKind(cartesDeLaHand) != null) {
+                valeurHandMoment = 15000 + result.getLast().valeur;
+                description = "Suite, carte haute " + result.getLast().description(false);
+            } else if (threeOfAKind(cartesDeLaHand) != null) {
                 result.addAll(threeOfAKind(cartesDeLaHand));
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = 1000 * result.getFirst().valeur;
-                }
-                else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = 1000 * result.getFirst().valeur;
-                }
-                else{
-                    valeurHandApresRiver = 1000 * result.getFirst().valeur;
-                    description = "Brelan de " + result.getFirst().description(true);
-                }
-            }
-
-            else if (pairs(cartesDeLaHand) != null) {
+                valeurHandMoment = 1000 * result.getFirst().valeur;
+                description = "Brelan de " + result.getFirst().description(true);
+            } else if (pairs(cartesDeLaHand) != null) {
                 result.addAll(pairs(cartesDeLaHand));
-                if(cartesDeLaHand.size()==5){
-                    if (result.size() == 2) {
-                        valeurHandApresFlop = 10 * result.getFirst().valeur;
-                    } else if (result.size() == 4) {
-                        valeurHandApresFlop = 100 * result.getFirst().valeur + result.getLast().valeur;
-                    }
+                if (result.size() == 2) {
+                    valeurHandMoment = 10 * result.getFirst().valeur;
+                    description = "Pair de " + result.getFirst().description(true);
+                } else if (result.size() == 4) {
+                    valeurHandMoment = 100 * result.getFirst().valeur + result.getLast().valeur;
+                    description = "Deux pairs, " + result.getFirst().description(true) + " et " + result.getLast().description(true);
                 }
-                else if(cartesDeLaHand.size()==6) {
-                    if (result.size() == 2) {
-                        valeurHandApresTurn = 10 * result.getFirst().valeur;
-                    } else if (result.size() == 4) {
-                        valeurHandApresTurn = 100 * result.getFirst().valeur + result.getLast().valeur;
-                    }
-                }
-                else{
-                    if (result.size() == 2) {
-                        valeurHandApresRiver = 10 * result.getFirst().valeur;
-                        description = "Pair de " + result.getFirst().description(true);
-                    } else if (result.size() == 4) {
-                        valeurHandApresRiver = 100 * result.getFirst().valeur + result.getLast().valeur;
-                        description = "Deux pairs, " + result.getFirst().description(true) + " et " + result.getLast().description(true);
-                    }
-                }
-            }
-
-            else {
+            } else {
                 result.add(highCard(cartesDeLaHand));
-                if(cartesDeLaHand.size()==5){
-                    valeurHandApresFlop = result.getFirst().valeur;
-                }
-                else if(cartesDeLaHand.size()==6) {
-                    valeurHandApresTurn = result.getFirst().valeur;
-                }
-                else{
-                    valeurHandApresRiver = result.getFirst().valeur;
-                    description = "Carte haute, " + result.getFirst().description(false);
-                }
-            }
-
-            if (cartesDeLaHand.size()==7){
-                hand=result;
+                valeurHandMoment = result.getFirst().valeur;
+                description = "Carte haute, " + result.getFirst().description(false);
             }
         }
+        handMoment = result;
+    }
+
+
+    public Range calculerRangePreFlop(){
+    surMain.sort(Collections.reverseOrder());
+    rangePreFlop = new Range(surMain.getFirst(),surMain.getLast());
+    return rangePreFlop;
+    }
+
+    public Range getRangePreFlop() {
+        return rangePreFlop;
     }
 
     public static void main(String[] args){
@@ -606,7 +519,7 @@ public class Hand  implements Comparable{
         cartes.add(new Carte(2,'t'));
         cartes.add(new Carte(4,'t'));
         Hand h = new Hand();
-        h.setHand(main,cartes);
+        //h.setHand(main,cartes);
         System.out.println(h.getToutesCartes().toString());
         if(h.straight(h.apresRiver)!=null) {
             System.out.println(h.straight(h.apresRiver).toString());

@@ -66,43 +66,40 @@ public class Intelligence{
     }
 
     private static int intelligenceNiveau1 (Jeu jeu, Joueur joueur){
-        int decision;
-        int valeurMoment1=0;
-        int valeurMoment2=0;
-        int valeurHand = joueur.getHand().getValeurHandApresRiver();
+        int decision=0;
+        int valeurHandMoment = 0;
+        int pot = jeu.potActuel;
+        char typeRange = joueur.getHand().calculerRangePreFlop().getType();
+        int pariActuel = jeu.pariActuel;
 
-        if (!jeu.flop) { //quand le joueur a seulement ses 2 cartes à lui
 
-           if (valeurHand > 14) { //si le joueur a au moins une paire, il va doubler le pari
-                decision =  2 * jeu.pariActuel;
-           }
-
-           else if (joueur.bigBlind) { //si le joueur est le Big Blind, il va toujours passer au moment 1
-               decision = 1;
-           }
-
-           else if (jeu.pariActuel < (1 / 6) * joueur.getArgent()) { //si le pari actuel est peu important en comparaison à l´argent du joueur, le joueur paye toujours le pari
-                decision = 1;
-
-           }
-
-           else { //si le pari actuel est assez important
-                if (joueur.getHand().getValeurHandSurMain() >= 8) { //si le joueur a une carte supérieure ou égale à 8 (et pas de paires ni rien meilleur), il paye le parie. Sinon, il arrête de jouer.
+        // decision preFlop
+        if(jeu.moment==0){
+            double pourcentage = joueur.getHand().getRangePreFlop().getOddsRaise();
+            if(typeRange =='r'){
+                if(Math.random()<=pourcentage){
+                    decision = (int)pot;
+                }else{
                     decision = 1;
-                } else {
-                    decision = 0;
                 }
-           }
+            }else if(typeRange == 'k'){
+                if(joueur.getArgent()/3 >pariActuel){
+                    decision = 0;
+                }else{
+                    decision = -1;
+                }
+            }else{
+                decision = -1;
+            }
         }
-
-
-        else if (!jeu.turn) { //quand les 3 premières cartes sont révélées
-
-            if (valeurHand < 8 && jeu.pariActuel > 0) { //si le joueur était le Big Blind mais il n´a que des cartes inférieures à 8 (et pas de paires ni rien meilleur), il arrête de jouer
+        /*
+        else if (jeu.moment == 1) { //quand les 3 premières cartes sont révélées
+            valeurHandMoment = joueur.getHand().getValeurHandMoment();
+            if (valeurHandMoment < 8 && jeu.pariActuel > 0) { //si le joueur était le Big Blind mais il n´a que des cartes inférieures à 8 (et pas de paires ni rien meilleur), il arrête de jouer
                 decision = 0;
             }
 
-            if (joueur.getHand().getValeurHandApresFlop() < 60) { //si le joueur a une paire de 5 ou une Hand moins importante, il paye le pari actuel. Si il a une Hand plus importante, il augmente de 500 le pari actuel.
+            if (valeurHandMoment < 60) { //si le joueur a une paire de 5 ou une Hand moins importante, il paye le pari actuel. Si il a une Hand plus importante, il augmente de 500 le pari actuel.
                 decision = 1;
             } else {
                 decision = jeu.pariActuel + 500;
@@ -134,15 +131,15 @@ public class Intelligence{
             } else {
                 decision =  jeu.pariActuel + 100; //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel
             }
-        }
+        }*/
 
         return decision;
     }
-    
+
     private static int intelligenceNiveau2 (Jeu jeu, Joueur joueur){
-        int decision;
+        int decision=0;
         int valeurMoment2=0;
-        int valeurHand = joueur.getHand().getValeurHandApresRiver();
+        int valeurHand = joueur.getHand().getValeurHandMoment();
 
         if (!jeu.flop) { //quand le joueur a seulement ses 2 cartes à lui
 
@@ -158,7 +155,7 @@ public class Intelligence{
                 decision = 1;
 
            }
-
+           /*
            else { //si le pari actuel est assez important
                 if (joueur.getHand().getValeurHandSurMain() >= 8) { //si le joueur a une carte supérieure ou égale à 8 (et pas de paires ni rien meilleur), il paye le parie. Sinon, il arrête de jouer.
                     decision = 1;
@@ -215,9 +212,11 @@ public class Intelligence{
                 decision = 1;
             } else {
                 decision =  jeu.pariActuel + 200; //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel
-            }
+            }*/
         }
 
         return decision;
     }
+
+
 }

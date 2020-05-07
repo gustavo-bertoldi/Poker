@@ -45,7 +45,8 @@ public class Joueur implements Comparable{
     @param - LinkedList<Carte> cartesSurTable - Les 5 cartes sur la table
      */
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
-        hand.setHand(cartesSurMain,cartesSurTable);
+        hand.definirSurMainEtSurTable(cartesSurMain,cartesSurTable);
+        hand.setHandMoment(0);
     }
 
     /*
@@ -276,9 +277,9 @@ public class Joueur implements Comparable{
      */
     public int compareTo(Object j2) {
         int comparaison = 0;
-        if (this.getHand().getValeurHandApresRiver() > ((Joueur)j2).getHand().getValeurHandApresRiver()) {
+        if (this.getHand().getValeurHandMoment() > ((Joueur)j2).getHand().getValeurHandMoment()) {
             comparaison = 1;
-        } else if (this.getHand().getValeurHandApresRiver() < ((Joueur)j2).getHand().getValeurHandApresRiver()) {
+        } else if (this.getHand().getValeurHandMoment() < ((Joueur)j2).getHand().getValeurHandMoment()) {
             comparaison = -1;
         }
         return comparaison;
