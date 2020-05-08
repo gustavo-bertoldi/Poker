@@ -35,7 +35,7 @@ public class Jeu extends Thread {
     complet vu qu'il n'a pas parié le montant nécessaire, il a donc un pot secondaire calculé selon la valeur qu'il a pariée.
     CALCUL :
     Ex : Joueur A - 500 fiches
-         Joueur B - 100 fiches
+         Joueur B - 100 fiches 
          Joueur C - 200 fiches
          Le joueur A parie 300 fiches, si les joueur B et C souhaitent continuer dans le jeu ils soivent parier tout leur argent
          On a alors le pot suivant : 400 (Joueur A) + 100 (Joueur B) + 200 (Joueur C)
@@ -45,7 +45,7 @@ public class Jeu extends Thread {
          Donc on multiplie le nombre de joueurs qui ont payé le pari par l'argent du joueur et on obtient son pot secondaire.
      */
     protected boolean potsSecondairesDansJeu; //True s'il y a des pots secondaires dans le jeu
-    protected int nJueursQuiOntPayeLeTour; //Utilisé dans le calcul des pots secondaires
+    protected int nJoueursQuiOntPayeLeTour; //Utilisé dans le calcul des pots secondaires
     private int potAvantFlop; //Utilisé dans le calcul des pots secondaires
     private int potAvantTurn; //Utilisé dans le calcul des pots secondaires
     private int potAvantRiver; //Utilisé dans le calcul des pots secondaires
@@ -57,14 +57,6 @@ public class Jeu extends Thread {
      */
     private LinkedList<Joueur> joueursGagnants; //Liste avec le(s) joueur(s) gagnant(s). Obtenue par la plus grande valeur de hand.
     private LinkedHashMap<Joueur, Integer> potsSecondaires; //Liste avec les pots secondaires associés à son respectif joueur.
-
-
-    /*      DÉROULEMENT JEU
-    - Chaque joueur a, comme attribut, deux infos: dansJeu(pas foldé) comme position(par rapport au tour de paris)
-    - Au début, pos Dealer = joueurs.size()-3, pos SB = joueurs.size()-2, posBB = joueurs.size()-1 étant le dernier a decider
-    - S'il y a un pari, le joueur qui a parié prend la position joueurs.size() et tous les autres changent aussi.
-
-     */
 
     /*
     Jeu a deux constructeurs, un prend en paramètre:
@@ -86,7 +78,7 @@ public class Jeu extends Thread {
         for (int i = 0; i < 5; i++) {
             //Création des joueurs ordinateurs qui prennent un nom aléatoire de la liste nomsJoueursOrdinateurs
             int a = (int) (Math.random() * nomsJoueursOrdinateurs.size());
-            joueurs.add(new Ordinateur(nomsJoueursOrdinateurs.get(a), 0));
+            joueurs.add(new Ordinateur(nomsJoueursOrdinateurs.get(a), 1));
             nomsJoueursOrdinateurs.remove(a);
         }
         joueurs.getFirst().joueur.dealer = true;
@@ -112,7 +104,7 @@ public class Jeu extends Thread {
         dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
         joueurActuel = joueursDansLaTournee.getNodePlaying();
         potsSecondaires = new LinkedHashMap<>();
-        nJueursQuiOntPayeLeTour=0;
+        nJoueursQuiOntPayeLeTour=0;
 
         paquet = new Paquet();
         cartesTable = new LinkedList<>();
@@ -121,12 +113,11 @@ public class Jeu extends Thread {
         //Initialisation de l'interface graphique
         fenetre = new FenetreJeuV3(this);
 
-        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
         joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
+        joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
+
+
         if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
             ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
         }
     }
@@ -205,6 +196,7 @@ public class Jeu extends Thread {
             else if(joueur.getArgent()<=10){
                 joueur.dansJeu=false;
             }
+            joueur.prochaineTournee();
         });
         LinkedList<Joueur> joueursDansJeu = joueurs.getJoueurs();
         if (joueursDansJeu.size()==1){
@@ -231,6 +223,7 @@ public class Jeu extends Thread {
         flop = false;
         turn = false;
         river = false;
+        moment = 0;
         potActuel = 0;
         potAvantFlop=0;
         potAvantTurn=0;
@@ -240,7 +233,7 @@ public class Jeu extends Thread {
         joueurActuel = joueursDansLaTournee.getNodePlaying();
         potsSecondaires= new LinkedHashMap<>();
         potsSecondairesDansJeu=false;
-        nJueursQuiOntPayeLeTour=0;
+        nJoueursQuiOntPayeLeTour=0;
         paquet = new Paquet();
         cartesTable=new LinkedList<>();
         distribuerCartes();
@@ -274,29 +267,30 @@ public class Jeu extends Thread {
     Méthode appelée lorsqu'un joueur joue son tour, on appelle le prochain et on le fait jouer
      */
     public void prochainJoueur() throws Exception {
-        joueurActuel=joueurActuel.prochainNode;
-        if(joueurActuel.joueur.humain){
+
+        joueurActuel = joueurActuel.prochainNode;
+
+        if (joueursDansLaTournee.size() == 1) {
+            tourneeFinie();
+        } else if (!joueurActuel.joueur.humain) {
+            long waitTime = System.currentTimeMillis() + 2500;
+            while (System.currentTimeMillis() < waitTime) {
+                System.out.println("thinking");
+            }
+            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+        }else{
             if(joueurActuel.joueur.allIn){
-                joueurActuel.joueur.setAction(1,pariActuel,this);
+                joueurActuel.joueur.setAction(0,pariActuel,this); // juste passer au prochain joueur
             }
             else{
                 fenetre.afficherBoutons(true);
             }
         }
-        if (joueursDansLaTournee.size() == 1) {
-            tourneeFinie();
-        } else if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 1000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
-        }
+
     }
-
-
     /*
     Méthode appelée quand le tour de paris est fini.
-    On vérifie d'abord si tous les joueurs on mis All In: Si c'est le cas le tournée finit et on cherche le gagnant
+    On vérifie d'abord si tous les joueurs on mis All In: Si c'est le cas la tournée finit et on cherche le gagnant
     Sinon, on montre les cartes de la table et on exécute les actions nécessaires pour un nouveau tour de paris
      */
     public void tourDeParisFini() throws Exception {
@@ -315,47 +309,51 @@ public class Jeu extends Thread {
         }
         //Sinon on poursuit le jeu
         else {
-            nJueursQuiOntPayeLeTour = 0;
-            if (!flop) {
+            nJoueursQuiOntPayeLeTour = 0;
+            if (moment == 0) {
                 flop = true;
                 pariActuel = 0;
                 potAvantFlop=potActuel;
                 fenetre.flop();
                 potsSecondaires.forEach((joueur, pot) -> joueur.potsDejaCompletes=true);
                 potsSecondaires.forEach((joueur, pot) -> joueur.potsDejaCompletes=true);
-                long waitTime = System.currentTimeMillis() + 3000;
+                long waitTime = System.currentTimeMillis() + 2000;
                 while (System.currentTimeMillis() != waitTime) {
                 }
                 fenetre.effacerCoupsJoueur();
                 joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying()); //Sera le prochain lors de l'execution de prochainJoueur()
                 dernierAParier = joueurActuel.joueur;
                 prochainJoueur();
-            } else if (!turn) {
+                moment++;
+            } else if (moment == 1) {
                 turn = true;
                 pariActuel = 0;
                 potAvantTurn=potActuel;
                 fenetre.turn();
-                long waitTime = System.currentTimeMillis() + 3000;
+                long waitTime = System.currentTimeMillis() + 2000;
                 while (System.currentTimeMillis() != waitTime) {
                 }
                 fenetre.effacerCoupsJoueur();
                 joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
                 dernierAParier = joueurActuel.joueur;
                 prochainJoueur();
-            } else if (!river) {
+                moment++;
+            } else if (moment == 2 ) {
                 river = true;
                 pariActuel = 0;
                 potAvantRiver=potActuel;
                 fenetre.river();
-                long waitTime = System.currentTimeMillis() + 3000;
+                long waitTime = System.currentTimeMillis() + 2000;
                 while (System.currentTimeMillis() != waitTime) {
                 }
                 fenetre.effacerCoupsJoueur();
                 joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
                 dernierAParier = joueurActuel.joueur;
                 prochainJoueur();
+                moment++;
             } else {
                 tourneeFinie();
+                moment = 0;
             }
         }
     }
@@ -460,16 +458,16 @@ public class Jeu extends Thread {
     public void creerPotsSecondaires(Joueur j){
         potsSecondairesDansJeu=true;
         if(!flop){
-            potsSecondaires.put(j, (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, (j.getArgent()+j.derniereValeurPariee)*(nJoueursQuiOntPayeLeTour+1));
         }
         else if(!turn){
-            potsSecondaires.put(j, potAvantFlop + (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, potAvantFlop + (j.getArgent()+j.derniereValeurPariee)*(nJoueursQuiOntPayeLeTour+1));
         }
         else if(!river){
-            potsSecondaires.put(j, potAvantTurn + (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, potAvantTurn + (j.getArgent()+j.derniereValeurPariee)*(nJoueursQuiOntPayeLeTour+1));
         }
         else{
-            potsSecondaires.put(j, potAvantRiver + (j.getArgent()+j.derniereValeurPariee)*(nJueursQuiOntPayeLeTour+1));
+            potsSecondaires.put(j, potAvantRiver + (j.getArgent()+j.derniereValeurPariee)*(nJoueursQuiOntPayeLeTour+1));
         }
         System.out.println(potsSecondaires.toString());
     }
@@ -659,7 +657,7 @@ public class Jeu extends Thread {
      */
     private void creerListeNomsJoueursOrdinateurs(){
         nomsJoueursOrdinateurs = new LinkedList<>();
-        nomsJoueursOrdinateurs.add("Nicolas Stous");
+        nomsJoueursOrdinateurs.add("Nicolas Stouls");
         nomsJoueursOrdinateurs.add("Guy Atahanaze");
         nomsJoueursOrdinateurs.add("Adrien Petrov");
         nomsJoueursOrdinateurs.add("Valerie Kaftandjian");

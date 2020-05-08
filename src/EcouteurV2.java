@@ -15,6 +15,12 @@ public class EcouteurV2 implements ActionListener {
     public void actionPerformed(ActionEvent e){
         if(fun.equals("restart")){
             //sauvegarder highscore, reouvrir menu.
+        }else if(fun.equals("Check")){
+            try {
+                fenetre.setActionJoueurHumain(0);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         else if(fun.equals("Call")){
             try {
@@ -40,7 +46,7 @@ public class EcouteurV2 implements ActionListener {
         else if(fun.equals("Fold")){
             fenetre.foldJoueurHumain();
             try {
-                fenetre.setActionJoueurHumain(0);
+                fenetre.setActionJoueurHumain(-1);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }

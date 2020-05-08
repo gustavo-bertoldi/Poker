@@ -2,8 +2,11 @@ public class Range {
 
     private boolean suited;
     private boolean paired;
+
     private int valeur1;
     private int valeur2;
+
+
     private char type;
 
     private double oddsRaise;
@@ -22,6 +25,7 @@ public class Range {
         type = 'f';
         setType(suited, paired);
     }
+
 
     public char getType(){
         return type;

@@ -1,3 +1,7 @@
+import javax.xml.catalog.Catalog;
+import java.util.Collections;
+import java.util.LinkedList;
+
 public class Intelligence{
 
     public static int getDecision(Jeu jeu, Joueur joueur, int niveau){
@@ -67,71 +71,58 @@ public class Intelligence{
 
     private static int intelligenceNiveau1 (Jeu jeu, Joueur joueur){
         int decision=0;
-        int valeurHandMoment = 0;
+        int valeurHandMoment;
         int pot = jeu.potActuel;
+        int pariAct = jeu.pariActuel;
         char typeRange = joueur.getHand().calculerRangePreFlop().getType();
-        int pariActuel = jeu.pariActuel;
+        LinkedList<Carte> cartesSurMain = joueur.getCartesSurMain();
+        LinkedList<Carte> cartesSurTable = joueur.getHand().getSurTable();
+        int[] bets = new int[6];
+        if(pariAct!=0){
+            bets[0] = 2*pariAct;
+            bets[1] = 3*pariAct;
+            bets[2] = 4*pariAct;
+        }else{
+            bets[0] = pot;
+            bets[1] = 2*pot;
+            bets[2] = 3*pot;
+        }
+        bets[3] = pot;
+        bets[4] = 2*pot;
+        bets[5] = 3*pot;
 
+        cartesSurTable.sort(Collections.reverseOrder());
+        cartesSurMain.sort(Collections.reverseOrder());
+
+        int pariActuel = jeu.pariActuel;
+        LinkedList<Integer> valeursSurTable;
 
         // decision preFlop
         if(jeu.moment==0){
             double pourcentage = joueur.getHand().getRangePreFlop().getOddsRaise();
             if(typeRange =='r'){
                 if(Math.random()<=pourcentage){
-                    decision = (int)pot;
+                    int indexBet = (int)(Math.random()*6);
+                    decision = bets[indexBet];
                 }else{
                     decision = 1;
                 }
             }else if(typeRange == 'k'){
-                if(joueur.getArgent()/3 >pariActuel){
-                    decision = 0;
+                if(joueur.getArgent()/3 >(pariActuel-joueur.derniereValeurPariee)){ //peut etre qu'il soit necessaire ajouter comparaison entre pari et pariJoueur
+                    decision = 1;
                 }else{
                     decision = -1;
                 }
             }else{
                 decision = -1;
             }
+        }else if(jeu.moment == 1){
+
+            if(cartesSurMain.getFirst().valeur >=10){
+
+            }
+
         }
-        /*
-        else if (jeu.moment == 1) { //quand les 3 premières cartes sont révélées
-            valeurHandMoment = joueur.getHand().getValeurHandMoment();
-            if (valeurHandMoment < 8 && jeu.pariActuel > 0) { //si le joueur était le Big Blind mais il n´a que des cartes inférieures à 8 (et pas de paires ni rien meilleur), il arrête de jouer
-                decision = 0;
-            }
-
-            if (valeurHandMoment < 60) { //si le joueur a une paire de 5 ou une Hand moins importante, il paye le pari actuel. Si il a une Hand plus importante, il augmente de 500 le pari actuel.
-                decision = 1;
-            } else {
-                decision = jeu.pariActuel + 500;
-            }
-
-            valeurMoment1 = joueur.getHand().getValeurHandApresFlop(); //variable intermédiaire pour stocker la valeur du Hand au moment 1
-        }
-
-        else if (!jeu.river) { //quand il y a 4 cartes révélées
-            if(joueur.allIn){
-                decision=1;
-            }
-
-            else if (joueur.getHand().getValeurHandApresTurn() == valeurMoment1) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
-                decision = 1;
-
-            } else {
-                decision = (jeu.pariActuel + 200); //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel
-            }
-            valeurMoment2 = joueur.getHand().getValeurHandApresTurn(); //variable intermédiaire pour stocker la valeur du Hand au moment 2
-        }
-
-        else { //quand toutes les cartes ont été révélées
-            if(joueur.allIn){
-                decision=1;
-            }
-            else if (joueur.getHand().getValeurHandApresRiver() == valeurMoment2) { //si le joueur n´a pas une meilleure Hand qu´au moment précédent, le joueur paye le pari actuel
-                decision = 1;
-            } else {
-                decision =  jeu.pariActuel + 100; //sinon (sa valeur de Hand a augmenté), il augmente de 200 le pari actuel
-            }
-        }*/
 
         return decision;
     }

@@ -81,9 +81,10 @@ public class Joueur implements Comparable{
     le pari actuel. Une quatrième action pré-définie, si le joueur a mis All In dans son dernier tour, on passe
     automatiquement au prochain joueur vu que celui qui a mis All In n'a aucune action possible autre qu'attendre la
     fin de la tournée. On définit aussi le coup du jour selon son action et un possible changement de son argent.
-        -Coucher ses cartes (fold, action=0):
+        -Coucher ses cartes (fold, action=-1):
             On tourne les cartes du joueur dans l'interface graphique, et on sort ce joueur de la liste de joueurs joueurs
             dans la tournée du jeu.
+        -Ne pas parier ni payer (Check, action = 0):
 
         -Accepter le pari (Call ou Check, action=1):
             Call si le pari actuel est différent de 0, ou si le joueur a déjà payé le pari actuel, sinon check.
@@ -114,48 +115,50 @@ public class Joueur implements Comparable{
         }
         else {
             //Cas joueur a couché ses cartes et ne participe plus
-            if (action == 0) {
+            if (action < 0) {
                 coup = "Fold";
                 jeu.fenetre.enleverCartesJoueur(this);
                 jeu.sortirDeLaTournee(this);
-            }
-            //Cas joueur a payé le pari
-            else if (action == 1) {
-                if (valeurPari == 0 || valeurPari == derniereValeurPariee) {
+            } else if(action == 0){ //check
+                if(valeurPari == 0){
                     coup = "Check";
-                } else {
-                    //Cas où la valeur de pari est supérieure à l'argent du joueur - All in pour jouer
-                    if (valeurPari >= (argent + derniereValeurPariee)) {
-                        valeurAllInIncomplet = argent + derniereValeurPariee;
-                        if (jeu.potsSecondairesDansJeu) {
-                            jeu.completerPotsSecondaires(valeurAllInIncomplet);
-                        }
-                        coup = "Call - All in " + (argent);
-                        valeurAllInIncomplet = argent + derniereValeurPariee;
-                        jeu.potActuel = jeu.potActuel + argent;
-                        jeu.creerPotsSecondaires(this);
-                        parier(argent);
-                        derniereValeurPariee = argent;
-                    } else {
-                        if (jeu.potsSecondairesDansJeu) {
-                            jeu.completerPotsSecondaires(valeurPari);
-                        }
-                        coup = "Call " + (valeurPari - derniereValeurPariee);
-                        parier(valeurPari - derniereValeurPariee);
-                        jeu.potActuel = jeu.potActuel + (valeurPari - derniereValeurPariee);
-                        derniereValeurPariee = valeurPari;
+                }// else, ne rien faire, juste passer à la prochaine tournee -> fait à la fin de la methode
+            } else if (action == 1) { // call
+
+                //Cas où la valeur de pari est supérieure à l'argent du joueur - All in pour jouer
+                if (valeurPari >= (argent + derniereValeurPariee)) {
+                    valeurAllInIncomplet = argent + derniereValeurPariee;
+                    if (jeu.potsSecondairesDansJeu) {
+                        jeu.completerPotsSecondaires(valeurAllInIncomplet);
                     }
+                    coup = "Call - All in " + (argent);
+                    valeurAllInIncomplet = argent + derniereValeurPariee;
+                    jeu.potActuel = jeu.potActuel + argent;
+                    jeu.creerPotsSecondaires(this);
+                    parier(argent);
+                    derniereValeurPariee = argent;
+                } else {
+                    if (jeu.potsSecondairesDansJeu) {
+                        jeu.completerPotsSecondaires(valeurPari);
+                    }
+                    coup = "Call " + (valeurPari - derniereValeurPariee);
+                    parier(valeurPari - derniereValeurPariee);
+                    jeu.potActuel = jeu.potActuel + (valeurPari - derniereValeurPariee);
+                    derniereValeurPariee = valeurPari;
                 }
+
             }
-            //Cas joueur a augmenté le pari
+            //Cas joueur a augmenté le pari, action contient le montant du pari
             else {
                 if (action >= (derniereValeurPariee + argent)) {
                     if (jeu.potsSecondairesDansJeu) {
                         jeu.completerPotsSecondaires(argent);
                     }
                     coup = "All in " + (argent);
-                    jeu.pariActuel = argent;
-                    jeu.potActuel = jeu.potActuel + (argent);
+                    if(jeu.pariActuel<=argent){ // si le all in du joueur est plus petit que le pariActuel, le pariActuel reste
+                        jeu.pariActuel = argent;
+                    }
+                    jeu.potActuel = jeu.potActuel + (derniereValeurPariee);
                     parier(action);
                 } else {
                     if (jeu.potsSecondairesDansJeu) {
@@ -168,19 +171,21 @@ public class Joueur implements Comparable{
                 }
                 jeu.dernierAParier = (jeu.joueursDansLaTournee.getNodeAnterieur(this)).joueur;
                 derniereValeurPariee = action;
-                jeu.nJueursQuiOntPayeLeTour = 0;
+                jeu.nJoueursQuiOntPayeLeTour = 0;
                 jeu.fenetre.effacerCoupsJoueur();
             }
             jeu.fenetre.mettreAJourInfosJoueur(this);
             jeu.fenetre.mettreAJourValuerPot();
             if (jeu.joueurActuel.joueur.equals(jeu.dernierAParier)) {
+                //if()
                 jeu.tourDeParisFini();
             } else {
-                if (action != 0) {
-                    jeu.nJueursQuiOntPayeLeTour++;
+                if (action != -1) {
+                    jeu.nJoueursQuiOntPayeLeTour++;
                 }
-                jeu.prochainJoueur();
+
             }
+            jeu.prochainJoueur();
         }
     }
 
@@ -224,6 +229,10 @@ public class Joueur implements Comparable{
         this.allIn=false;
         this.potsDejaCompletes=false;
         this.valeurAllInIncomplet=0;
+    }
+    public void prochaineTournee(){
+       hand.setHandMoment(0);
+       hand.resetHand();
     }
 
     /*
