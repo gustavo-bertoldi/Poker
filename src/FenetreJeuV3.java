@@ -11,6 +11,7 @@ public class FenetreJeuV3 extends JFrame {
 
     private final ImageIcon carteTournee;
     private final ImageIcon espaceCarte;
+    private final ImageIcon espaceCarteJoueurs;
     private JPanel table, pannelBoutons,cartesTable, pannelSlider, principal, handGagnante, infosJeu;
     private Border raisedBevel, loweredBevel, compound;
     private HashMap<Joueur, JPanel> panneauxJoueurs, cartesJoueurs;
@@ -87,6 +88,7 @@ public class FenetreJeuV3 extends JFrame {
         check = new JButton("Check");
         check.setBackground(new Color (82,3,3));
         check.setForeground(new Color (255,255,255));
+        check.setBorder(raisedBevel);
         check.addActionListener(new EcouteurV2(this, "Check"));
         call = new JButton("Call");
         call.setBorder(raisedBevel);
@@ -115,12 +117,12 @@ public class FenetreJeuV3 extends JFrame {
         carteTournee = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/back.png")));
         // Création de l'espace des cartes sur la table
         espaceCarte = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/espace_carte.jpg")));
-
+        //Création de l'icone des cartes avec la couleur du fond pour maintenir la forme de l'inferface
+        espaceCarteJoueurs = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/espace_carte_joueur.jpg")));
 
         gbcPrincipal = new GridBagConstraints();
         principal = new JPanel(new GridBagLayout());
 
-        //Mise de Couleurs
         principal.setBackground(new Color(23,22,21));
         pannelBoutons.setOpaque(false);
         jeu.getJoueurs().getJoueurs().forEach(joueur ->
@@ -150,8 +152,8 @@ public class FenetreJeuV3 extends JFrame {
         raiseSlider.removeAll();
         valeursSlider= new Hashtable<>();
         if(jeu.pariActuel==0){
-            raiseSlider.setMinimum(10);
-            valeursSlider.put(10,new JLabel("10"));
+            raiseSlider.setMinimum(20);
+            valeursSlider.put(20,new JLabel("20"));
         }
         else {
             raiseSlider.setMinimum(jeu.pariActuel*2);
@@ -249,7 +251,9 @@ public class FenetreJeuV3 extends JFrame {
     }
 
     public void enleverCartesJoueur(Joueur j){
-        cartesJoueurs.get(j).setVisible(false);
+        cartesJoueurs.get(j).removeAll();
+        j.getCartesSurMain().forEach(carte -> cartesJoueurs.get(j).add(new JLabel(espaceCarteJoueurs)));
+
     }
 
     public void mettreAJourInfosJoueur(Joueur j){
@@ -277,6 +281,7 @@ public class FenetreJeuV3 extends JFrame {
             StringBuilder infosHandGagnante = new StringBuilder();
             if (jeu.getJoueursGagnants().size() == 1) {
                 JPanel cartesHandGagnante = new JPanel(layoutCartes);
+                cartesHandGagnante.setOpaque(false);
                 Joueur gagnant = jeu.getJoueursGagnants().getFirst();
                 gagnant.getCartesHand().forEach(carte -> cartesHandGagnante.add(new JLabel(carte.icon)));
                 infosHandGagnante.append(gagnant.nom).append(" || ").append(gagnant.getHand().getDescription());

@@ -5,6 +5,7 @@ import java.util.*;
 public class Hand  implements Comparable {
 
     private LinkedList<Carte> surMain;
+
     private LinkedList<Carte> surTable;
     private LinkedList<Carte> handMoment;
     private LinkedList<Carte> hand;
@@ -13,7 +14,7 @@ public class Hand  implements Comparable {
 
     private Range rangePreFlop;
     private int valeurHandMoment = -1;
-    private int valeurHandApresRiver = -1;
+
     /*
     Idée derrière valeurHand:
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
@@ -34,7 +35,11 @@ public class Hand  implements Comparable {
      */
 
     public Hand() {
+        handMoment = new LinkedList<>();
         hand = new LinkedList<>();
+        surMain = new LinkedList<>();
+        surTable = new LinkedList<>();
+
     }
 
     public LinkedList<Carte> getToutesCartes() {
@@ -48,24 +53,20 @@ public class Hand  implements Comparable {
     public LinkedList<Carte> getSurTable() {
         return surTable;
     }
+
     public void resetHand(){
-        surMain = new LinkedList<>();
+        //surMain = new LinkedList<>();
         surTable = new LinkedList<>();
         handMoment = new LinkedList<>();
         hand = new LinkedList<>();
         description = null;
         rangePreFlop = null;
         valeurHandMoment = -1;
-        valeurHandApresRiver = -1;
+
     }
 
     public LinkedList<Carte> getCartesHand() {
-        if (hand.isEmpty()) {
-            calculerValeurHand(hand);
-            return handMoment;
-        } else {
-            return handMoment;
-        }
+        return handMoment;
     }
 
     public String getDescription() {
@@ -79,7 +80,7 @@ public class Hand  implements Comparable {
 
     public void ajouterCarteKicker(Carte kicker) {
         hand.add(kicker);
-        valeurHandApresRiver = valeurHandApresRiver + kicker.valeur;
+        valeurHandMoment = valeurHandMoment + kicker.valeur;
     }
 
     public int getValeurHandMoment() {
@@ -87,19 +88,35 @@ public class Hand  implements Comparable {
     }
 
     public void definirSurMainEtSurTable(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable) {
-        surTable = cartesTable;
+        surTable.addAll(cartesTable);
+
         cartesSurMain.sort(Collections.reverseOrder());
-        surMain = cartesSurMain;
+
+        surMain.addAll(cartesSurMain);
+        int i=0;
+        while(i<surMain.size()){
+            System.out.print(surMain.get(i).toString() + " ");
+            i++;
+        }
+        i=0;
+
+        handMoment.addAll(cartesSurMain);
+
+        System.out.println(" ");
         hand.addAll(cartesSurMain);
         hand.addAll(cartesTable);
+        calculerValeurHand(handMoment);
+
 
     }
+    /*
+    Met à jour la hand en fonction du moment du jeu:
+    à la fin de la méthode, la hand est celle de la valeur la plus grande avec les cartes du joueur à ce moment == reuslt(calculerhand)
+     */
 
     public void setHandMoment(int moment) {
-        handMoment = new LinkedList<>();
-        if (moment == 0) {
-            handMoment = surMain;
-        } else if (moment == 1) {
+        // pour moment == 0, deja fait sur definirSurMainEtSurTable
+        if (moment == 1) {
             handMoment.add(surTable.getFirst());
             handMoment.add(surTable.get(1));
             handMoment.add(surTable.get(2));
@@ -110,6 +127,7 @@ public class Hand  implements Comparable {
             handMoment.add(surTable.get(4));
         }
         handMoment.sort(Collections.reverseOrder());
+
         calculerValeurHand(handMoment);
 
     }
@@ -311,7 +329,7 @@ public class Hand  implements Comparable {
             //Une suite commençant par As n'est possible que s'il y a un As et un Deux dans les cartes
             LinkedList<Carte> verification = new LinkedList<>(cartes);
             verification.sort(Collections.reverseOrder());
-            if (verification.getFirst().valeur == 14 && verification.getLast().valeur == 2) {
+            if (verification.getFirst() != null && verification.getFirst().valeur == 14 && verification.getLast().valeur == 2) {
                 candidats = new LinkedList<>(cartes);
                 candidats.forEach(carte -> {
                     if (carte.valeur == 14) {
@@ -374,36 +392,30 @@ public class Hand  implements Comparable {
         }
     }
 
-    /*
-    RETORNA TRUE SE HOUVER UM ROYAL STRAIGHT FLUSH NA HAND E FALSE SE NAO HOUVER
-     */
-    private boolean royalStraightFlush(LinkedList<Carte> cartes) {
-        return straightFlush(cartes) != null && straightFlush(cartes).getLast().valeur == 14;
-    }
+
 
     public int compareTo(Object h2) {
         int comparaison = 0;
-        if (valeurHandApresRiver > ((Hand) h2).valeurHandApresRiver) {
+        if (valeurHandMoment > ((Hand) h2).valeurHandMoment) {
             comparaison = 1;
-        } else if (valeurHandApresRiver < ((Hand) h2).valeurHandApresRiver) {
+        } else if (valeurHandMoment < ((Hand) h2).valeurHandMoment) {
             comparaison = -1;
         }
         return comparaison;
     }
 
-
     public void calculerValeurHand(LinkedList<Carte> cartesDeLaHand) {
         LinkedList<Carte> result = new LinkedList<>();
         if (cartesDeLaHand.size() == 2) {
             if (pairs(cartesDeLaHand) != null) {
-                result = pairs(cartesDeLaHand);
+                result.addAll(pairs(cartesDeLaHand));
                 valeurHandMoment = 10 * result.getFirst().valeur;
             } else {
                 valeurHandMoment = highCard(surMain).valeur;
+                result.add(highCard(surMain));
             }
         } else {  //Calcul de la valeur de la hand après flop, turn et river.
-            result = new LinkedList<>();
-            if (straightFlush(cartesDeLaHand) != null) { //PAS BESOIN DE DIVISION EN CAS, C'est la plus puissante possible
+            if (straightFlush(cartesDeLaHand) != null) {
                 result.addAll(straightFlush(cartesDeLaHand));
                 if (result.getFirst().valeur == 14) {
                     description = "Royal straight flush";
@@ -451,7 +463,8 @@ public class Hand  implements Comparable {
                 description = "Carte haute, " + result.getFirst().description(false);
             }
         }
-        handMoment = result;
+        handMoment.clear();
+        handMoment.addAll(result);
     }
 
 

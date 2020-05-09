@@ -74,6 +74,7 @@ public class Intelligence{
         int valeurHandMoment;
         int pot = jeu.potActuel;
         int pariAct = jeu.pariActuel;
+        boolean checkPossible = jeu.pariActuel == 0;
         char typeRange = joueur.getHand().calculerRangePreFlop().getType();
         LinkedList<Carte> cartesSurMain = joueur.getCartesSurMain();
         LinkedList<Carte> cartesSurTable = joueur.getHand().getSurTable();
@@ -95,7 +96,6 @@ public class Intelligence{
         cartesSurMain.sort(Collections.reverseOrder());
 
         int pariActuel = jeu.pariActuel;
-        LinkedList<Integer> valeursSurTable;
 
         // decision preFlop
         if(jeu.moment==0){
@@ -117,13 +117,17 @@ public class Intelligence{
                 decision = -1;
             }
         }else if(jeu.moment == 1){
+            if(typeRange =='r'){
 
-            if(cartesSurMain.getFirst().valeur >=10){
+            } else if(typeRange =='k') {
+
+            } else if(typeRange =='f'){
 
             }
-
         }
-
+        if(!checkPossible && decision == 0){
+            decision =-1;
+        }
         return decision;
     }
 

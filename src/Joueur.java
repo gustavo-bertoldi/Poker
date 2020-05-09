@@ -16,6 +16,7 @@ public class Joueur implements Comparable{
     protected boolean allIn; //True si le joueur a mis All In dans son dernier tour
     protected int valeurAllInIncomplet; //True si le joueur a accepté un pari plus grande que sa quantité d'argent et a parié tout son argent.
     protected boolean potsDejaCompletes; //True si le calcul du pot secondaire du joueur est fini.
+    protected int pariDerniereTournee; // valeur que le joueur a parié lors de la derniere tournee de paris
 
     public Joueur(String nom, boolean humain){
         this.nom=nom;
@@ -46,7 +47,6 @@ public class Joueur implements Comparable{
      */
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
         hand.definirSurMainEtSurTable(cartesSurMain,cartesSurTable);
-        hand.setHandMoment(0);
     }
 
     /*
@@ -106,12 +106,17 @@ public class Joueur implements Comparable{
      */
     public void setAction(int action, int valeurPari, Jeu jeu) throws Exception {
         //Cas joueur a mis All In lors de son dernier tour
+        System.out.println("Set Action começou " + nom);
+        System.out.println("Sur Main: " );
+        int i =0;
+        while(i<getHand().getSurMain().size()){
+            System.out.print(getHand().getSurMain().get(i).toString() + " ");
+            i++;
+        }
+        i=0;
+        System.out.println("");
         if(allIn){
-            if (jeu.joueurActuel.joueur.equals(jeu.dernierAParier)) {
-                jeu.tourDeParisFini();
-            } else {
                 jeu.prochainJoueur();
-            }
         }
         else {
             //Cas joueur a couché ses cartes et ne participe plus
@@ -177,7 +182,6 @@ public class Joueur implements Comparable{
             jeu.fenetre.mettreAJourInfosJoueur(this);
             jeu.fenetre.mettreAJourValuerPot();
             if (jeu.joueurActuel.joueur.equals(jeu.dernierAParier)) {
-                //if()
                 jeu.tourDeParisFini();
             } else {
                 if (action != -1) {
@@ -185,7 +189,16 @@ public class Joueur implements Comparable{
                 }
 
             }
+            System.out.println("Set Action terminou " + nom);
+            while(i<getHand().getSurMain().size()){
+                System.out.print(getHand().getSurMain().get(i).toString() + " ");
+                i++;
+            }
+            System.out.println(" ");
+            System.out.println(" ");
+
             jeu.prochainJoueur();
+
         }
     }
 
@@ -230,9 +243,8 @@ public class Joueur implements Comparable{
         this.potsDejaCompletes=false;
         this.valeurAllInIncomplet=0;
     }
-    public void prochaineTournee(){
-       hand.setHandMoment(0);
-       hand.resetHand();
+    public void prochaineTournee(int moment){
+       hand.setHandMoment(moment);
     }
 
     /*
@@ -256,6 +268,7 @@ public class Joueur implements Comparable{
             q=argent;
             allIn=true;
         }
+        pariDerniereTournee = q;
         argent = argent - q;
     }
 
@@ -286,6 +299,7 @@ public class Joueur implements Comparable{
      */
     public int compareTo(Object j2) {
         int comparaison = 0;
+
         if (this.getHand().getValeurHandMoment() > ((Joueur)j2).getHand().getValeurHandMoment()) {
             comparaison = 1;
         } else if (this.getHand().getValeurHandMoment() < ((Joueur)j2).getHand().getValeurHandMoment()) {
