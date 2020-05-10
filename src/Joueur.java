@@ -17,6 +17,7 @@ public class Joueur implements Comparable{
     protected int valeurAllInIncomplet; //True si le joueur a accepté un pari plus grande que sa quantité d'argent et a parié tout son argent.
     protected boolean potsDejaCompletes; //True si le calcul du pot secondaire du joueur est fini.
     protected int pariDerniereTournee; // valeur que le joueur a parié lors de la derniere tournee de paris
+    protected boolean dansTourneeParis; // True par default, mais mis false si le joueur fold;
 
     public Joueur(String nom, boolean humain){
         this.nom=nom;
@@ -28,6 +29,7 @@ public class Joueur implements Comparable{
         this.humain=humain;
         this.derniereValeurPariee=0;
         this.dansJeu=true;
+        this.dansTourneeParis=true;
         this.allIn=false;
         this.valeurAllInIncomplet=0;
         this.potsDejaCompletes = false;
@@ -75,6 +77,13 @@ public class Joueur implements Comparable{
         jeu.fenetre.mettreAJourInfosJoueur(this);
     }
 
+    public void jouer(Jeu jeu){
+        if(humain){
+            jeu.fenetre.afficherBoutons();
+        }else{
+            (Ordinateur)this.jouer(jeu.pariActuel, jeu);
+        }
+    }
 
     /*
     Définit l'action du joueur, entre coucher ses cartes et sortir de la tournée, accepter le pari actuel ou augmenter
@@ -115,13 +124,14 @@ public class Joueur implements Comparable{
         }
         i=0;
         System.out.println("");
-        if(allIn){
+        if(allIn || !dansTourneeParis){
                 jeu.prochainJoueur();
         }
         else {
             //Cas joueur a couché ses cartes et ne participe plus
             if (action < 0) {
                 coup = "Fold";
+                dansTourneeParis = false;
                 jeu.fenetre.enleverCartesJoueur(this);
                 jeu.sortirDeLaTournee(this);
             } else if(action == 0){ //check
@@ -238,6 +248,7 @@ public class Joueur implements Comparable{
         bigBlind=false;
         smallBlind=false;
         playing=false;
+        dansTourneeParis=true;
         derniereValeurPariee=0;
         this.allIn=false;
         this.potsDejaCompletes=false;
@@ -300,9 +311,9 @@ public class Joueur implements Comparable{
     public int compareTo(Object j2) {
         int comparaison = 0;
 
-        if (this.getHand().getValeurHandMoment() > ((Joueur)j2).getHand().getValeurHandMoment()) {
+        if (this.getHand().getValeurHandFinale() > ((Joueur)j2).getHand().getValeurHandFinale()) {
             comparaison = 1;
-        } else if (this.getHand().getValeurHandMoment() < ((Joueur)j2).getHand().getValeurHandMoment()) {
+        } else if (this.getHand().getValeurHandFinale() < ((Joueur)j2).getHand().getValeurHandFinale()) {
             comparaison = -1;
         }
         return comparaison;

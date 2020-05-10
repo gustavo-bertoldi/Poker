@@ -80,6 +80,17 @@ public class LinkedListCirculaire {
         }
         else{return false;}
     }
+    public boolean contains(Joueur j){
+        Node current = tete;
+        boolean joueurDansListe = false;
+        while(!current.prochainNode.equals(tete)){
+            current = current.prochainNode;
+            if(current.joueur.equals(j)){
+                joueurDansListe = true;
+            }
+        }
+        return joueurDansListe;
+    }
 
     public Node getNodeAnterieur (Node n){
         if (nodes.containsValue(n)) {

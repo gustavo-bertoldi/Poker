@@ -71,13 +71,14 @@ public class Intelligence{
 
     private static int intelligenceNiveau1 (Jeu jeu, Joueur joueur){
         int decision=0;
-        int valeurHandMoment;
+        int valeurHandDernierMoment;
         int pot = jeu.potActuel;
         int pariAct = jeu.pariActuel;
         boolean checkPossible = jeu.pariActuel == 0;
         char typeRange = joueur.getHand().calculerRangePreFlop().getType();
         LinkedList<Carte> cartesSurMain = joueur.getCartesSurMain();
         LinkedList<Carte> cartesSurTable = joueur.getHand().getSurTable();
+        int pariDerniereTournee = joueur.getPariDerniereTournee();
         int[] bets = new int[6];
         if(pariAct!=0){
             bets[0] = 2*pariAct;
@@ -118,7 +119,9 @@ public class Intelligence{
             }
         }else if(jeu.moment == 1){
             if(typeRange =='r'){
+                if(pariActuel==0 && joueur.getHand().getValeurHandMoment()>valeurHandDernierMoment){
 
+                }
             } else if(typeRange =='k') {
 
             } else if(typeRange =='f'){

@@ -228,8 +228,8 @@ public class Jeu extends Thread {
         potsSecondairesDansJeu = false;
 
         nJoueursQuiOntPayeLeTour = 0;
-        dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
-        joueurActuel = joueursDansLaTournee.getNodePlaying();
+
+        commencerTournéeParis();
 
         paquet = new Paquet();
         cartesTable=new LinkedList<>();
@@ -283,17 +283,23 @@ public class Jeu extends Thread {
             }
         }
     }
+
     public void commencerTournéeParis() throws Exception {
-        joueurActuel = joueursDansLaTournee.getNodeDealer();
+        joueurActuel = joueurs.getNodeDealer();
         if(moment!=0){
             dernierAParier = joueurActuel.joueur; // le dernier a parier est, par default, le dealer
+
         }else{
             dernierAParier = joueurs.getNodeBigBlind().joueur; // au preFlop, on initialise le dernierAParier comme le BB
+            joueurActuel = joueurs.getNodeBigBlind().prochainNode;
         }
-        while(!joueurActuel.prochainNode.joueur.playing){
+         /*
+            En partant du dealer, nous cherchons le premier joueur qui est dans la tournée, il sera le premier a jouer;
+            */
+        while(!(joueurActuel.joueur.dansTourneeParis && joueurActuel.joueur.dansJeu)){
             joueurActuel = joueurActuel.prochainNode;
         }
-        prochainJoueur();
+        joueurActuel.joueur.jouer();
     }
 
 
@@ -309,32 +315,8 @@ public class Jeu extends Thread {
      */
     public void tourDeParisFini() throws Exception {
         AtomicBoolean tousAllIn= new AtomicBoolean(true);
-        System.out.println("DESCRIPTION FIN DE TOURNEE");
-        System.out.println("  ");
-        joueursDansLaTournee.getJoueurs().forEach(joueur -> {
 
-            System.out.println(joueur.nom + " valeur " +joueur.getHand().getValeurHandMoment());
-            int i =0;
-            System.out.println("Hand Moment: " );
-            while(i<joueur.getHand().getCartesHand().size()){
-                System.out.print(joueur.getHand().getCartesHand().get(i).toString() + " ");
-                i++;
-            }
-            System.out.println(" ");
-            i =0;
-            System.out.println("Sur Main: " );
-            while(i<joueur.getHand().getSurMain().size()){
-                System.out.print(joueur.getHand().getSurMain().get(i).toString() + " ");
-                i++;
-            }
-            System.out.println("");
-            i =0;
-            System.out.println("Sur Table: " );
-            while(i<joueur.getHand().getSurTable().size()){
-                System.out.print(joueur.getHand().getSurTable().get(i).toString() + " ");
-                i++;
-            }
-            System.out.println("");
+        joueursDansLaTournee.getJoueurs().forEach(joueur -> {
 
             joueur.pariDerniereTournee = joueur.derniereValeurPariee;
             joueur.derniereValeurPariee=0;
@@ -346,16 +328,12 @@ public class Jeu extends Thread {
         if(tousAllIn.get()){
             fenetre.river();
             joueursDansLaTournee.getJoueurs().forEach(joueur -> joueur.allIn=false);
-            System.out.println(joueurActuel.toString() + "IF");
             tourneeFinie();
         }
         //Sinon on poursuit le jeu
         else {
             nJoueursQuiOntPayeLeTour = 0;
             if (moment == 0) {
-                System.out.println("Tour de paris fini + Moment 0");
-
-
                 pariActuel = 0;
                 potAvantFlop = potActuel;
 
@@ -369,15 +347,13 @@ public class Jeu extends Thread {
                 fenetre.effacerCoupsJoueur();
                 fenetre.flop();
 
-                joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-                dernierAParier = joueurActuel.joueur;
                 /*Parmi les joueurs qui sont encore dans la tournée, joueurActuel devient celui juste avant le joueur qui va commencer la prochaine tourneeDeParis,
                 il correspond au joueur qui va finir les paris.
                 Après l'appel à prochainJoueur() ci-dessous, joueurActuel devient celui qui commence le tour de paris.
                  */
                 moment++;
                 mettreAJourHands();
-                prochainJoueur();
+                commencerTournéeParis();
             } else if (moment == 1) {
                 System.out.println("Tour de paris fini + Moment 1");
                 turn = true;
@@ -388,11 +364,10 @@ public class Jeu extends Thread {
                 while (System.currentTimeMillis() < waitTime) {
                 }
                 fenetre.effacerCoupsJoueur();
-                joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-                dernierAParier = joueurActuel.joueur;
+
                 moment++;
                 mettreAJourHands();
-                prochainJoueur();
+                commencerTournéeParis();
 
             } else if (moment == 2 ) {
                 System.out.println("Tour de paris fini + Moment 2");
@@ -404,11 +379,10 @@ public class Jeu extends Thread {
                 while (System.currentTimeMillis() != waitTime) {
                 }
                 fenetre.effacerCoupsJoueur();
-                joueurActuel = joueursDansLaTournee.getNodeAnterieur(joueursDansLaTournee.getNodePlaying());
-                dernierAParier = joueurActuel.joueur;
+
                 moment++;
                 mettreAJourHands();
-                prochainJoueur();
+                commencerTournéeParis();
             } else {
                 System.out.println("Tour de paris fini + Moment 3");
                 tourneeFinie();
@@ -677,13 +651,13 @@ public class Jeu extends Thread {
         /*
         Cas où il y a un seul joueur gagnant
          */
-        if (joueursDansLaTournee.getFirst().getHand().getValeurHandMoment() > joueursDansLaTournee.get(1).getHand().getValeurHandMoment()){
+        if (joueursDansLaTournee.getFirst().getHand().getValeurHandFinale() > joueursDansLaTournee.get(1).getHand().getValeurHandFinale()){
             joueursGagnants.add(joueursDansLaTournee.getFirst());
         }
 
         else {
-            int v1 = joueursDansLaTournee.getFirst().getHand().getValeurHandMoment();
-            joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHandMoment() < v1);
+            int v1 = joueursDansLaTournee.getFirst().getHand().getValeurHandFinale();
+            joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHandFinale() < v1);
             /*
             Après cette boucle for, tous les joueurs qui ont une valeur de hand inférieure à celle de la hand plus haute
             ont été enlevés de la liste tousJoueurs. On ajoute la valeur du kicker (si applicable) dans la nouvelle liste
@@ -704,8 +678,8 @@ public class Jeu extends Thread {
                 ont une hand de même valeur.
                  */
                 joueursDansLaTournee.sort(Collections.reverseOrder());
-                int v2 = joueursDansLaTournee.getFirst().getHand().getValeurHandMoment();
-                joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHandMoment() < v2);
+                int v2 = joueursDansLaTournee.getFirst().getHand().getValeurHandFinale();
+                joueursDansLaTournee.removeIf(joueur -> joueur.getHand().getValeurHandFinale() < v2);
                 joueursGagnants.addAll(joueursDansLaTournee);
                 joueursGagnants.getFirst().getHand().ajouterDescription(". Partage du pot");
             }

@@ -133,7 +133,8 @@ public class FenetreJeuV3 extends JFrame {
                     infosJoueur.put(joueur,new JLabel("",SwingConstants.CENTER));
                     coupsJoueur.put(joueur, new JLabel("", SwingConstants.CENTER));
                     panneauxJoueurs.put(joueur, new JPanel(new BorderLayout()));
-                    iconCartesJoueurs.put(joueur, new LinkedList<>()); }
+                    iconCartesJoueurs.put(joueur, new LinkedList<>());
+                }
         );
 
 
