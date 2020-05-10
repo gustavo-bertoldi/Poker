@@ -78,7 +78,7 @@ public class Intelligence{
         char typeRange = joueur.getHand().calculerRangePreFlop().getType();
         LinkedList<Carte> cartesSurMain = joueur.getCartesSurMain();
         LinkedList<Carte> cartesSurTable = joueur.getHand().getSurTable();
-        int pariDerniereTournee = joueur.getPariDerniereTournee();
+        int pariDerniereTournee = joueur.pariDerniereTournee;
         int[] bets = new int[6];
         if(pariAct!=0){
             bets[0] = 2*pariAct;

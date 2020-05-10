@@ -299,7 +299,7 @@ public class Jeu extends Thread {
         while(!(joueurActuel.joueur.dansTourneeParis && joueurActuel.joueur.dansJeu)){
             joueurActuel = joueurActuel.prochainNode;
         }
-        joueurActuel.joueur.jouer();
+        joueurActuel.joueur.jouer(this);
     }
 
 

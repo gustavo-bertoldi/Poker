@@ -79,9 +79,9 @@ public class Joueur implements Comparable{
 
     public void jouer(Jeu jeu){
         if(humain){
-            jeu.fenetre.afficherBoutons();
+            jeu.fenetre.afficherBoutons(true);
         }else{
-            (Ordinateur)this.jouer(jeu.pariActuel, jeu);
+            this.jouer(jeu);
         }
     }
 
