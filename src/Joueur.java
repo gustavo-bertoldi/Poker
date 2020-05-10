@@ -6,14 +6,18 @@ public class Joueur implements Comparable{
     protected String nom; //Nom du joueur.
     private int argent; //Quantité d'argent.
     protected String coup; //Dernier coup pour affichage dans la GUI. (Ex. Raise 200)
+
     protected boolean dealer; //True si le joueur est le dealer.
     protected boolean bigBlind; //True si le joueur est le Big Blind.
     protected boolean smallBlind; //True si le joueur est le Small Blind.
     protected boolean playing; //True si le joueur est le joueur actuel.
     protected boolean humain; //True si le joueur est le joueur humain
-    protected int derniereValeurPariee; //Dernière valeur pariée par le joueur. Utilisé quand le joueur doit compléter le pari de quelqu'un.
+    protected boolean dernierAParier; // True si le joueur est le dernier a parier de la tournee de paris
     protected boolean dansJeu; //True si le joueur est dans le jeu (N'a pas perdu).
     protected boolean allIn; //True si le joueur a mis All In dans son dernier tour
+
+    protected int derniereValeurPariee; //Dernière valeur pariée par le joueur. Utilisé quand le joueur doit compléter le pari de quelqu'un.
+
     protected int valeurAllInIncomplet; //True si le joueur a accepté un pari plus grande que sa quantité d'argent et a parié tout son argent.
     protected boolean potsDejaCompletes; //True si le calcul du pot secondaire du joueur est fini.
     protected int pariDerniereTournee; // valeur que le joueur a parié lors de la derniere tournee de paris
@@ -41,7 +45,9 @@ public class Joueur implements Comparable{
     public Hand getHand(){
         return hand;
     }
-
+    public void reinitialiserHand(){
+        hand = new Hand();
+    }
     /*
     Permet de définir toutes les cartes de la hand du joueur (2 sur main + 5 sur table)
     @param - LinkedList<Carte> cartesSurMain - Les 2 cartes sur la main du joueur
@@ -115,15 +121,7 @@ public class Joueur implements Comparable{
      */
     public void setAction(int action, int valeurPari, Jeu jeu) throws Exception {
         //Cas joueur a mis All In lors de son dernier tour
-        System.out.println("Set Action começou " + nom);
-        System.out.println("Sur Main: " );
-        int i =0;
-        while(i<getHand().getSurMain().size()){
-            System.out.print(getHand().getSurMain().get(i).toString() + " ");
-            i++;
-        }
-        i=0;
-        System.out.println("");
+
         if(allIn || !dansTourneeParis){
                 jeu.prochainJoueur();
         }
@@ -184,7 +182,9 @@ public class Joueur implements Comparable{
                     coup = "Raise " + (action);
                     parier(action - derniereValeurPariee);
                 }
-                jeu.dernierAParier = (jeu.joueursDansLaTournee.getNodeAnterieur(this)).joueur;
+
+                jeu.relancerParis(this);
+
                 derniereValeurPariee = action;
                 jeu.nJoueursQuiOntPayeLeTour = 0;
                 jeu.fenetre.effacerCoupsJoueur();
@@ -199,14 +199,7 @@ public class Joueur implements Comparable{
                 }
 
             }
-            System.out.println("Set Action terminou " + nom);
-            while(i<getHand().getSurMain().size()){
-                System.out.print(getHand().getSurMain().get(i).toString() + " ");
-                i++;
-            }
-            System.out.println(" ");
-            System.out.println(" ");
-
+            System.out.println("Joueur: " + nom + " a joué, action = " + action);
             jeu.prochainJoueur();
 
         }

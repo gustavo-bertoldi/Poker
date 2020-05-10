@@ -71,7 +71,7 @@ public class Intelligence{
 
     private static int intelligenceNiveau1 (Jeu jeu, Joueur joueur){
         int decision=0;
-        int valeurHandDernierMoment;
+
         int pot = jeu.potActuel;
         int pariAct = jeu.pariActuel;
         boolean checkPossible = jeu.pariActuel == 0;
@@ -119,9 +119,7 @@ public class Intelligence{
             }
         }else if(jeu.moment == 1){
             if(typeRange =='r'){
-                if(pariActuel==0 && joueur.getHand().getValeurHandMoment()>valeurHandDernierMoment){
 
-                }
             } else if(typeRange =='k') {
 
             } else if(typeRange =='f'){
