@@ -271,8 +271,10 @@ public class Jeu extends Thread {
         if (joueursDansLaTournee.size() == 1) {
             tourneeFinie();
         }else if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 2000;
-            while (System.currentTimeMillis() < waitTime) {
+            if (joueurActuel.joueur.dansTourneeParis) {
+                long waitTime = System.currentTimeMillis() + 2000;
+                while (System.currentTimeMillis() < waitTime) {
+                }
             }
             ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
         }else{
@@ -293,7 +295,11 @@ public class Jeu extends Thread {
             dernierAParier = joueurActuel.joueur; // le dernier a parier est, par default, le dealer
             //            joueurActuel.joueur.dernierAParier = true;
             while(!dernierAParier.dansTourneeParis){
+                if(joueursDansLaTournee.getNodeAnterieur(dernierAParier) == null){
+                    break;
+                }
                 dernierAParier = joueursDansLaTournee.getNodeAnterieur(dernierAParier).joueur;
+
             }
             // à la sortie de la boucle, dernierAParier soit le dealer, soit le dernier joueur dans la tournee avant le dealer
 

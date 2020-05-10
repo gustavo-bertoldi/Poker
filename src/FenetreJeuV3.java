@@ -163,7 +163,7 @@ public class FenetreJeuV3 extends JFrame {
         raiseSlider.setMaximum(jeu.getJoueurHumain().getArgent());
         valeursSlider.put(raiseSlider.getMaximum(),new JLabel(""+raiseSlider.getMaximum()));
         raiseSlider.setLabelTable(valeursSlider);
-        raiseSlider.setMinorTickSpacing(10);
+        raiseSlider.setMinorTickSpacing(20);
         raiseSlider.setMajorTickSpacing(500);
         raiseSlider.setSnapToTicks(true);
         raiseSlider.setValue(raiseSlider.getMinimum());
