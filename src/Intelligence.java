@@ -70,15 +70,25 @@ public class Intelligence{
     }
 
     private static int intelligenceNiveau1 (Jeu jeu, Joueur joueur){
+        /*
+        BÁSICAMENTE:
+        RANGE É UTILISADO PRAS OUTRAS RODADAS TAMBEM;
+        DETERMINAÇÃO DO TIPO DE RANGE SE DA EM RANGE
+        INTELLIGENCE RECEBE O VALOR DA RANGE DETERMINADA E DECIDE EM FUNÇÃO DELA
+        POSSIVEL DUPLICAÇÃO DO CÓDIGO (DUAS VEZES AINDA) -> RANGEPREFLOP PODE NAO SER NECESSÁRIA E A OUTRA ESTA MARCADA AI PRA BAIXO
+         */
         int decision=0;
 
         int pot = jeu.potActuel;
         int pariAct = jeu.pariActuel;
         boolean checkPossible = jeu.pariActuel == 0;
+        int valeurHand = joueur.getHand().getValeurHandMoment();
+
         char typeRange = joueur.getHand().calculerRangePreFlop().getType();
+
         LinkedList<Carte> cartesSurMain = joueur.getCartesSurMain();
         LinkedList<Carte> cartesSurTable = joueur.getHand().getSurTable();
-        int pariDerniereTournee = joueur.pariDerniereTournee;
+
         int[] bets = new int[6];
         if(pariAct!=0){
             bets[0] = 2*pariAct;
@@ -117,13 +127,24 @@ public class Intelligence{
             }else{
                 decision = -1;
             }
-        }else if(jeu.moment == 1){
+        }else if(jeu.moment == 1){ //CÓDIGO QUASE REPITIDO MAS ESTOU MORRENDO DE SONO E CREIO QUE SEJA FUNCIONAL
+
+            double pourcentage = joueur.getHand().getRange().getOddsRaise();
             if(typeRange =='r'){
-
-            } else if(typeRange =='k') {
-
-            } else if(typeRange =='f'){
-
+                if(Math.random()<=pourcentage){
+                    int indexBet = (int)(Math.random()*6);
+                    decision = bets[indexBet];
+                }else{
+                    decision = 1;
+                }
+            }else if(typeRange == 'k'){
+                if(joueur.getArgent()/3 >(pariActuel-joueur.derniereValeurPariee)){ //peut etre qu'il soit necessaire ajouter comparaison entre pari et pariJoueur
+                    decision = 1;
+                }else{
+                    decision = -1;
+                }
+            }else{
+                decision = -1;
             }
         }
         if(!checkPossible && decision == 0){

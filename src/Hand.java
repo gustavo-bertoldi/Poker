@@ -13,6 +13,8 @@ public class Hand  implements Comparable {
     private String description = ""; //Description textuelle de chaque hand Ex: Pair de dames
 
     private Range rangePreFlop;
+    private Range range;
+
     private int valeurHandMoment = -1; // Utilisée pour l'inteligence lors de la prise de decisions
     private int valeurHandFinale = -1; // Utilisée pour la comparaison entre joueurs, donc, pour trouver le gagnant lors de la fin de la tournee
 
@@ -112,6 +114,7 @@ public class Hand  implements Comparable {
         hand.addAll(cartesTable);
         calculerValeurHandMoment(handMoment);
         calculerValeurHandFinale(hand);
+
 
     }
     /*
@@ -521,6 +524,15 @@ public class Hand  implements Comparable {
         surMain.sort(Collections.reverseOrder());
         rangePreFlop = new Range(surMain.getFirst(), surMain.getLast());
         return rangePreFlop;
+    }
+    public Range calculerRange() {
+        surMain.sort(Collections.reverseOrder());
+        range= new Range(this);
+        return range;
+    }
+
+    public Range getRange() {
+        return range;
     }
 
     public Range getRangePreFlop() {
