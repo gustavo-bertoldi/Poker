@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Jeu extends Thread {
+    private Menu menu;
     /*
     Attribut de base pour la création du jeu
      */
@@ -15,6 +16,7 @@ public class Jeu extends Thread {
     private LinkedList<Carte> cartesTable; //Liste des cartes qui sont sur la table.
     private LinkedList<ImageIcon> iconCartesTable; //Liste des icons des cartes qui sont sur la table, utilisée par la GUI.
     private LinkedList<String> nomsJoueursOrdinateurs; //Liste avec les possibles noms à être attribués aux joueurs ordinateurs.
+    private int niveau;
     protected FenetreJeuV3 fenetre; //La fenêtre qui contient les éléments principaux de la GUI.
     /*
     Attributs pour assures le déroulement du jeu
@@ -76,8 +78,13 @@ public class Jeu extends Thread {
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
     public Jeu(String nomJoueurHumain) throws Exception {
-        creerListeNomsJoueursOrdinateurs();
+        //menu = new Menu(this);
 
+    }
+
+    public void lancerJeu(String nomJoueurHumain) throws Exception {
+        menu.closeMenu();
+        creerListeNomsJoueursOrdinateurs();
         //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
         joueurs = new LinkedListCirculaire();
         joueurs.add(new Joueur(nomJoueurHumain, true));
@@ -127,6 +134,10 @@ public class Jeu extends Thread {
             }
             ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
         }
+    }
+
+    public void setNiveau(int niveau) {
+        this.niveau = niveau;
     }
 
     public LinkedList<? extends Joueur> getJoueursGagnants() {

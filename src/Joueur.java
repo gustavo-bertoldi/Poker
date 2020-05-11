@@ -3,6 +3,7 @@ import java.util.LinkedList;
 public class Joueur implements Comparable{
 
     private Hand hand= new Hand();
+    private Intelligence intelligence;
     protected String nom; //Nom du joueur.
     private int argent; //Quantité d'argent.
     protected String coup; //Dernier coup pour affichage dans la GUI. (Ex. Raise 200)

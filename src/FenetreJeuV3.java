@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 public class FenetreJeuV3 extends JFrame {
 
-    private final ImageIcon carteTournee;
+    private final ImageIcon carteTournee, espaceCarteTable, espaceCarteJoueur;
     private JPanel table, pannelBoutons,cartesTable, pannelSlider, principal, handGagnante;
     private HashMap<Joueur, JPanel> panneauxJoueurs, cartesJoueurs;
     private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
@@ -108,6 +108,10 @@ public class FenetreJeuV3 extends JFrame {
 
         //Création de l'icone de la carte tournée
         carteTournee = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/back.png")));
+        //Création de l'espace de la carte sur la table
+        espaceCarteTable = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/espace_carte.jpg")));
+        //Création de l'espace de la carte sur la main du joueur
+        espaceCarteJoueur = Carte.redimensioner(84,112, new ImageIcon(getClass().getResource("res/espace_carte_joueur.jpg")));
 
 
         gbcPrincipal = new GridBagConstraints();
@@ -168,7 +172,7 @@ public class FenetreJeuV3 extends JFrame {
     public void creerTable(){
         iconCartesTable.addAll(jeu.getIconCartesTable());
         for(int i=0; i<5; i++){
-            cartesTable.add(new JLabel(carteTournee));
+            cartesTable.add(new JLabel(espaceCarteTable));
         }
         table.add(cartesTable, BorderLayout.CENTER);
         valeurPot.setText("Pot : "+jeu.potActuel);
@@ -375,8 +379,8 @@ public class FenetreJeuV3 extends JFrame {
 
     public void foldJoueurHumain(){
         cartesJoueurs.get(jeu.getJoueurHumain()).removeAll();
-        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(carteTournee));
-        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(carteTournee));
+        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(espaceCarteJoueur));
+        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(espaceCarteJoueur));
     }
 
     public void flop(){
@@ -384,8 +388,8 @@ public class FenetreJeuV3 extends JFrame {
         cartesTable.add(new JLabel(iconCartesTable.get(0)));
         cartesTable.add(new JLabel(iconCartesTable.get(1)));
         cartesTable.add(new JLabel(iconCartesTable.get(2)));
-        cartesTable.add(new JLabel(carteTournee));
-        cartesTable.add(new JLabel(carteTournee));
+        cartesTable.add(new JLabel(espaceCarteTable));
+        cartesTable.add(new JLabel(espaceCarteTable));
         revalidate();
         repaint();
     }
@@ -396,7 +400,7 @@ public class FenetreJeuV3 extends JFrame {
         cartesTable.add(new JLabel(iconCartesTable.get(1)));
         cartesTable.add(new JLabel(iconCartesTable.get(2)));
         cartesTable.add(new JLabel(iconCartesTable.get(3)));
-        cartesTable.add(new JLabel(carteTournee));
+        cartesTable.add(new JLabel(espaceCarteTable));
         revalidate();
         repaint();
     }

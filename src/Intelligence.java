@@ -1,4 +1,10 @@
 public class Intelligence{
+    private int niveau;
+    private Range range;
+
+    public Intelligence(){
+
+    }
 
     public static int getDecision(Jeu jeu, Joueur joueur, int niveau){
         if(niveau==0){
