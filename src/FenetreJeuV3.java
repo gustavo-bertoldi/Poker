@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicSliderUI;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -12,6 +15,7 @@ public class FenetreJeuV3 extends JFrame {
     private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
     private HashMap<Joueur, LinkedList<ImageIcon>> iconCartesJoueurs;
     Hashtable<Integer, JLabel> valeursSlider;
+    private Border raisedBevel, loweredBevel, compound;
     private JButton call, raise, fold, restart, prochaineTournee;
     private JSlider raiseSlider;
     private JLabel valeurPot, valeurActuelleSlider;
@@ -19,6 +23,11 @@ public class FenetreJeuV3 extends JFrame {
     private final FlowLayout layoutCartes;
     private GridBagConstraints gbcPrincipal;
     private Jeu jeu;
+    private final Color blanc = new Color(255,255,255);
+    private final Color bordeauxTable = new Color(82,3,3);
+    private final Color jauneCoups = new Color(255,230,77);
+    private final Color noirFond = new Color(23,22,21);
+    private final Color rougeHorsJeu = new Color(232, 81, 81);
 
     public FenetreJeuV3(Jeu jeu){
         super("Poker V3");
@@ -30,30 +39,53 @@ public class FenetreJeuV3 extends JFrame {
         panneauxJoueurs = new HashMap<>();
         infosJoueur = new HashMap<>();
         table = new JPanel(new BorderLayout());
+        table.setBackground(bordeauxTable);
+        raisedBevel = BorderFactory.createSoftBevelBorder(BevelBorder.RAISED);
+        loweredBevel = BorderFactory.createSoftBevelBorder(BevelBorder.LOWERED);
+        compound = BorderFactory.createCompoundBorder(raisedBevel, loweredBevel);
+        table.setBorder(compound);
+
         pannelBoutons = new JPanel(new BorderLayout());
+        pannelBoutons.setOpaque(false);
         layoutCartes = new FlowLayout();
         layoutCartes.setHgap(10);
         cartesTable = new JPanel(layoutCartes);
+        cartesTable.setOpaque(false);
         handGagnante = new JPanel(new BorderLayout());
+        handGagnante.setOpaque(false);
         cartesJoueurs = new HashMap<>();
         coupsJoueur = new HashMap<>();
         iconCartesJoueurs = new HashMap<>();
         iconCartesTable = new LinkedList<>();
         valeurPot= new JLabel("",SwingConstants.CENTER);
+        valeurPot.setForeground(blanc);
         raiseSlider = new JSlider();
+        raiseSlider.setOpaque(false);
         valeurActuelleSlider = new JLabel("",SwingConstants.CENTER);
+        valeurActuelleSlider.setForeground(blanc);
         pannelSlider = new JPanel(new BorderLayout());
+        pannelSlider.setOpaque(false);
         pannelSlider.add(valeurActuelleSlider,BorderLayout.SOUTH);
         pannelSlider.add(raiseSlider,BorderLayout.CENTER);
         pannelBoutons.add(pannelSlider, BorderLayout.SOUTH);
         mettreAJourRaiseSlider();
 
         jeu.getJoueurs().getJoueurs().forEach(joueur ->
-            {cartesJoueurs.put(joueur,new JPanel(layoutCartes));
-            infosJoueur.put(joueur,new JLabel("",SwingConstants.CENTER));
-            coupsJoueur.put(joueur, new JLabel("", SwingConstants.CENTER));
-            panneauxJoueurs.put(joueur, new JPanel(new BorderLayout()));
-            iconCartesJoueurs.put(joueur, new LinkedList<>()); }
+            {
+                JPanel pcj = new JPanel(layoutCartes);
+                pcj.setOpaque(false);
+                cartesJoueurs.put(joueur, pcj);
+                JLabel ij = new JLabel("",SwingConstants.CENTER);
+                ij.setForeground(blanc);
+                infosJoueur.put(joueur,ij);
+                JLabel cj = new JLabel("", SwingConstants.CENTER);
+                cj.setForeground(jauneCoups);
+                coupsJoueur.put(joueur, cj);
+                JPanel pj = new JPanel(new BorderLayout());
+                pj.setOpaque(false);
+                panneauxJoueurs.put(joueur, pj);
+                iconCartesJoueurs.put(joueur, new LinkedList<>());
+            }
         );
         gbcPrincipal = new GridBagConstraints();
 
@@ -80,6 +112,7 @@ public class FenetreJeuV3 extends JFrame {
 
         gbcPrincipal = new GridBagConstraints();
         principal = new JPanel(new GridBagLayout());
+        principal.setBackground(noirFond);
 
         creerLayout();
 
@@ -96,15 +129,21 @@ public class FenetreJeuV3 extends JFrame {
         raiseSlider.removeAll();
         valeursSlider= new Hashtable<>();
         if(jeu.pariActuel==0){
+            JLabel min = new JLabel("10");
+            min.setForeground(blanc);
             raiseSlider.setMinimum(10);
-            valeursSlider.put(10,new JLabel("10"));
+            valeursSlider.put(10,min);
         }
         else {
+            JLabel min = new JLabel(""+raiseSlider.getMinimum());
+            min.setForeground(blanc);
             raiseSlider.setMinimum(jeu.pariActuel*2);
-            valeursSlider.put(jeu.pariActuel*2,new JLabel(""+raiseSlider.getMinimum()));
+            valeursSlider.put(jeu.pariActuel*2,min);
         }
         raiseSlider.setMaximum(jeu.getJoueurHumain().getArgent());
-        valeursSlider.put(raiseSlider.getMaximum(),new JLabel(""+raiseSlider.getMaximum()));
+        JLabel max = new JLabel(""+raiseSlider.getMaximum());
+        max.setForeground(blanc);
+        valeursSlider.put(raiseSlider.getMaximum(),max);
         raiseSlider.setLabelTable(valeursSlider);
         raiseSlider.setMinorTickSpacing(10);
         raiseSlider.setMajorTickSpacing(500);
@@ -167,7 +206,10 @@ public class FenetreJeuV3 extends JFrame {
             }
             else {
                 JPanel plusDArgent = new JPanel();
-                plusDArgent.add(new JLabel(j.nom+" || Hors jeu"));
+                plusDArgent.setOpaque(false);
+                JLabel hj = new JLabel(j.nom+" || Hors jeu");
+                hj.setForeground(rougeHorsJeu);
+                plusDArgent.add(hj);
                 panneauxJoueurs.get(j).add(plusDArgent);
             }
             current=current.prochainNode;
@@ -185,7 +227,10 @@ public class FenetreJeuV3 extends JFrame {
 
     public void mettreAJourInfosJoueur(Joueur j){
         coupsJoueur.get(j).setText(j.coup);
-        if(j.dealer) {
+        if(j.dealer && j.bigBlind) {
+            infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent()+" || Dealer - BB");
+        }
+        else if(j.dealer){
             infosJoueur.get(j).setText(j.nom + " || Argent: "+j.getArgent()+" || Dealer");
         }
         else if (j.bigBlind){
@@ -201,26 +246,37 @@ public class FenetreJeuV3 extends JFrame {
 
     public void creerHandGagnant(boolean tousFold, String descriptionPot){
         if(tousFold){
-            handGagnante.add(new JLabel(jeu.getDernierDansLaTournee().nom+" prend le pot.", SwingConstants.CENTER), BorderLayout.SOUTH);
+            JLabel tf = new JLabel(jeu.getDernierDansLaTournee().nom+" prend le pot.", SwingConstants.CENTER);
+            tf.setForeground(blanc);
+            handGagnante.add(tf, BorderLayout.CENTER);
         }
         else {
             assert !jeu.getJoueursGagnants().isEmpty() : "Liste de joueurs gagnants vide";
             StringBuilder infosHandGagnante = new StringBuilder();
             if (jeu.getJoueursGagnants().size() == 1) {
                 JPanel cartesHandGagnante = new JPanel(layoutCartes);
+                cartesHandGagnante.setOpaque(false);
                 Joueur gagnant = jeu.getJoueursGagnants().getFirst();
                 gagnant.getCartesHand().forEach(carte -> cartesHandGagnante.add(new JLabel(carte.icon)));
                 infosHandGagnante.append(gagnant.nom).append(" || ").append(gagnant.getHand().getDescription());
                 handGagnante.add(cartesHandGagnante, BorderLayout.NORTH);
-                handGagnante.add(new JLabel(infosHandGagnante.toString(), SwingConstants.CENTER), BorderLayout.CENTER);
-                handGagnante.add(new JLabel(descriptionPot, SwingConstants.CENTER), BorderLayout.SOUTH);
+                JLabel ihg = new JLabel(infosHandGagnante.toString(), SwingConstants.CENTER);
+                ihg.setForeground(blanc);
+                handGagnante.add(ihg, BorderLayout.CENTER);
+                JLabel dp = new JLabel(descriptionPot, SwingConstants.CENTER);
+                dp.setForeground(jauneCoups);
+                handGagnante.add(dp, BorderLayout.SOUTH);
             } else {
                 for (Joueur j : jeu.getJoueursGagnants()) {
                     infosHandGagnante.append(j.nom).append(" || ");
                 }
                 infosHandGagnante.append(jeu.getJoueursGagnants().getFirst().getHand().getDescription());
-                handGagnante.add(new JLabel(infosHandGagnante.toString()),BorderLayout.CENTER);
-                handGagnante.add(new JLabel(descriptionPot,SwingConstants.CENTER), BorderLayout.SOUTH);
+                JLabel ihg = new JLabel(infosHandGagnante.toString());
+                ihg.setForeground(blanc);
+                handGagnante.add(ihg,BorderLayout.CENTER);
+                JLabel dp = new JLabel(descriptionPot,SwingConstants.CENTER);
+                dp.setForeground(jauneCoups);
+                handGagnante.add(dp, BorderLayout.SOUTH);
             }
         }
 

@@ -26,7 +26,6 @@ public class Jeu extends Thread {
     protected int valeurBigBlind; //La valeur du big blind (2*valeurSmallBlind par définition)
     protected int pariActuel; //La valeur du pari actuel
     protected int potActuel; //Le pot actuel
-    private boolean smallBlindDansJeu; //Quand il n'y a que deux joueurs dans le jeu il n'y a pas de Small Blind, le boolean indique cette situation
     /*
     Le boolean potsSecondaires dans jeu indique qu'au moins un pot secondaire a été créé.
     Les pots secondaires sont crées lorsque un joueur n'a pas d'argent suffisant pour payer le pari,
@@ -194,7 +193,6 @@ public class Jeu extends Thread {
 
     public void prochaineTournee() throws Exception {
         fenetre.dispatchEvent(new WindowEvent(fenetre, WindowEvent.WINDOW_CLOSING));
-        smallBlindDansJeu = true;
         joueurs.getJoueurs().forEach(joueur -> {
             joueur.coup="";
             if(joueur.getArgent()<=10 && joueur.dealer){
@@ -222,9 +220,8 @@ public class Jeu extends Thread {
             ancienDealer.prochainNode.prochainNode.joueur.setRoleJeu(false, true, false, false);
             ancienDealer.prochainNode.prochainNode.prochainNode.joueur.setRoleJeu(false, false, true, false);
         } else if (joueursDansLaTournee.size() == 2) {
-            smallBlindDansJeu=false;
-            ancienDealer.prochainNode.joueur.setRoleJeu(true, false, false, true);
-            ancienDealer.joueur.setRoleJeu(false, false, true, false);
+            ancienDealer.prochainNode.joueur.setRoleJeu(true, false, true, true);
+            ancienDealer.joueur.setRoleJeu(false, true, false, false);
         }
         flop = false;
         turn = false;
@@ -247,9 +244,7 @@ public class Jeu extends Thread {
         Thread continuerTournee = new Thread(() -> {
             try {
                 joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
-                if(smallBlindDansJeu){
-                    joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
-                }
+                joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -273,17 +268,17 @@ public class Jeu extends Thread {
      */
     public void prochainJoueur() throws Exception {
         joueurActuel=joueurActuel.prochainNode;
-        if(joueurActuel.joueur.humain){
+        if (joueursDansLaTournee.size() == 1) {
+            tourneeFinie();
+        }
+        else if(joueurActuel.joueur.humain){
             if(joueurActuel.joueur.allIn){
                 joueurActuel.joueur.setAction(1,pariActuel,this);
             }
             else{
                 fenetre.afficherBoutons(true);
             }
-        }
-        if (joueursDansLaTournee.size() == 1) {
-            tourneeFinie();
-        } else if (!joueurActuel.joueur.humain) {
+        } else  {
             long waitTime = System.currentTimeMillis() + 1000;
             while (System.currentTimeMillis() != waitTime) {
             }
@@ -366,13 +361,13 @@ public class Jeu extends Thread {
     public void tourneeFinie(){
         //Cas où il ne reste qu'un joueur dans la tournée.
         StringBuilder descriptionPot = new StringBuilder();
-        joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
         if (joueursDansLaTournee.size()==1){
             fenetre.afficherHandGagnante(true, descriptionPot.toString());
             joueursDansLaTournee.getFirst().joueur.ajouterArgent(potActuel);
         }
         //Cas où tous les tours de paris sont dinis, on cherche le(s) gagnant(s).
         else {
+            joueursDansLaTournee.getJoueurs().forEach(joueur -> fenetre.montrerCartesJoueur(joueur));
             joueursGagnants = new LinkedList<>(trouverJoueursGagnants(joueursDansLaTournee.getJoueurs()));
             descriptionPot.append(" || ");
             if(potsSecondairesDansJeu && joueursGagnants.getFirst().valeurAllInIncomplet!=0){
@@ -594,8 +589,12 @@ public class Jeu extends Thread {
         }
 
         joueursEgaux.sort(Collections.reverseOrder());
-
-        return joueursEgaux.getFirst().getHand().getValeurHandApresRiver() > joueursEgaux.get(1).getHand().getValeurHandApresRiver();
+        if(joueursEgaux.size()>1) {
+            return joueursEgaux.getFirst().getHand().getValeurHandApresRiver() > joueursEgaux.get(1).getHand().getValeurHandApresRiver();
+        }
+        else {
+            return true;
+        }
     }
 
     /*
@@ -655,7 +654,7 @@ public class Jeu extends Thread {
      */
     private void creerListeNomsJoueursOrdinateurs(){
         nomsJoueursOrdinateurs = new LinkedList<>();
-        nomsJoueursOrdinateurs.add("Nicolas Stous");
+        nomsJoueursOrdinateurs.add("Nicolas Stouls");
         nomsJoueursOrdinateurs.add("Guy Atahanaze");
         nomsJoueursOrdinateurs.add("Adrien Petrov");
         nomsJoueursOrdinateurs.add("Valerie Kaftandjian");
