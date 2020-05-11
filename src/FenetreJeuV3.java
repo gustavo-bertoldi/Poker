@@ -201,7 +201,6 @@ public class FenetreJeuV3 extends JFrame {
         valeurPot.setText("Pot : "+jeu.potActuel+" || Pari : "+jeu.pariActuel);
     }
 
-
     public void creerPanneauxJoueurs(){
         Node current = jeu.getJoueurs().getNodeHumain();
         for (int i=0; i<6; i++){
@@ -275,7 +274,9 @@ public class FenetreJeuV3 extends JFrame {
 
     public void creerHandGagnant(boolean tousFold, String descriptionPot){
         if(tousFold){
-            handGagnante.add(new JLabel(jeu.getDernierDansLaTournee().nom+" prend le pot.", SwingConstants.CENTER), BorderLayout.SOUTH);
+            JLabel labelGagnant = new JLabel(jeu.getDernierDansLaTournee().nom+" prend le pot.", SwingConstants.CENTER);
+            labelGagnant.setForeground(new Color(208, 176, 50));;
+            handGagnante.add(labelGagnant, BorderLayout.SOUTH);
         }
         else {
             assert !jeu.getJoueursGagnants().isEmpty() : "Liste de joueurs gagnants vide";
@@ -287,8 +288,13 @@ public class FenetreJeuV3 extends JFrame {
                 gagnant.getCartesHand().forEach(carte -> cartesHandGagnante.add(new JLabel(carte.icon)));
                 infosHandGagnante.append(gagnant.nom).append(" || ").append(gagnant.getHand().getDescription());
                 handGagnante.add(cartesHandGagnante, BorderLayout.NORTH);
-                handGagnante.add(new JLabel(infosHandGagnante.toString(), SwingConstants.CENTER), BorderLayout.CENTER);
-                handGagnante.add(new JLabel(descriptionPot, SwingConstants.CENTER), BorderLayout.SOUTH);
+                JLabel labelGagnant = new JLabel(infosHandGagnante.toString(), SwingConstants.CENTER);
+                labelGagnant.setForeground(new Color(208, 176, 50));;
+                handGagnante.add(labelGagnant, BorderLayout.SOUTH);
+                handGagnante.add(labelGagnant, BorderLayout.CENTER);
+                JLabel descPot = new JLabel(descriptionPot, SwingConstants.CENTER);
+                descPot.setForeground(new Color(208, 176, 50));
+                handGagnante.add(descPot, BorderLayout.SOUTH);
             } else {
                 for (Joueur j : jeu.getJoueursGagnants()) {
                     infosHandGagnante.append(j.nom).append(" || ");
@@ -444,6 +450,7 @@ public class FenetreJeuV3 extends JFrame {
     public void setActionJoueurHumain(int action) throws Exception {
         jeu.getJoueurHumain().setActionJoueurHumain(action, jeu.pariActuel, jeu);
         afficherBoutons(false);
+
     }
 
     public void afficherBoutonProchaineTournee(){

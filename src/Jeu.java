@@ -245,16 +245,7 @@ public class Jeu extends Thread {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (!joueurActuel.joueur.humain) {
-                try {
-                    ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            else{
-                fenetre.afficherBoutons(true);
-            }});
+            });
 
         reconstruireFenetre.start();
         reconstruireFenetre.join();
@@ -283,6 +274,7 @@ public class Jeu extends Thread {
             }
             else{
                 fenetre.afficherBoutons(true);
+
             }
         }
 
@@ -293,14 +285,17 @@ public class Jeu extends Thread {
         if(moment!=0){
             joueurActuel = joueurs.getNodeDealer();
             dernierAParier = joueurActuel.joueur; // le dernier a parier est, par default, le dealer
-            //            joueurActuel.joueur.dernierAParier = true;
-            while(!dernierAParier.dansTourneeParis){
+
+            while(!dernierAParier.dansTourneeParis ){
+                System.out.println(" entree ");
                 if(joueursDansLaTournee.getNodeAnterieur(dernierAParier) == null){
                     break;
                 }
                 dernierAParier = joueursDansLaTournee.getNodeAnterieur(dernierAParier).joueur;
-
+               System.out.println(" sortie sans break");
             }
+            (dernierAParier).dernierAParier = true; //le joueur entre parentheses et l'attribut apres
+
             // à la sortie de la boucle, dernierAParier soit le dealer, soit le dernier joueur dans la tournee avant le dealer
 
         }else{
@@ -311,9 +306,10 @@ public class Jeu extends Thread {
          /*
             En partant du dealer, nous cherchons le premier joueur qui est dans la tournée, il sera le premier a jouer;
           */
-        while(!(joueurActuel.joueur.dansTourneeParis && joueurActuel.joueur.dansJeu)){
+        while(!(joueurActuel.joueur.dansTourneeParis)){
             joueurActuel = joueurActuel.prochainNode;
         }
+
         System.out.println("Commencer tour de paris \n        Dernier a parier =  " + dernierAParier.nom);
         System.out.println("       Joueur Actuel est  " + joueurActuel.joueur.nom);
     }
@@ -331,6 +327,7 @@ public class Jeu extends Thread {
         (joueursDansLaTournee.getNodeAnterieur(joueurAParie)).joueur.dernierAParier = true;
 
     }
+
     public void mettreAJourHands(){
         joueursDansLaTournee.getJoueurs().forEach(joueur -> {
             joueur.getHand().setHandMoment(moment);
@@ -498,6 +495,10 @@ public class Jeu extends Thread {
             }
             fenetre.afficherHandGagnante(false, descriptionPot.toString());
         }
+        long waitTime = System.currentTimeMillis() + 5000;
+        while(System.currentTimeMillis()<waitTime) {
+        }
+
         prochaineTournee();
     }
 
@@ -533,7 +534,6 @@ public class Jeu extends Thread {
         }
         System.out.println(potsSecondaires.toString());
     }
-
 
     /*
     Méthode pour finir le jeu, quand il ne reste qu'un joueur dans le jeu, ou bien quand le joueurs humain décide de
