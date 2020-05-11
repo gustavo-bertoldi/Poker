@@ -5,6 +5,7 @@ import java.util.*;
 public class Hand  implements Comparable{
 
     private LinkedList<Carte> surMain;
+    private LinkedList<Carte> surTable; // utilisée pour l'intelligence, qui doit distinguer si les cartes sont sur la main ou la table
     private LinkedList<Carte> apresFlop;
     private LinkedList<Carte> apresTurn;
     private LinkedList<Carte> apresRiver;
@@ -15,6 +16,7 @@ public class Hand  implements Comparable{
     private int valeurHandSurMain = -1;
     private int valeurHandApresFlop = -1;
     private int valeurHandApresTurn = -1;
+
     /*
     Idée derrière valeurHand:
     - Chaque hand aura une valeur correspondant aux cartes presentes, on pourra donc utilise Comparable/compareTo() et classer les hands sur jeu
@@ -43,6 +45,22 @@ public class Hand  implements Comparable{
         return surMain;
     }
 
+    public LinkedList<Carte> getSurTable(){
+        return surTable;
+    }
+
+    public LinkedList<Carte> getApresFlop() {
+        return apresFlop;
+    }
+
+    public LinkedList<Carte> getApresRiver() {
+        return apresRiver;
+    }
+
+    public LinkedList<Carte> getApresTurn() {
+        return apresTurn;
+    }
+
     public LinkedList<Carte> getCartesHand() {
         if (hand.isEmpty()) {
             calculerValeurHand(apresRiver);
@@ -61,6 +79,12 @@ public class Hand  implements Comparable{
         description+=aAjouter;
     }
 
+    public void definirSurMainEtSurTable(LinkedList<Carte> surMain, LinkedList<Carte> surTable){
+        this.surTable = new LinkedList<>();
+        this.surTable.addAll(surTable);
+        this.surMain = new LinkedList<>();
+        this.surMain.addAll(surMain);
+    }
 
     public void ajouterCarteKicker(Carte kicker){
         hand.add(kicker);
@@ -68,7 +92,7 @@ public class Hand  implements Comparable{
     }
 
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
-        surMain= new LinkedList<>();
+        definirSurMainEtSurTable(cartesSurMain, cartesTable);
         apresFlop = new LinkedList<>();
         apresTurn = new LinkedList<>();
         apresRiver = new LinkedList<>();
@@ -104,7 +128,6 @@ public class Hand  implements Comparable{
             return valeurHandApresRiver;
         }
     }
-
 
     public int getValeurHandSurMain() {
         if(valeurHandSurMain!=-1) {
@@ -189,7 +212,6 @@ public class Hand  implements Comparable{
         }
         else{return null;}
     }
-
 
     private LinkedList<Carte> fourOfAKind(LinkedList<Carte> cartes){
         LinkedList<Carte> fourOfAKind = new LinkedList<>();
@@ -426,7 +448,6 @@ public class Hand  implements Comparable{
         }
         return comparaison;
     }
-
 
     public void calculerValeurHand(LinkedList<Carte> cartesDeLaHand) {
         //Valeurs Han Sur Main

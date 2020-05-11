@@ -24,6 +24,7 @@ public class Jeu extends Thread {
     protected boolean flop; //True si les cartes du flop ont déjà été affichées (3 prmières de la table)
     protected boolean turn; //True si les cartes du turn ont déjà été affichées (4 prémières de la table)
     protected boolean river; //True si les cartes du river ont été déjà affichées (toutes les cartes sur table)
+    protected int moment;
     protected int valeurSmallBlind; //La valeur du small blind actuel
     protected int valeurBigBlind; //La valeur du big blind (2*valeurSmallBlind par définition)
     protected int pariActuel; //La valeur du pari actuel
@@ -78,12 +79,11 @@ public class Jeu extends Thread {
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
     public Jeu(String nomJoueurHumain) throws Exception {
-        //menu = new Menu(this);
-
+        lancerJeu("Gustavo");
     }
 
     public void lancerJeu(String nomJoueurHumain) throws Exception {
-        menu.closeMenu();
+
         creerListeNomsJoueursOrdinateurs();
         //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
         joueurs = new LinkedListCirculaire();

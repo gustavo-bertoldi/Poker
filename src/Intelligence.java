@@ -1,9 +1,70 @@
+import java.util.LinkedList;
+
 public class Intelligence{
+
     private int niveau;
+    private int momentJeu;
+
+    private boolean parieDerniereTournee;
+
+    private Hand hand;
     private Range range;
 
-    public Intelligence(){
+    private double limitePlayRandomly;
+    private double typeDecisionTournee;
 
+    /*              IDÉE DERRIERE LIMITE ET TYPEDECISION
+    La limitePlayRandomly est un seuil en dessous du quel le joueur prend ses decisions alléatoirement
+    cette limite est aussi grande que le niveau du joueur est petit
+    À la fin de chaque tournee, on définit le type de decision que le joueur va prendre lors de la prochaine tournee
+    si typeDecisionTournee < limitePlayRandomly, le joueur utilise l'intelligence alleatoire pour prendre ses decisions sinon,
+    il utilise celle qui correspond a son niveau;
+     */
+
+    public Intelligence(int niveau, Hand hand){
+        this.niveau = niveau;
+        this.hand = hand;
+        range = new Range(hand);
+        momentJeu = 0;
+        parieDerniereTournee = false;
+        if(niveau==0 ){
+            limitePlayRandomly = 1;
+        }else if(niveau == 1){
+            limitePlayRandomly = 0.4;
+        } else if(niveau == 2){
+            limitePlayRandomly = 0.13;
+        }
+    }
+
+    public void setRange(int moment){
+        LinkedList<Carte> cartesMiseAJour = new LinkedList<>();
+        if(moment == 0){
+            range.resetRange(hand);
+            cartesMiseAJour.addAll(hand.getSurMain());
+            range.mettreAJour(moment,cartesMiseAJour, hand.getValeurHandSurMain());
+        }else if(moment ==1){
+            cartesMiseAJour.addAll(hand.getApresFlop());
+            range.mettreAJour(moment, cartesMiseAJour, hand.getValeurHandApresFlop());
+        }else if(moment == 2){
+            cartesMiseAJour.addAll(hand.getApresTurn());
+            range.mettreAJour(moment, cartesMiseAJour, hand.getValeurHandApresTurn());
+        }else if(moment ==3){
+            cartesMiseAJour.addAll(hand.getApresRiver());
+            range.mettreAJour(moment, cartesMiseAJour, hand.getValeurHandApresRiver());
+        }
+
+    }
+
+    public void setParieDerniereTournee(boolean parie){
+        parieDerniereTournee = parie;
+    }
+    /*  Méthode à être appelée a chaque fin de tournee, pour determiner comment le joueur va jouer la prochaine tournee
+     */
+    public void setTypeDecisionTournee(){
+        typeDecisionTournee = Math.random();
+        if(parieDerniereTournee){
+            typeDecisionTournee = typeDecisionTournee*2;
+        }
     }
 
     public static int getDecision(Jeu jeu, Joueur joueur, int niveau){
@@ -13,10 +74,8 @@ public class Intelligence{
         else if(niveau==1){
             return intelligenceNiveau1(jeu,joueur);
         }
-        else if(niveau==2){
-            return intelligenceNiveau2(jeu,joueur);
-       } else{
-            return -2;
+        else {
+            return intelligenceNiveau2(jeu, joueur);
         }
     }
 
@@ -226,4 +285,13 @@ public class Intelligence{
 
         return decision;
     }
+    /*
+    Reset l'intelligence au bout d'une tournee
+     */
+    public void reset(){
+        setParieDerniereTournee(false);
+        setTypeDecisionTournee();
+    }
+    // si typeRange == k et le pari est petit, payer, sinon fold
+    // si typeRange == m,
 }
