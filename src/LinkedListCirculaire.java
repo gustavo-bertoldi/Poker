@@ -126,6 +126,8 @@ public class LinkedListCirculaire {
         return tete;
     }
 
+    public Node getLast(){return queue;}
+
     public Node getNodeBigBlind() throws Exception {
         return nodes.values().stream().filter(node -> node.joueur.bigBlind).findFirst()
                 .orElseThrow(()-> new Exception("Il n'y a pas de joueur big blind dans la liste"));

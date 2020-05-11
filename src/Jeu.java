@@ -94,10 +94,10 @@ public class Jeu extends Thread {
             joueurs.add(new Ordinateur(nomsJoueursOrdinateurs.get(a), 0));
             nomsJoueursOrdinateurs.remove(a);
         }
-        joueurs.getFirst().joueur.dealer = true;
-        joueurs.getFirst().prochainNode.joueur.smallBlind = true;
-        joueurs.getFirst().prochainNode.prochainNode.joueur.bigBlind = true;
-        joueurs.getFirst().prochainNode.prochainNode.prochainNode.joueur.playing = true;
+        joueurs.getFirst().prochainNode.prochainNode.prochainNode.joueur.dealer = true;
+        joueurs.getFirst().prochainNode.prochainNode.prochainNode.prochainNode.joueur.smallBlind = true;
+        joueurs.getFirst().prochainNode.prochainNode.prochainNode.prochainNode.prochainNode.joueur.bigBlind = true;
+        joueurs.getFirst().joueur.playing=true;
 
         joueurs.getJoueurs().forEach(j -> j.setArgent(3000)); //On distribue une quantité d'argent initiale à chaque joueur
         joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
@@ -128,12 +128,8 @@ public class Jeu extends Thread {
 
         joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
         joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
-        if (!joueurActuel.joueur.humain) {
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
-        }
+        fenetre.afficherBoutons(true);
+
     }
 
     public void setNiveau(int niveau) {
