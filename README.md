@@ -15,7 +15,7 @@ Importer les bibliothèques java suivantes :
 8.	java.io.*
 9.	java.nio.*
 
-Vérifier que toutes les classes et le fichier avec les images soient dans le même fichier.
+Vérifier que toutes les classes et le fichier contenant les images soient dans le même fichier.
 Compiler et exécuter la classe « Jeu »
 Devenez millionnaire avec POKERINSA.
 
