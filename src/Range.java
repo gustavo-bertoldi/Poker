@@ -53,6 +53,10 @@ public class Range {
         return oddsRaise;
     }
 
+    public LinkedList<Carte> getCartesVisibles() {
+        return cartesVisibles;
+    }
+
     public boolean isPaired(LinkedList<Carte> handMoment) {
         for (int i = 2; i <= 14; i++) {
             int q = 0;

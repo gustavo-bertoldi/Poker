@@ -13,6 +13,8 @@ public class Intelligence{
     protected Hand hand;
     private Range range;
 
+    private int valeurHandTable;
+
     private double limitePlayRandomly;
     private double typeDecisionTournee;
 
@@ -30,11 +32,11 @@ public class Intelligence{
         parieDerniereTournee = false;
         bets = new int[6];
         if(niveau==0 ){
-            limitePlayRandomly = 1;
+            limitePlayRandomly = 0.5;
         }else if(niveau == 1){
-            limitePlayRandomly = 0.4;
+            limitePlayRandomly = 0.3;
         } else if(niveau == 2){
-            limitePlayRandomly = 0.13;
+            limitePlayRandomly = 0.1;
         }
     }
 
@@ -96,17 +98,12 @@ public class Intelligence{
      */
     public void setTypeDecisionTournee(){
         typeDecisionTournee = Math.random();
-        if(parieDerniereTournee){
-            typeDecisionTournee = typeDecisionTournee*2;
-        }
     }
 
     public int getDecision(Jeu jeu, Joueur joueur, int niveau){
-        setRange(jeu.moment); //IMPLEMENTER MOMENTS DANS JEU
-        if(niveau==0 || typeDecisionTournee<limitePlayRandomly){
+        setRange(jeu.moment);
+        if(typeDecisionTournee<limitePlayRandomly){
             return decisionAleatoire(jeu,joueur);
-        } else if(niveau==1){
-            return decisionNiveau1(jeu,joueur);
         } else {
             return decisionNiveau2(jeu, joueur);
         }
@@ -115,17 +112,17 @@ public class Intelligence{
     private int decisionAleatoire(Jeu jeu, Joueur joueur){
         int decision;
         if(joueur.allIn){
-            decision=1;
+            decision=0;
         }
 
         else if((jeu.pariActuel-joueur.derniereValeurPariee)==0){
             int r = (int) (Math.random() * 30);
             if(r<=5){
-                int raiseRange = (int) (50 * Math.random());
+                int raiseRange = (int) (500 * Math.random());
                 int raise;
-                if (raiseRange <= 1) {
+                if (raiseRange <= 4) {
                     raise = joueur.getArgent();
-                } else if (raiseRange < 40) {
+                } else if (raiseRange/10.0 < 40) {
                     raise = 50;
                 } else {
                     raise = 100;
@@ -133,7 +130,7 @@ public class Intelligence{
                 decision=raise;
             }
             else{
-                decision=1;
+                decision=0;
             }
         }
 
@@ -159,6 +156,9 @@ public class Intelligence{
                     decision=1;
                 }
             }
+        }
+        if(!checkPossible && decision ==0){
+            decision =-1;
         }
         return decision;
     }
@@ -247,8 +247,25 @@ public class Intelligence{
     
     private int decisionNiveau2 (Jeu jeu, Joueur joueur){
       int decision = 0;
+      if(momentJeu>=1){
+          hand.calculerValeurTableVisible(range.getCartesVisibles());
+          valeurHandTable = hand.getValeurTable();
+      }
       if(range.getType()== 'm' || range.getType() =='r'){
           double gonnaBet = Math.random();
+          if(jeu.moment==1){
+              if(valeurHandTable>=hand.getValeurHandApresTurn()*1000){
+                  gonnaBet=gonnaBet+0.1;
+              }
+          }else if(jeu.moment==2){
+              if(valeurHandTable>=hand.getValeurHandApresTurn()*1000){
+                  gonnaBet=gonnaBet+0.15;
+              }
+          }else{
+              if(valeurHandTable>hand.getValeurHandApresRiver()){
+                  gonnaBet = gonnaBet+0.3;
+              }
+          }
           if(gonnaBet<range.oddsRaise){
               decision = deciderMontantPari();
           }else if(!checkPossible){

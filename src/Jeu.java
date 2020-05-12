@@ -204,9 +204,6 @@ public class Jeu extends Thread {
         });
     }
 
-    public void attribuerIntelligence(Joueur j){
-        j.inteligenciaCaralho();
-    }
     /*
     Cette méthode est utilisée quand un joueur a foldé, c'est-à-dire, il n'a pas payé le montant pour joueur et a
     couché ses cartes.
@@ -719,7 +716,7 @@ public class Jeu extends Thread {
 
     }
     public static void main(String[] args) throws Exception {
-        Jeu j = new Jeu("Gustavo");
+        Jeu j = new Jeu("Matheus");
 
     }
 }

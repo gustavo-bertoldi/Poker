@@ -16,6 +16,7 @@ public class Hand  implements Comparable{
     private int valeurHandSurMain = -1;
     private int valeurHandApresFlop = -1;
     private int valeurHandApresTurn = -1;
+    private int valeurTable = -1;
 
     /*
     Idée derrière valeurHand:
@@ -614,25 +615,61 @@ public class Hand  implements Comparable{
             }
         }
     }
+    public void calculerValeurTableVisible(LinkedList<Carte> cartesDeLaTable) {
+        LinkedList<Carte> result = new LinkedList<>();
+        if (royalStraightFlush(cartesDeLaTable)) {
+            result.addAll(flush(cartesDeLaTable));
+            valeurTable = 500000;
 
-    public static void main(String[] args){
-        LinkedList<Carte> cartes = new LinkedList<>();
-        LinkedList<Carte> main = new LinkedList<>();
-        main.add(new Carte(13,'c'));
-        main.add(new Carte(14,'t'));
-        cartes.add(new Carte(12,'c'));
-        cartes.add(new Carte(3,'d'));
-        cartes.add(new Carte(5,'p'));
-        cartes.add(new Carte(2,'t'));
-        cartes.add(new Carte(4,'t'));
-        Hand h = new Hand();
-        h.setHand(main,cartes);
-        System.out.println(h.getToutesCartes().toString());
-        if(h.straight(h.apresRiver)!=null) {
-            System.out.println(h.straight(h.apresRiver).toString());
+        } else if (straightFlush(cartesDeLaTable) != null) {
+            result.addAll(straightFlush(cartesDeLaTable));
+            valeurTable = 400000 + result.getFirst().valeur;
+
+        } else if (fourOfAKind(cartesDeLaTable) != null) {
+            result.addAll(fourOfAKind(cartesDeLaTable));
+            valeurTable = 300000 + result.getFirst().valeur;
+
+        } else if (fullHouse(cartesDeLaTable) != null) {
+            result.addAll(fullHouse(cartesDeLaTable));
+            valeurTable = 200000 + 10 * result.getFirst().valeur + result.getLast().valeur;
+
+        } else if (flush(cartesDeLaTable) != null) {
+            result.addAll(flush(cartesDeLaTable));
+            while (result.size() > 5) {
+                result.removeLast();
+            }
+            valeurTable = 10000 * result.getFirst().valeur + 1000 * result.get(1).valeur + 100 * result.get(2).valeur + 10 * result.get(3).valeur + result.get(4).valeur;
+
+        } else if (straight(cartesDeLaTable) != null) {
+            result.addAll(straight(cartesDeLaTable));
+            Collections.sort(result);
+
+            valeurTable = 15000 + result.getLast().valeur;
+
+        } else if (threeOfAKind(cartesDeLaTable) != null) {
+            result.addAll(threeOfAKind(cartesDeLaTable));
+            valeurTable = 1000 * result.getFirst().valeur;
+
+        } else if (pairs(cartesDeLaTable) != null) {
+
+            result.addAll(pairs(cartesDeLaTable));
+            if (result.size() == 2) {
+                valeurTable = 10 * result.getFirst().valeur;
+            } else if (result.size() == 4) {
+                valeurTable = 100 * result.getFirst().valeur + result.getLast().valeur;
+            }
+
+        } else {
+            result.add(highCard(cartesDeLaTable));
+            valeurTable = result.getFirst().valeur;
         }
+    }
 
+    public int getValeurTable() {
+        return valeurTable;
     }
 }
+
+
 
 

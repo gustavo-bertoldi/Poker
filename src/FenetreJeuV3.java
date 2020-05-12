@@ -16,7 +16,7 @@ public class FenetreJeuV3 extends JFrame {
     private HashMap<Joueur, LinkedList<ImageIcon>> iconCartesJoueurs;
     Hashtable<Integer, JLabel> valeursSlider;
     private Border raisedBevel, loweredBevel, compound;
-    private JButton call, raise, fold, restart, prochaineTournee;
+    private JButton check, call, raise, fold, restart, prochaineTournee;
     private JSlider raiseSlider;
     private JLabel valeurPot, valeurActuelleSlider;
     private LinkedList<ImageIcon> iconCartesTable;
@@ -90,14 +90,31 @@ public class FenetreJeuV3 extends JFrame {
         gbcPrincipal = new GridBagConstraints();
 
         //Initialisation des boutons et ajout du écouteur
-        prochaineTournee=new JButton("Prochaine tournee");
+        prochaineTournee=new JButton("Redistribuer Cartes");
+        prochaineTournee.setBackground(jauneCoups);
+        prochaineTournee.setBorder(raisedBevel);
+        prochaineTournee.setForeground(noirFond);
         prochaineTournee.addActionListener(new EcouteurV2(this,"ProchaineTournee"));
         prochaineTournee.setVisible(false);
+        check = new JButton("Check");
+        check.setBorder(raisedBevel);
+        check.setForeground(blanc);
+        check.setBackground(bordeauxTable);
+        check.addActionListener(new EcouteurV2(this, "Check"));
         call = new JButton("Call");
+        call.setBorder(raisedBevel);
+        call.setForeground(blanc);
+        call.setBackground(bordeauxTable);
         call.addActionListener(new EcouteurV2(this, "Call"));
         raise = new JButton("Raise "+2*jeu.pariActuel);
+        raise.setBackground(bordeauxTable);
+        raise.setBorder(raisedBevel);
+        raise.setForeground(blanc);
         raise.addActionListener(new EcouteurV2(this, "Raise"));
         fold = (new JButton("Fold"));
+        fold.setBackground(bordeauxTable);
+        fold.setBorder(raisedBevel);
+        fold.setForeground(blanc);
         fold.addActionListener(new EcouteurV2(this, "Fold"));
         pannelBoutons.add(call, BorderLayout.WEST);
         pannelBoutons.add(raise,BorderLayout.CENTER);
@@ -133,10 +150,10 @@ public class FenetreJeuV3 extends JFrame {
         raiseSlider.removeAll();
         valeursSlider= new Hashtable<>();
         if(jeu.pariActuel==0){
-            JLabel min = new JLabel("10");
+            JLabel min = new JLabel("20");
             min.setForeground(blanc);
-            raiseSlider.setMinimum(10);
-            valeursSlider.put(10,min);
+            raiseSlider.setMinimum(20);
+            valeursSlider.put(20,min);
         }
         else {
             JLabel min = new JLabel(""+raiseSlider.getMinimum());

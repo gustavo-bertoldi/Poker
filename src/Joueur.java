@@ -9,8 +9,11 @@ public class Joueur implements Comparable{
     protected String coup; //Dernier coup pour affichage dans la GUI. (Ex. Raise 200)
 
     protected boolean dealer; //True si le joueur est le dealer.
-    protected boolean bigBlind; //True si le joueur est le Big Blind.
     protected boolean smallBlind; //True si le joueur est le Small Blind.
+    protected boolean bigBlind; //True si le joueur est le Big Blind.
+    protected boolean underTheGun; // True si le joueur est juste après le BB
+    protected boolean hijack; // True si le joueur est après le UTG
+    protected boolean cutof; //True si le joueur est juste avant le dealer
     protected boolean playing; //True si le joueur est le joueur actuel.
     protected boolean humain; //True si le joueur est le joueur humain
     protected int niveauIntelligence; //Niveau d'intelligence
@@ -59,9 +62,6 @@ public class Joueur implements Comparable{
         if(intelligence.hand==null){
             intelligence.completerIntelligence(hand);
         }
-    }
-    public void inteligenciaCaralho(){
-
     }
     /*
     Utilisé lorsque le joueur est le Big Blind et doit payer son tour

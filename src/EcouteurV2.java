@@ -29,6 +29,12 @@ public class EcouteurV2 implements ActionListener {
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
+        }else if(fun == "Check"){
+            try {
+                fenetre.setActionJoueurHumain(0);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
         }
         else if(fun == "ProchaineTournee"){
             try {
@@ -40,7 +46,7 @@ public class EcouteurV2 implements ActionListener {
         else if(fun == "Fold"){
             fenetre.foldJoueurHumain();
             try {
-                fenetre.setActionJoueurHumain(0);
+                fenetre.setActionJoueurHumain(-1);
             } catch (Exception exception) {
                 exception.printStackTrace();
             }
