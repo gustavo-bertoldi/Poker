@@ -16,7 +16,7 @@ Importer les bibliothèques java suivantes :
 9.	java.nio.*
 
 Vérifier que toutes les classes et le fichier contenant les images soient dans le même fichier.
-Éxécuter le Poker (JAR).
+Éxécuter "Poker" (JAR).
 Devenez millionnaire avec POKERINSA.
 
 Mode d’emploi:
