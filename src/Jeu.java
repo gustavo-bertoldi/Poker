@@ -24,7 +24,7 @@ public class Jeu extends Thread {
     protected boolean flop; //True si les cartes du flop ont déjà été affichées (3 prmières de la table)
     protected boolean turn; //True si les cartes du turn ont déjà été affichées (4 prémières de la table)
     protected boolean river; //True si les cartes du river ont été déjà affichées (toutes les cartes sur table)
-    protected int moment;
+    protected int moment; // PreFlop = 0, PreTurn = 1, PreRiver = 2, PostRiver = 3
     protected int valeurSmallBlind; //La valeur du small blind actuel
     protected int valeurBigBlind; //La valeur du big blind (2*valeurSmallBlind par définition)
     protected int pariActuel; //La valeur du pari actuel
@@ -87,13 +87,20 @@ public class Jeu extends Thread {
         creerListeNomsJoueursOrdinateurs();
         //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
         joueurs = new LinkedListCirculaire();
-        joueurs.add(new Joueur(nomJoueurHumain, true));
+        joueurs.add(new Joueur(nomJoueurHumain, true, 2));
         for (int i = 0; i < 5; i++) {
             //Création des joueurs ordinateurs qui prennent un nom aléatoire de la liste nomsJoueursOrdinateurs
             int a = (int) (Math.random() * nomsJoueursOrdinateurs.size());
-            joueurs.add(new Ordinateur(nomsJoueursOrdinateurs.get(a), 0));
+            joueurs.add(new Joueur(nomsJoueursOrdinateurs.get(a), false, 0));
             nomsJoueursOrdinateurs.remove(a);
         }
+
+
+        paquet = new Paquet();
+        cartesTable = new LinkedList<>();
+        distribuerCartes();
+
+
         joueurs.getFirst().joueur.dealer = true;
         joueurs.getFirst().prochainNode.joueur.smallBlind = true;
         joueurs.getFirst().prochainNode.prochainNode.joueur.bigBlind = true;
@@ -113,15 +120,15 @@ public class Jeu extends Thread {
         flop = false;
         turn = false;
         river = false;
+        moment = 0;
         potsSecondairesDansJeu=false;
         dernierAParier = joueursDansLaTournee.getNodeBigBlind().joueur;
         joueurActuel = joueursDansLaTournee.getNodePlaying();
         potsSecondaires = new LinkedHashMap<>();
         nJueursQuiOntPayeLeTour=0;
 
-        paquet = new Paquet();
-        cartesTable = new LinkedList<>();
-        distribuerCartes();
+
+
 
         //Initialisation de l'interface graphique
         fenetre = new FenetreJeuV3(this);
@@ -129,11 +136,20 @@ public class Jeu extends Thread {
         joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
         joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
         if (!joueurActuel.joueur.humain) {
+
             long waitTime = System.currentTimeMillis() + 3000;
             while (System.currentTimeMillis() != waitTime) {
             }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+            (joueurActuel.joueur).setAction(-1, pariActuel, this);
+            //initialiserIntelligencesJoueurs();
         }
+    }
+
+    public void initialiserIntelligencesJoueurs(){
+        Node current  = joueurs.tete.prochainNode;
+        current.joueur.completerIntelligence();
+
+
     }
 
     public void setNiveau(int niveau) {
@@ -155,12 +171,11 @@ public class Jeu extends Thread {
     public LinkedList<ImageIcon> getIconCartesTable() {
         return iconCartesTable;
     }
-
-
     /*
   Distribution des 2 cartes sur la main de chaque joueur, de manière aléatoire
    */
-    private void distribuerCartes() {
+    private void distribuerCartes() throws InterruptedException {
+
         //On distribue 5 cartes de la table de manière aléatoire à la table
         iconCartesTable = new LinkedList<>();
         for (int i = 0; i < 5; i++) {
@@ -170,6 +185,7 @@ public class Jeu extends Thread {
             iconCartesTable.add(c.icon);
             paquet.remove(c);
         }
+
 
         //On prend deux cartes aléatoires du paquet et les distribue à chaque joueur
         joueurs.getJoueurs().forEach(Joueur -> {
@@ -182,10 +198,15 @@ public class Jeu extends Thread {
             c = paquet.get(r);
             cartesJoueur.add(c);
             paquet.remove(c);
-            Joueur.setHand(cartesJoueur,cartesTable);
+            Hand h = new Hand();
+            h.definirSurMainEtSurTable(cartesJoueur, cartesTable);
+            Joueur.setHand(h);
         });
     }
 
+    public void attribuerIntelligence(Joueur j){
+        j.inteligenciaCaralho();
+    }
     /*
     Cette méthode est utilisée quand un joueur a foldé, c'est-à-dire, il n'a pas payé le montant pour joueur et a
     couché ses cartes.
@@ -212,6 +233,7 @@ public class Jeu extends Thread {
             else if(joueur.getArgent()<=10){
                 joueur.dansJeu=false;
             }
+            joueur.resetIntelligence();
         });
         LinkedList<Joueur> joueursDansJeu = joueurs.getJoueurs();
         if (joueursDansJeu.size()==1){
@@ -261,7 +283,7 @@ public class Jeu extends Thread {
             }
             if (!joueurActuel.joueur.humain) {
                 try {
-                    ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+                    (joueurActuel.joueur).jouer(pariActuel, this);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -279,6 +301,7 @@ public class Jeu extends Thread {
      */
     public void prochainJoueur() throws Exception {
         joueurActuel=joueurActuel.prochainNode;
+
         if (joueursDansLaTournee.size() == 1) {
             tourneeFinie();
         }
@@ -290,10 +313,11 @@ public class Jeu extends Thread {
                 fenetre.afficherBoutons(true);
             }
         } else  {
+            joueurActuel.joueur.intelligence.setBets(pariActuel,potActuel);
             long waitTime = System.currentTimeMillis() + 1000;
             while (System.currentTimeMillis() != waitTime) {
             }
-            ((Ordinateur) joueurActuel.joueur).jouer(pariActuel, this);
+            (joueurActuel.joueur).jouer(pariActuel, this);
         }
     }
 
@@ -306,6 +330,7 @@ public class Jeu extends Thread {
     public void tourDeParisFini() throws Exception {
         AtomicBoolean tousAllIn= new AtomicBoolean(true);
         joueursDansLaTournee.getJoueurs().forEach(joueur -> {
+            joueur.intelligence.setBets(valeurBigBlind, potActuel);
             joueur.derniereValeurPariee=0;
             if(!joueur.allIn){
                 tousAllIn.set(false);
@@ -322,6 +347,7 @@ public class Jeu extends Thread {
             nJueursQuiOntPayeLeTour = 0;
             if (!flop) {
                 flop = true;
+                moment = 1;
                 pariActuel = 0;
                 potAvantFlop=potActuel;
                 fenetre.flop();
@@ -336,6 +362,7 @@ public class Jeu extends Thread {
                 prochainJoueur();
             } else if (!turn) {
                 turn = true;
+                moment = 2;
                 pariActuel = 0;
                 potAvantTurn=potActuel;
                 fenetre.turn();
@@ -348,6 +375,7 @@ public class Jeu extends Thread {
                 prochainJoueur();
             } else if (!river) {
                 river = true;
+                moment = 3;
                 pariActuel = 0;
                 potAvantRiver=potActuel;
                 fenetre.river();
@@ -372,6 +400,7 @@ public class Jeu extends Thread {
     public void tourneeFinie(){
         //Cas où il ne reste qu'un joueur dans la tournée.
         StringBuilder descriptionPot = new StringBuilder();
+        moment = 0;
         if (joueursDansLaTournee.size()==1){
             fenetre.afficherHandGagnante(true, descriptionPot.toString());
             joueursDansLaTournee.getFirst().joueur.ajouterArgent(potActuel);
@@ -477,8 +506,6 @@ public class Jeu extends Thread {
         }
         System.out.println(potsSecondaires.toString());
     }
-
-
     /*
     Méthode pour finir le jeu, quand il ne reste qu'un joueur dans le jeu, ou bien quand le joueurs humain décide de
     sortir du joueurs. La méthode doit enregistrer le score du joueur, bien comme le temps de jeu et la date.

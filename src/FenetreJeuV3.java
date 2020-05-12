@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 public class FenetreJeuV3 extends JFrame {
 
-    private final ImageIcon carteTournee, espaceCarteTable, espaceCarteJoueur;
+    private final ImageIcon carteTournee, espaceCarteTable;
     private JPanel table, pannelBoutons,cartesTable, pannelSlider, principal, handGagnante;
     private HashMap<Joueur, JPanel> panneauxJoueurs, cartesJoueurs;
     private HashMap<Joueur, JLabel> infosJoueur, coupsJoueur;
@@ -109,9 +109,9 @@ public class FenetreJeuV3 extends JFrame {
         //Création de l'icone de la carte tournée
         carteTournee = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/back.png")));
         //Création de l'espace de la carte sur la table
-        espaceCarteTable = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/espace_carte.jpg")));
+        espaceCarteTable = Carte.redimensioner(84, 112, new ImageIcon(getClass().getResource("res/espace_carte_table.jpg")));
         //Création de l'espace de la carte sur la main du joueur
-        espaceCarteJoueur = Carte.redimensioner(84,112, new ImageIcon(getClass().getResource("res/espace_carte_joueur.jpg")));
+        //espaceCarteJoueur = Carte.redimensioner(84,112, new ImageIcon(getClass().getResource("res/espace_carte_joueur.jpg")));
 
 
         gbcPrincipal = new GridBagConstraints();
@@ -379,8 +379,8 @@ public class FenetreJeuV3 extends JFrame {
 
     public void foldJoueurHumain(){
         cartesJoueurs.get(jeu.getJoueurHumain()).removeAll();
-        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(espaceCarteJoueur));
-        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(espaceCarteJoueur));
+        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(carteTournee));
+        cartesJoueurs.get(jeu.getJoueurHumain()).add(new JLabel(carteTournee));
     }
 
     public void flop(){

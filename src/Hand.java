@@ -84,6 +84,7 @@ public class Hand  implements Comparable{
         this.surTable.addAll(surTable);
         this.surMain = new LinkedList<>();
         this.surMain.addAll(surMain);
+        setHand(surMain, surTable);
     }
 
     public void ajouterCarteKicker(Carte kicker){
@@ -92,7 +93,6 @@ public class Hand  implements Comparable{
     }
 
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesTable){
-        definirSurMainEtSurTable(cartesSurMain, cartesTable);
         apresFlop = new LinkedList<>();
         apresTurn = new LinkedList<>();
         apresRiver = new LinkedList<>();
@@ -102,7 +102,6 @@ public class Hand  implements Comparable{
         valeurHandApresTurn = -1;
         valeurHandApresRiver = -1;
         Collections.sort(cartesSurMain,Collections.reverseOrder());
-        this.surMain = cartesSurMain;
         //On définit la liste de cartes après flop étant les 2 sur main + les 3 premières de la table.
         this.apresFlop.addAll(cartesSurMain);
         this.apresFlop.add(cartesTable.getFirst());

@@ -119,7 +119,5 @@ public class Menu extends JFrame {
         principal.add(start, BorderLayout.SOUTH);
 
     }
-    public static void main (String [] a){
-        Menu m = new Menu();
-    }
+
 }

@@ -3,7 +3,7 @@ import java.util.LinkedList;
 public class Joueur implements Comparable{
 
     private Hand hand= new Hand();
-    private Intelligence intelligence;
+    protected Intelligence intelligence;
     protected String nom; //Nom du joueur.
     private int argent; //Quantité d'argent.
     protected String coup; //Dernier coup pour affichage dans la GUI. (Ex. Raise 200)
@@ -13,6 +13,7 @@ public class Joueur implements Comparable{
     protected boolean smallBlind; //True si le joueur est le Small Blind.
     protected boolean playing; //True si le joueur est le joueur actuel.
     protected boolean humain; //True si le joueur est le joueur humain
+    protected int niveauIntelligence; //Niveau d'intelligence
 
     protected int derniereValeurPariee; //Dernière valeur pariée par le joueur. Utilisé quand le joueur doit compléter le pari de quelqu'un.
     protected boolean dansJeu; //True si le joueur est dans le jeu (N'a pas perdu).
@@ -20,7 +21,7 @@ public class Joueur implements Comparable{
     protected int valeurAllInIncomplet; //True si le joueur a accepté un pari plus grande que sa quantité d'argent et a parié tout son argent.
     protected boolean potsDejaCompletes; //True si le calcul du pot secondaire du joueur est fini.
 
-    public Joueur(String nom, boolean humain){
+    public Joueur(String nom, boolean humain, int niveau){
         this.nom=nom;
         this.argent=0;
         this.dealer=false;
@@ -33,6 +34,8 @@ public class Joueur implements Comparable{
         this.allIn=false;
         this.valeurAllInIncomplet=0;
         this.potsDejaCompletes = false;
+        this.niveauIntelligence = niveau;
+        this.intelligence = new Intelligence(niveau);
     }
     /*
     Retourne la hand actuelle du joueur en forme de ll de cartes
@@ -47,6 +50,18 @@ public class Joueur implements Comparable{
      */
     public void setHand(LinkedList<Carte> cartesSurMain, LinkedList<Carte> cartesSurTable){
         hand.setHand(cartesSurMain,cartesSurTable);
+        if(intelligence.hand==null){
+            intelligence.completerIntelligence(hand);
+        }
+    }
+    public void setHand(Hand h){
+        hand = h;
+        if(intelligence.hand==null){
+            intelligence.completerIntelligence(hand);
+        }
+    }
+    public void inteligenciaCaralho(){
+
     }
     /*
     Utilisé lorsque le joueur est le Big Blind et doit payer son tour
@@ -71,6 +86,10 @@ public class Joueur implements Comparable{
         derniereValeurPariee=smallBlind;
         jeu.potActuel=jeu.potActuel+smallBlind;
         jeu.fenetre.mettreAJourInfosJoueur(this);
+    }
+    public void jouer(int pariActuel, Jeu jeu) throws Exception {
+        //Cas de l'intelligence aléatoire
+        setAction(intelligence.getDecision(jeu,this, niveauIntelligence), pariActuel,jeu);
     }
     /*
     Définit l'action du joueur, entre coucher ses cartes et sortir de la tournée, accepter le pari actuel ou augmenter
@@ -110,16 +129,15 @@ public class Joueur implements Comparable{
         }
         else {
             //Cas joueur a couché ses cartes et ne participe plus
-            if (action == 0) {
+            if (action < 0) {
                 coup = "Fold";
                 jeu.fenetre.enleverCartesJoueur(this);
                 jeu.sortirDeLaTournee(this);
             }
             //Cas joueur a payé le pari
-            else if (action == 1) {
-                if (valeurPari == 0 || valeurPari == derniereValeurPariee) {
+            else if (action == 0) {
                     coup = "Check";
-                } else {
+            } else if(action==1) {
                     //Cas où la valeur de pari est supérieure à l'argent du joueur - All in pour jouer
                     if (valeurPari >= (argent + derniereValeurPariee)) {
                         valeurAllInIncomplet = argent + derniereValeurPariee;
@@ -141,7 +159,6 @@ public class Joueur implements Comparable{
                         jeu.potActuel = jeu.potActuel + (valeurPari - derniereValeurPariee);
                         derniereValeurPariee = valeurPari;
                     }
-                }
             }
             //Cas joueur a augmenté le pari
             else {
@@ -219,10 +236,20 @@ public class Joueur implements Comparable{
         this.valeurAllInIncomplet=0;
     }
     /*
+    À appeler dès que les joueurs auront leurs premieres hands
+     */
+    public void completerIntelligence(){
+        intelligence.completerIntelligence(hand);
+    }
+    /*
     Reset l'intelligence au bout d'une tournee
      */
     public void resetIntelligence(){
         intelligence.reset();
+    }
+
+    public Intelligence getIntelligence(){
+        return intelligence;
     }
     /*
     Retourne une liste avec les cartes sur la main de joueur.
@@ -239,7 +266,6 @@ public class Joueur implements Comparable{
     @param int q - quantité à parier
      */
     public void parier(int q){
-        intelligence.setParieDerniereTournee(true);
         if(q>=argent) {
             q=argent;
             allIn=true;

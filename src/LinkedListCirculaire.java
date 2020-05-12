@@ -175,7 +175,7 @@ public class LinkedListCirculaire {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+   /* public static void main(String[] args) throws Exception {
         LinkedList<Joueur> cl = new LinkedList<>();
         Joueur almir = new Joueur("almir",true);
         Ordinateur gus = new Ordinateur("gus",0);
@@ -201,6 +201,6 @@ public class LinkedListCirculaire {
         circ.toString();
         circ.remove(almir);
         circ.toString();
-    }
+    }*/
 
 }

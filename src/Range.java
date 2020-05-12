@@ -12,12 +12,11 @@ public class Range {
     private LinkedList<Carte> cartesSurTable;
     private LinkedList<Carte> cartesVisibles;
 
-    private Hand hand;
     private int valeurHandMoment;
 
     private char type;
 
-    private double oddsRaise;
+    protected double oddsRaise;
     /*   Types -> doit être calculé à chaque fin de tourneeDeParis
     Monster = 'm'
     Raise = 'r'
@@ -25,21 +24,22 @@ public class Range {
     Call/fold = 'f'
      */
 
-    public Range(Hand hand){
-        this.hand = hand;
-        valeurCarteMain1 = hand.getSurMain().getFirst().valeur;
-        valeurCarteMain2 = hand.getSurMain().get(1).valeur;
-        setCartesSurTable(hand.getSurTable());
+    public Range(LinkedList<Carte> surMain, LinkedList<Carte> surTable){
+        cartesSurTable = new LinkedList<>();
+        valeurCarteMain1 = surMain.getFirst().valeur;
+        valeurCarteMain2 = surMain.get(1).valeur;
+
+        setCartesSurTable(surTable);
         cartesVisibles = new LinkedList<>();
         type = 'f';
     }
     /*
     Methode a etre appellee a chaque fin de tournee
      */
-    public void resetRange(Hand hand){
-        valeurCarteMain1 = hand.getSurMain().getFirst().valeur;
-        valeurCarteMain2 = hand.getSurMain().get(1).valeur;
-        setCartesSurTable(hand.getSurTable());
+    public void resetRange(LinkedList<Carte> surMain, LinkedList<Carte> surTable){
+        valeurCarteMain1 = surMain.getFirst().valeur;
+        valeurCarteMain2 = surMain.get(1).valeur;
+        setCartesSurTable(surTable);
         valeurHandMoment = 0;
         cartesVisibles = new LinkedList<>();
         type = 'f';
