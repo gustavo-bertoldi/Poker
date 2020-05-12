@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Jeu extends Thread {
-    private Menu menu;
     /*
     Attribut de base pour la création du jeu
      */
@@ -16,7 +15,6 @@ public class Jeu extends Thread {
     private LinkedList<Carte> cartesTable; //Liste des cartes qui sont sur la table.
     private LinkedList<ImageIcon> iconCartesTable; //Liste des icons des cartes qui sont sur la table, utilisée par la GUI.
     private LinkedList<String> nomsJoueursOrdinateurs; //Liste avec les possibles noms à être attribués aux joueurs ordinateurs.
-    private int niveau;
     protected FenetreJeuV3 fenetre; //La fenêtre qui contient les éléments principaux de la GUI.
     /*
     Attributs pour assures le déroulement du jeu
@@ -78,11 +76,8 @@ public class Jeu extends Thread {
 
     Il change aussi l'icon des cartes du joueur pour q'elles soient affichées dans l'interface graphique
      */
-    public Jeu(String nomJoueurHumain) throws Exception {
-        lancerJeu("Gustavo");
-    }
 
-    public void lancerJeu(String nomJoueurHumain) throws Exception {
+    public Jeu(String nomJoueurHumain, int niveau) throws Exception {
 
         creerListeNomsJoueursOrdinateurs();
         //Création des Joueurs et définition des attributs dealer, small blind, big blind et playing pour la première tournée
@@ -91,7 +86,15 @@ public class Jeu extends Thread {
         for (int i = 0; i < 5; i++) {
             //Création des joueurs ordinateurs qui prennent un nom aléatoire de la liste nomsJoueursOrdinateurs
             int a = (int) (Math.random() * nomsJoueursOrdinateurs.size());
-            joueurs.add(new Joueur(nomsJoueursOrdinateurs.get(a), false, 0));
+            if(niveau == 2){
+                joueurs.add(new Joueur(nomsJoueursOrdinateurs.get(a), false, 2));
+            }
+            else if (niveau == 1){
+                joueurs.add(new Joueur(nomsJoueursOrdinateurs.get(a), false, 1));
+            }
+            else {
+                joueurs.add(new Joueur(nomsJoueursOrdinateurs.get(a), false, 0));
+            }
             nomsJoueursOrdinateurs.remove(a);
         }
 
@@ -101,10 +104,10 @@ public class Jeu extends Thread {
         distribuerCartes();
 
 
-        joueurs.getFirst().joueur.dealer = true;
-        joueurs.getFirst().prochainNode.joueur.smallBlind = true;
-        joueurs.getFirst().prochainNode.prochainNode.joueur.bigBlind = true;
-        joueurs.getFirst().prochainNode.prochainNode.prochainNode.joueur.playing = true;
+        joueurs.getFirst().joueur.playing = true;
+        joueurs.getFirst().prochainNode.prochainNode.prochainNode.joueur.dealer = true;
+        joueurs.getFirst().prochainNode.prochainNode.prochainNode.prochainNode.joueur.smallBlind = true;
+        joueurs.getFirst().prochainNode.prochainNode.prochainNode.prochainNode.prochainNode.joueur.bigBlind = true;
 
         joueurs.getJoueurs().forEach(j -> j.setArgent(3000)); //On distribue une quantité d'argent initiale à chaque joueur
         joueursDansLaTournee = new LinkedListCirculaire(joueurs.getJoueurs());
@@ -135,25 +138,7 @@ public class Jeu extends Thread {
 
         joueursDansLaTournee.getNodeBigBlind().joueur.payerBigBlind(this);
         joueursDansLaTournee.getNodeSmallBlind().joueur.payerSmallBlind(this);
-        if (!joueurActuel.joueur.humain) {
-
-            long waitTime = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() != waitTime) {
-            }
-            (joueurActuel.joueur).setAction(-1, pariActuel, this);
-            //initialiserIntelligencesJoueurs();
-        }
-    }
-
-    public void initialiserIntelligencesJoueurs(){
-        Node current  = joueurs.tete.prochainNode;
-        current.joueur.completerIntelligence();
-
-
-    }
-
-    public void setNiveau(int niveau) {
-        this.niveau = niveau;
+        fenetre.afficherBoutons(true);
     }
 
     public LinkedList<? extends Joueur> getJoueursGagnants() {
@@ -713,10 +698,6 @@ public class Jeu extends Thread {
         nomsJoueursOrdinateurs.add("Laurence Barret");
         nomsJoueursOrdinateurs.add("Vincent Condat");
         nomsJoueursOrdinateurs.add("Eveline Manna");
-
-    }
-    public static void main(String[] args) throws Exception {
-        Jeu j = new Jeu("Matheus");
 
     }
 }

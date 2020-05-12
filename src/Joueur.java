@@ -154,7 +154,12 @@ public class Joueur implements Comparable{
                         if (jeu.potsSecondairesDansJeu) {
                             jeu.completerPotsSecondaires(valeurPari);
                         }
-                        coup = "Call " + (valeurPari - derniereValeurPariee);
+                        if(valeurPari==0 || derniereValeurPariee==valeurPari){
+                            coup = "Check";
+                        }
+                        else {
+                            coup = "Call " + (valeurPari - derniereValeurPariee);
+                        }
                         parier(valeurPari - derniereValeurPariee);
                         jeu.potActuel = jeu.potActuel + (valeurPari - derniereValeurPariee);
                         derniereValeurPariee = valeurPari;

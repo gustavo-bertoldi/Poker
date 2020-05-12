@@ -142,7 +142,7 @@ public class MenuDifficulte extends javax.swing.JFrame {
 
     private void labelDifficileMouseClicked(java.awt.event.MouseEvent evt) throws Exception {//GEN-FIRST:event_labelDifficileMouseClicked
         this.dispose();
-        new Jeu(nomJoueur);
+        new Jeu(nomJoueur,2);
     }//GEN-LAST:event_labelDifficileMouseClicked
 
     private void labelDifficileMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelDifficileMouseExited
@@ -151,12 +151,12 @@ public class MenuDifficulte extends javax.swing.JFrame {
 
     private void labelFacileMouseClicked(java.awt.event.MouseEvent evt) throws Exception {//GEN-FIRST:event_labelFacileMouseClicked
         this.dispose();
-        new Jeu(nomJoueur);
+        new Jeu(nomJoueur,0);
     }//GEN-LAST:event_labelFacileMouseClicked
 
     private void labelMoyenMouseClicked(java.awt.event.MouseEvent evt) throws Exception {//GEN-FIRST:event_labelMoyenMouseClicked
         this.dispose();
-        new Jeu(nomJoueur);
+        new Jeu(nomJoueur,1);
     }//GEN-LAST:event_labelMoyenMouseClicked
 
 

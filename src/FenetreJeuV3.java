@@ -16,7 +16,7 @@ public class FenetreJeuV3 extends JFrame {
     private HashMap<Joueur, LinkedList<ImageIcon>> iconCartesJoueurs;
     Hashtable<Integer, JLabel> valeursSlider;
     private Border raisedBevel, loweredBevel, compound;
-    private JButton check, call, raise, fold, restart, prochaineTournee;
+    private JButton check, call, raise, fold, prochaineTournee;
     private JSlider raiseSlider;
     private JLabel valeurPot, valeurActuelleSlider;
     private LinkedList<ImageIcon> iconCartesTable;
@@ -93,7 +93,7 @@ public class FenetreJeuV3 extends JFrame {
         prochaineTournee=new JButton("Redistribuer Cartes");
         prochaineTournee.setBackground(jauneCoups);
         prochaineTournee.setBorder(raisedBevel);
-        prochaineTournee.setForeground(noirFond);
+        prochaineTournee.setForeground(blanc);
         prochaineTournee.addActionListener(new EcouteurV2(this,"ProchaineTournee"));
         prochaineTournee.setVisible(false);
         check = new JButton("Check");

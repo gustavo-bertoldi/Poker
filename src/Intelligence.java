@@ -43,7 +43,6 @@ public class Intelligence{
     public void completerIntelligence(Hand hand){
         this.hand = hand;
         range = new Range(hand.getSurMain(), hand.getSurTable());
-        System.out.println(hand);
     }
     public void setRange(int moment){
         if(range==null){
@@ -51,9 +50,6 @@ public class Intelligence{
         }
         LinkedList<Carte> cartesMiseAJour = new LinkedList<>();
         if(moment == 0){
-            if(hand==null){
-                System.out.println("DESGRAÇA");
-            }
             range.resetRange(hand.getSurMain(), hand.getSurTable());
             cartesMiseAJour.addAll(hand.getSurMain());
             range.mettreAJour(moment,cartesMiseAJour, hand.getValeurHandSurMain());
