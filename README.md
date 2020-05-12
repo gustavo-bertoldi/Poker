@@ -17,13 +17,13 @@ Importer les bibliothèques java suivantes :
 
 Vérifier que toutes les classes et le fichier avec les images soient dans le même fichier.
 Compiler et exécuter la classe « Jeu »
-Deventer millionnaire avec POKERINSA
+Devenez millionnaire avec POKERINSA.
 
 Mode d’emploi:
 
 
 Une fois le jeu lancé, saisir votre nom et choisir la difficulté, puis affronter les plus grands maitres du poker que le monde n’a jamais vu.
-Vos cartes apparaitront devant vous, ainsi que les cartes des autres joueurs.
+Vos cartes apparaitront devant vous, ainsi que les cartes (non tournées) des autres joueurs.
 Une zone en bas à droite sera dédiée à vos possibilités de jeu : call, raise, fold. 
 La barre permettra d’ajuster votre raise à la somme voulue. 
 Il ne manque plus que vous pour devenir un vrai POKERMASTER.
